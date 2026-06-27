@@ -566,12 +566,11 @@ body {
     position: absolute; 
     width: 100%; 
     text-align: center; 
-    font-size: 0.85rem; 
+    font-size: 0.65rem; 
     font-weight: 700; 
     color: var(--text-primary); 
     z-index: 3; 
     pointer-events: none;
-    /* ใช้เงาตัวอักษรแบบกลืนกับสีพื้นหลังของแต่ละโหมดเพื่อให้อ่านง่าย */
     text-shadow: 0 1px 2px var(--bg-container); 
 }
 
@@ -1206,12 +1205,11 @@ footer hr {
 
 /* 💡 บล็อกไม่ให้เมาส์หรือการทัชสกรีนคลิกลงไปบนอินพุตคำนวณได้เลย */
 .calculated-cell input[disabled] {
-    pointer-events: none;       /* จิ้มไม่โดน ทะลุผ่านเหมือนเป็นอากาศ */
-    user-select: none;          /* ห้ามลากคลุมดำเลือกข้อความ */
-    background-color: transparent !important; /* ไม่ให้ขึ้นสีเทาเข้มบดบังธีม */
-    color: var(--text-primary) !important;    /* คงสีตัวอักษรให้คมชัดพนักงานอ่านง่าย */
-    border: none !important;    /* เอาเส้นขอบอินพุตออกเพื่อให้ดูกลมกลืนกับตาราง */
-    outline: none !important;   /* ป้องกัน Focus Ring สีฟ้าเวลาใช้คีย์บอร์ด */
+    pointer-events: none; 
+    user-select: none;
+    background-color: transparent !important;
+    border: none !important; 
+    outline: none !important;
     box-shadow: none !important;
     text-align: center;
 }
