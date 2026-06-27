@@ -1,0 +1,1195 @@
+:root {
+    /* ============== Light Mode Colors ============== */
+    --bg-body: #f8f9fa;
+    --bg-container: #ffffff;
+    --bg-form-header: #f8fafc;
+    --bg-card: #ffffff;
+    --bg-input: #ffffff;
+    --bg-input-readonly: #f1f5f9;
+    --bg-stopwatch: #ffffff;
+    --bg-table-even: #f8fafc;
+    --bg-table-hover: #f1f5f9;
+    --bg-race-track: #e2e8f0;
+    --bg-day-cell: #e2e8f0;
+    --bg-clickable: #f0f9ff;
+    --bg-clickable-hover: #e0f2fe;
+    --bg-qpass: #f0fdf4;
+    --bg-qpass-hover: #dcfce7;
+    --bg-qfail: #fef2f2;
+    --bg-qfail-hover: #fee2e2;
+    --bg-signature-pad: #f8fafc;
+    --bg-modal: #ffffff;
+    --bg-modal-overlay: rgba(15, 23, 42, 0.6);
+    --bg-modal-overlay2: rgba(15, 23, 42, 0.5);
+
+    /* Text & Border */
+    --text-primary: #0f172a;
+    --text-secondary: #1e293b;
+    --text-muted: #475569;
+    --text-light: #64748b;
+    --text-title: #1a3c6d;
+    --text-success: #10b981;
+    --text-danger: #ef4444;
+    --text-qpass: #166534;
+    --text-qfail: #991b1b;
+
+    /* Borders */
+    --border-light: #e2e8f0;
+    --border-input: #cbd5e1;
+    --border-stopwatch: #e0e0e0;
+    --border-table: #e2e8f0;
+    --border-signature: #cbd5e1;
+
+    /* Accent Colors */
+    --accent-blue: #0ea5e9;
+    --accent-green: #10b981;
+    --accent-emerald: #059669;
+    --accent-indigo: #4f46e5;
+
+    /* Button Colors */
+    --btn-success: #3ac798;
+    --btn-danger: #df4949;
+    --btn-info: #4baedc;
+    --btn-start: #059669;
+    --btn-stop: #dc2626;
+    --btn-save: #4f46e5;
+    --btn-reset: #64748b;
+    --btn-cancel: #e2e8f0;
+
+    /* Header & Special */
+    --header-bg: #334155;
+    --header-border: #475569;
+    --timer-bg: #222;
+    --timer-text: #00ff00;
+
+    /* Shadow & Others */
+    --shadow-light: rgba(0, 0, 0, 0.1);
+    --shadow-input-focus: rgba(14, 165, 233, 0.14);
+    --shadow-focus: rgba(14, 165, 233, 0.15);
+    --shadow-strong: rgba(0, 0, 0, 0.05);
+}
+
+/* ==========================================================================
+   ============== Dark Mode Colors ([data-theme="dark"]) ==============
+   ========================================================================== */
+[data-theme="dark"] {
+    /* ============== Dark Mode Backgrounds ============== */
+    --bg-body: #0f172a;           /* สี Slate เข้มลึก สบายตาตอนกลางคืน */
+    --bg-container: #1e293b;      /* ตัวกล่องรายงานหลัก ยกมิติขึ้นมาให้สว่างกว่าพื้นหลัง */
+    --bg-form-header: #1e293b;
+    --bg-card: #1e293b;
+    --bg-input: #0f172a;          /* ช่องอินพุตเจาะลึกลงไปเป็นสีเข้ม */
+    --bg-input-readonly: #334155; /* ช่องที่ล็อกไว้จะดูทึบและจมลง */
+    --bg-stopwatch: #1e293b;
+    --bg-table-even: #1e293b;     /* ตารางสลับแถว */
+    --bg-table-hover: #334155;    /* ไฮไลต์แถวเมื่อเมาส์ชี้ */
+    --bg-race-track: #334155;
+    --bg-day-cell: #334155;       /* เน้นคอลัมน์วันด้วยสี Slate ที่เด่นขึ้น */
+    
+    /* ปุ่มกดพาสเทล 3 สี (ปรับเฉดให้เข้ากับพื้นหลังมืด ไม่สว่างโร่จนเกินไป) */
+    --bg-clickable: rgba(14, 165, 233, 0.15);       /* ฟ้าจาง */
+    --bg-clickable-hover: rgba(14, 165, 233, 0.25);
+    --bg-qpass: rgba(16, 185, 129, 0.15);           /* เขียวจาง */
+    --bg-qpass-hover: rgba(16, 185, 129, 0.25);
+    --bg-qfail: rgba(239, 68, 68, 0.15);            /* แดงจาง */
+    --bg-qfail-hover: rgba(239, 68, 68, 0.25);
+    
+    --bg-signature-pad: #0f172a;
+    --bg-modal: #1e293b;
+    --bg-modal-overlay: rgba(0, 0, 0, 0.7);
+    --bg-modal-overlay2: rgba(0, 0, 0, 0.6);
+
+    /* Text & Border (สลับสีตัวอักษรเป็นสีสว่าง) */
+    --text-primary: #f8fafc;      /* ตัวหนังสือหลักสีขาวนวล */
+    --text-secondary: #e2e8f0;    /* ตัวหนังสือรองสีเทาอ่อน */
+    --text-muted: #94a3b8;
+    --text-light: #64748b;
+    --text-title: #38bdf8;        /* หัวข้อรายงานเด่นด้วยสีฟ้าสว่าง */
+    
+    /* สีฟอนต์แจ้งเตือนและฟอนต์ในปุ่มพาสเทล */
+    --text-success: #34d399;      /* เขียวสว่างคมชัด */
+    --text-danger: #f87171;       /* แดงสว่างคมชัด */
+    --text-qpass: #4ade80;        /* ข้อความงานดี */
+    --text-qfail: #f87171;        /* ข้อความงานเสีย */
+
+    /* Borders (ปรับเส้นขอบให้กลืนกับความมืด) */
+    --border-light: #334155;
+    --border-input: #475569;
+    --border-stopwatch: #475569;
+    --border-table: #334155;
+    --border-signature: #475569;
+
+    /* Accent Colors (คงความสดไว้เล็กน้อยเพื่อเป็นจุดนำสายตา) */
+    --accent-blue: #38bdf8;
+    --accent-green: #34d399;
+    --accent-emerald: #10b981;
+    --accent-indigo: #6366f1;
+
+    /* Button Colors (ปรับให้สว่างสู้แสงมืด แต่ไม่อ่อนล้าสายตา) */
+    --btn-success: #059669;
+    --btn-danger: #dc2626;
+    --btn-info: #0284c7;
+    --btn-start: #10b981;
+    --btn-stop: #ef4444;
+    --btn-save: #6366f1;
+    --btn-reset: #475569;
+    --btn-cancel: #334155;
+
+    /* Header & Special (คงที่หรือปรับตามความเหมาะสม) */
+    --header-bg: #0f172a;
+    --header-border: #1e293b;
+    --timer-bg: #000000;
+    --timer-text: #39ff14;        /* โน้นเขียวไซเบอร์เรืองแสงชัดเจนในความมืด */
+
+    /* Shadow & Others (ในโหมดมืดจะเน้นเงาที่เข้มทึบขึ้นเพื่อตัดมิติ) */
+    --shadow-light: rgba(0, 0, 0, 0.4);
+    --shadow-input-focus: rgba(56, 189, 248, 0.25);
+    --shadow-focus: rgba(56, 189, 248, 0.25);
+    --shadow-strong: rgba(0, 0, 0, 0.5);
+}
+
+
+
+* { 
+    box-sizing: border-box; 
+    margin: 0; 
+    padding: 0; 
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif; 
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    min-height: 100vh;
+    background-color: var(--bg-body); /* 💡 บังคับให้ใช้สีพื้นหลังตามโหมด (สว่าง/มืด) ขอบขาวจะหายไป */
+}
+
+/* ปรับ Padding ของ body บนจอคอมเพื่อให้เนื้อหาไม่ติดขอบจอเกินไป (ถ้าต้องการ) */
+body {
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.report-container { 
+    background: var(--bg-container); 
+    padding: 20px; 
+    border-radius: 8px; 
+    box-shadow: 0 2px 10px var(--shadow-light); 
+    max-width: 1550px;
+    width: 100%;
+    margin: auto; 
+}
+
+.text {
+    color: var(--text-primary) !important; /* บังคับให้เปลี่ยนสีตามโหมดสว่าง-มืด */
+    transition: color 0.15s ease;          /* ช่วยให้ตอนสลับโหมดสี ตัวหนังสือจะค่อยๆ เปลี่ยนแบบนุ่มนวล */
+}
+
+/* ==========================================================================
+   Report Header & Header Controls Layout
+   ========================================================================== */
+
+/* จัดตำแหน่งโครงสร้างแถวบนสุด */
+.report-header-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap; /* รองรับกรณีหน้าจอแท็บเล็ตแคบ ให้ปุ่มตัดลงมาได้ไม่ล้นจอ */
+    gap: 16px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid var(--text-title);
+    padding-bottom: 12px;
+}
+
+/* หัวข้อรายงาน (ลบ margin และ border-bottom เก่าออก) */
+.report-title { 
+    margin: 0; 
+    color: var(--text-title);
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: 0.025em;
+}
+
+/* กลุ่มควบคุมทังหมด (วิ่งไปชิดขวาอัตโนมัติ) */
+.system-controls {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* เส้นแบ่งโซนปุ่มระหว่างปุ่มตั้งค่าระบบ กับปุ่ม Action ข้อมูล */
+.control-divider {
+    width: 1px;
+    height: 24px;
+    background-color: var(--border-light);
+    margin: 0 4px;
+}
+
+/* กลุ่มปุ่ม Action ดั้งเดิมของคุณ */
+.action-buttons-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* ปรับขนาดปุ่มไอคอนกลมของคุณให้เป็นทรงกลมสวยงามเท่ากันทุกปุ่ม */
+.action-buttons-group .btn {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    padding: 0;
+    border-radius: 50%; /* บังคับให้ปุ่มไอคอนเดิมของคุณกลมดิ๊กแมตช์กับปุ่มโหมดสี */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Dropdown ภาษา */
+.lang-selector select {
+    padding: 8px 10px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    font-family: inherit;
+    color: var(--text-primary);
+    background-color: var(--bg-container);
+    border: 1px solid var(--border-input);
+    border-radius: 8px;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.2s ease;
+}
+.lang-selector select:hover {
+    border-color: var(--accent-blue);
+}
+
+/* ปุ่ม Dark Mode ทรงกลม */
+.theme-toggle-btn {
+    background-color: var(--bg-input-readonly);
+    border: 1px solid var(--border-light);
+    color: var(--text-primary);
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    outline: none;
+    padding: 0;
+}
+.theme-toggle-btn:hover {
+    background-color: var(--bg-table-hover);
+    transform: scale(1.05);
+}
+
+/* ลอจิกการซ่อน/โชว์ไอคอนดวงอาทิตย์-พระจันทร์ */
+.theme-toggle-btn .sun-icon { display: none; }
+.theme-toggle-btn .moon-icon { display: block; color: var(--text-muted); }
+
+[data-theme="dark"] .theme-toggle-btn .sun-icon { display: block; color: #f59e0b; }
+[data-theme="dark"] .theme-toggle-btn .moon-icon { display: none; }
+
+
+/* Action Buttons */
+.action-buttons {
+    display: flex; 
+    gap: 10px; 
+    justify-content: flex-end; 
+    margin: 20px 0;
+}
+
+/* Form Header */
+.form-header { 
+    display: grid; 
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px 16px; 
+    margin-bottom: 20px; 
+    
+    background: var(--bg-form-header); 
+    border: 1px solid var(--border-light); 
+    
+    padding: 20px; 
+    border-radius: 12px; 
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* ==========================================================================
+   Form Fields Components (Modern Form Elements)
+   ========================================================================== */
+
+/* 1. โครงสร้างการจัดเรียงแนวตั้งของแต่ละช่อง */
+.field { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 6px; 
+}
+
+/* 2. หัวข้อประจำช่องกรอกข้อมูล (Label) */
+.field label { 
+    font-size: 0.8rem; 
+    font-weight: 700; 
+    color: var(--text-muted); 
+    text-transform: uppercase; 
+    letter-spacing: 0.025em; 
+}
+
+/* 3. ช่องกรอกข้อมูลหลัก (Inputs และ Select Dropdowns) */
+.field input, 
+.field select { 
+    padding: 10px 14px; 
+    border: 1px solid var(--border-input); 
+    border-radius: 8px; 
+    font-size: 0.95rem; 
+    color: var(--text-primary); 
+    background-color: var(--bg-input); 
+    outline: none; 
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); 
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* 4. Interactive State - เอฟเฟกต์ตอนพนักงานคลิกเพื่อป้อนข้อมูล */
+.field input:focus, 
+.field select:focus { 
+    border-color: var(--accent-blue); 
+    box-shadow: 0 0 0 4px var(--shadow-input-focus); 
+    background-color: var(--bg-input);
+}
+
+/* 5. Read-only State - ช่องที่ระบบคำนวณให้อัตโนมัติ ห้ามพิมพ์แก้ไข */
+.field input[readonly] { 
+    background-color: var(--bg-input-readonly); 
+    border-color: var(--border-light);
+    color: var(--text-light); 
+    cursor: not-allowed; 
+}
+
+/* กรณีช่อง Read-only ถูกคลิก จะไม่มีเอฟเฟกต์เรืองแสงเพื่อไม่ให้พนักงานสับสน */
+.field input[readonly]:focus {
+    border-color: var(--border-light);
+    box-shadow: none;
+}
+
+/* Stopwatch Bar */
+.stopwatch-bar { 
+    background: var(--bg-stopwatch); 
+    border: 1px solid var(--border-stopwatch);
+    padding: 15px 15px; 
+    border-radius: 12px; 
+    margin-bottom: 20px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between;
+    gap: 15px; 
+    position: sticky;
+    top: 10px; 
+    z-index: 100; 
+    box-shadow: 0 5px 15px var(--shadow-light); 
+}
+
+.control-group-left, .control-group-right {
+    display: flex; 
+    align-items: center; 
+    gap: 15px;
+}
+
+.control-group {
+    display: flex; 
+    align-items: center; 
+    gap: 5px;
+}
+
+.control-group label {
+    font-weight: bold; 
+    font-size: 0.9rem;
+    color: var(--text-primary); /* ผูกตัวแปรสีข้อความ */
+}
+
+.control-group input[type="number"] {
+    width: 50px; 
+    padding: 5px;
+    text-align: center;
+    border: 1px solid var(--border-input); 
+    border-radius: 4px;
+    font-weight: bold;
+    background-color: var(--bg-input); /* รองรับสีกล่องพิมพ์โหมดมืด */
+    color: var(--text-primary);
+}
+
+.timer-display { 
+    font-size: 1.5rem; 
+    font-weight: bold; 
+    font-family: monospace; 
+    background: var(--timer-bg); 
+    color: var(--timer-text); 
+    padding: 3px 10px; 
+    border-radius: 8px; 
+    min-width: 140px; 
+    text-align: center; 
+}
+
+/* ==========================================================================
+   Buttons Component (Modern & Clean Style)
+   ========================================================================== */
+
+/* 1. Base Structure - โครงสร้างหลักของทุกปุ่ม */
+.btn { 
+    min-width: 60px;
+    display: inline-flex; 
+    align-items: center; 
+    justify-content: center;
+    gap: 8px; 
+    padding: 10px 10px; 
+    border: 1px solid transparent; 
+    border-radius: 999px; 
+    font-size: 0.7rem;
+    font-weight: 600; 
+    color: #ffffff; /* ตัวหนังสือบนปุ่มสียังคงเป็นสีขาวในทุกโหมดเพื่อให้ Contrast ชัดเจน */
+    cursor: pointer; 
+    white-space: nowrap;
+    user-select: none;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); 
+    box-shadow: 0 1px 2px 0 var(--shadow-strong);
+}
+
+/* 2. Interactive States - การตอบสนองเมื่อมีปฏิสัมพันธ์ */
+.btn:hover {
+    transform: translateY(-1px);
+    filter: brightness(108%);
+    box-shadow: 0 4px 6px -1px var(--shadow-light), 0 2px 4px -1px var(--shadow-strong);
+}
+
+.btn:active {
+    transform: translateY(0);
+    filter: brightness(95%);
+    box-shadow: inset 0 2px 4px 0 var(--shadow-strong);
+}
+
+.btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+    filter: none !important;
+}
+
+/* 3. Button Color Variations - เฉดสีโมเดิร์นสำหรับแต่ละฟังก์ชัน */
+
+/* กลุ่มปุ่ม Action หลักด้านบน */
+.btn-success { 
+    background-color: var(--btn-success);
+    border-radius: 9999px; 
+    padding-left: 18px;    
+    padding-right: 18px;
+}
+
+.btn-danger { 
+    background-color: var(--btn-danger);
+    border-radius: 9999px;
+    padding-left: 18px;
+    padding-right: 18px;
+}
+
+.btn-info { 
+    background-color: var(--btn-info);
+    border-radius: 9999px;
+    padding-left: 18px;
+    padding-right: 18px;
+}
+
+/* กลุ่มปุ่มควบคุมเครื่องมือจับเวลา (Stopwatch) */
+.btn-start { 
+    background-color: var(--btn-start); 
+    padding: 8px 16px; 
+    font-size: 0.85rem;
+}
+
+.btn-stop { 
+    background-color: var(--btn-stop); 
+    padding: 8px 16px;
+    font-size: 0.85rem;
+}
+
+.btn-save { 
+    background-color: var(--btn-save); 
+    padding: 8px 16px;
+    font-size: 0.85rem;
+}
+
+.btn-reset { 
+    background-color: var(--btn-reset); 
+    padding: 8px 16px;
+    font-size: 0.85rem;
+}
+
+/* ==========================================================================
+   Race Track Progression Component (Modern Dashboard Style)
+   ========================================================================== */
+
+.race-track {
+    flex-grow: 1; 
+    margin: 8px 16px; 
+    position: relative; 
+    height: 36px; 
+    background: var(--bg-race-track); 
+    border-radius: 18px; 
+    display: flex; 
+    align-items: center; 
+    overflow: hidden; 
+    box-shadow: inset 0 2px 4px var(--shadow-strong);
+    border: 1px solid var(--border-light);
+}
+
+.progress-line {
+    position: absolute; 
+    left: 0; 
+    top: 0; 
+    height: 100%; 
+    background: linear-gradient(90deg, var(--accent-blue) 0%, var(--accent-green) 100%); 
+    width: 0%;
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 2px 0 8px rgba(16, 185, 129, 0.3);
+    z-index: 1;
+}
+
+.distance-label {
+    position: absolute; 
+    width: 100%; 
+    text-align: center; 
+    font-size: 0.85rem; 
+    font-weight: 700; 
+    color: var(--text-primary); 
+    z-index: 3; 
+    pointer-events: none;
+    /* ใช้เงาตัวอักษรแบบกลืนกับสีพื้นหลังของแต่ละโหมดเพื่อให้อ่านง่าย */
+    text-shadow: 0 1px 2px var(--bg-container); 
+}
+
+.runner-avatar {
+    position: absolute; 
+    left: 0%; 
+    top: 50%;
+    transform: translateY(-50%) scaleX(-1); 
+    font-size: 22px; 
+    transition: left 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    filter: drop-shadow(0 2px 4px var(--shadow-light));
+    z-index: 4;
+}
+
+.finish-flag {
+    position: absolute; 
+    right: 12px; 
+    top: 50%;
+    transform: translateY(-50%); 
+    z-index: 2; 
+    font-size: 20px;
+}
+
+/* ==========================================================================
+   Table Components (Modern Data Grid Style)
+   ========================================================================== */
+
+/* 1. Container & Main Table */
+.table-wrapper { 
+    overflow-x: auto; 
+    border-radius: 12px;
+    border: 1px solid var(--border-light);
+    box-shadow: 0 1px 3px 0 var(--shadow-strong);
+    background-color: var(--bg-container);
+    margin-top: 16px;
+}
+
+.report-table {
+    width: 100%;
+    background-color: var(--bg-container);
+    border-collapse: collapse;
+    min-width: 100%;
+    font-size: 0.8rem;
+    table-layout: fixed;
+}
+
+/* 2. Cells & Borders Setup */
+th, td { 
+    border: 1px solid var(--border-table); 
+    text-align: center; 
+    vertical-align: middle; 
+}
+
+/* 3. Table Headers (Thead) */
+.report-table thead th {
+    background-color: var(--header-bg);
+    color: #ffffff; /* ตัวหนังสือบนหัวข้อตารางให้ล็อกสีขาวไว้เพื่อตัดกับพื้นหลังเข้มเสมอ */
+    font-weight: 600;
+    height: 74px; 
+    vertical-align: middle;
+    padding: 6px 4px;
+    border: 1px solid var(--header-border);
+}
+
+/* Header Text Utilities */
+.header-wrap {
+    white-space: normal !important;
+    word-wrap: break-word;
+    line-height: 1.3;
+    padding: 6px 4px !important;
+    vertical-align: middle !important;
+    font-size: 0.75rem;
+}
+
+.vertical-text {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    white-space: nowrap;
+    display: inline-block;
+    padding: 4px 0;
+    text-align: center;
+}
+
+.quality-col, .cause-col {
+    width: 32px; 
+}
+
+/* 4. Table Body Rows Style (Zebra & Hover Effect) */
+#tableBody tr {
+    transition: background-color 0.15s ease;
+}
+
+#tableBody tr:nth-child(even) {
+    background-color: var(--bg-table-even); 
+}
+
+#tableBody tr:hover {
+    background-color: var(--bg-table-hover); 
+}
+
+/* 5. Inputs inside Table Body */
+#tableBody input, 
+#tableBody select, 
+#tableBody td {
+    font-size: 0.8rem;
+    font-family: 'Sarabun', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--text-secondary);
+}
+
+#tableBody input {
+    width: 80%;
+    text-align: center;
+    padding: 6px 4px;
+    border: 1px solid transparent;
+    background: transparent;
+    outline: none;
+    border-radius: 4px;
+    transition: all 0.15s ease;
+}
+
+#tableBody input:focus {
+    border: 1px solid var(--accent-blue); 
+    background: var(--bg-container);
+    box-shadow: 0 0 0 3px var(--shadow-focus);
+}
+
+/* ช่องที่ถูกล็อกห้ามพิมพ์ (Read-only) ให้แสดงรูปแบบให้ชัดเจน */
+#tableBody input[readonly] {
+    cursor: pointer;
+    color: var(--text-light);
+}
+
+/* 6. Special Rows & Helper Classes */
+.day-cell { 
+    background-color: var(--bg-day-cell) !important; 
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+/* ช่องแสดงเวลาเฉลี่ยที่คลิกเปิดตัวจับเวลาได้ */
+.clickable-input { 
+    cursor: pointer; 
+    background-color: var(--bg-clickable) !important; 
+    border: 1px dashed var(--border-input) !important;
+    font-weight: 700; 
+    color: var(--accent-blue) !important;
+}
+
+.clickable-input:hover {
+    background-color: var(--bg-clickable-hover) !important;
+    border-color: var(--accent-blue) !important;
+}
+
+/* Status Colors (ระบบเปรียบเทียบสีเป้าหมายผ่าน JS ห้ามใส่สีทับซ้อนที่ input calculated ตรงๆ) */
+.text-success { 
+    color: var(--text-success) !important; 
+    font-weight: 700; 
+}
+
+.text-danger { 
+    color: var(--text-danger) !important; 
+    font-weight: 700; 
+}
+
+/* ช่องงานผ่าน (qPass) -> บังคับหน้าตาเป็นปุ่มกดพาสเทลสีเขียว */
+#tableBody input[id^="qPass_"] {
+    cursor: pointer !important;
+    background-color: var(--bg-qpass) !important; 
+    border: 1px dashed var(--border-input) !important;  
+    color: var(--text-qpass) !important;
+    font-weight: 700;
+}
+#tableBody input[id^="qPass_"]:hover {
+    background-color: var(--bg-qpass-hover) !important;
+    border-color: var(--accent-green) !important;
+}
+
+/* ช่องงานไม่ผ่าน (qFail) -> บังคับหน้าตาเป็นปุ่มกดพาสเทลสีแดง */
+#tableBody input[id^="qFail_"] {
+    cursor: pointer !important;
+    background-color: var(--bg-qfail) !important; 
+    border: 1px dashed var(--border-input) !important;  
+    color: var(--text-qfail) !important;
+    font-weight: 700;
+}
+#tableBody input[id^="qFail_"]:hover {
+    background-color: var(--bg-qfail-hover) !important;
+    border-color: var(--text-danger) !important;
+}
+
+/* ==========================================================================
+   Action Plan, Signatures, Modals & Footer Components
+   ========================================================================== */
+
+/* 1. Action Plan Cell - ช่องกรอกแผนแก้ไข */
+.action-plan-cell textarea {
+    width: 100%;
+    min-height: 100%;
+    padding: 8px;
+    border: 1px solid transparent;
+    background: transparent;
+    font-family: 'Sarabun', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 0.8rem; 
+    resize: vertical;
+    line-height: 1;
+    white-space: pre-wrap; 
+    word-wrap: break-word; 
+    box-sizing: border-box;
+    display: block;
+    border-radius: 4px;
+    outline: none;
+    color: var(--text-secondary);
+    transition: all 0.2s ease;
+}
+
+.action-plan-cell textarea:focus {
+    background: var(--bg-container);
+    border-color: var(--accent-blue);
+    box-shadow: inset 0 1px 3px var(--shadow-strong), 0 0 0 3px var(--shadow-focus);
+}
+
+/* 2. Sign Cell - ช่องแสดงลายเซ็นบนตาราง */
+.sign-cell { 
+    cursor: pointer; 
+    min-width: 20px; 
+    height: 45px; 
+    background-color: var(--bg-container); 
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    transition: background-color 0.15s ease;
+}
+
+.sign-cell:hover {
+    background-color: var(--bg-table-hover); 
+}
+
+.sign-cell img { 
+    max-height: 85%; 
+    width: auto;
+    object-fit: contain;
+    display: none;
+    /* กลับสีรูปภาพลายเซ็นสีดำให้เป็นสีขาวอัตโนมัติในโหมดมืดเพื่อให้มองเห็นชัดเจน */
+}
+[data-theme="dark"] .sign-cell img {
+    filter: invert(1) hue-rotate(180deg);
+}
+
+/* 3. Modal Architecture - ระบบหน้าต่างป๊อปอัป */
+.modal { 
+    display: none; 
+    position: fixed; 
+    z-index: 1001; 
+    left: 0; 
+    top: 0; 
+    width: 100%; 
+    height: 100%; 
+    background-color: var(--bg-modal-overlay); 
+    backdrop-filter: blur(4px); 
+}
+
+/* โครงสร้างหลักของกล่องเนื้อหาภายใน Modal */
+.modal-content { 
+    background-color: var(--bg-modal); 
+    padding: 28px; 
+    border-radius: 16px; 
+    width: 90%; 
+    max-width: 420px; 
+    text-align: center; 
+    
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(1);
+    
+    box-shadow: 0 20px 25px -5px var(--shadow-light), 0 10px 10px -5px var(--shadow-strong);
+    border: 1px solid var(--border-light);
+    animation: modalScaleUp 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ขยายขนาดเฉพาะสำหรับหน้าต่างแสดงกราฟ */
+.chart-modal-content {
+    max-width: 1200px;
+    width: 100%;
+}
+
+@keyframes modalScaleUp {
+    from { transform: translate(-50%, -50%) scale(0.95); opacity: 0; }
+    to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+
+.modal-content h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 14px;
+}
+
+/* กล่องกรอกตัวเลขความเร็วเฉลีย์ใน Modal */
+.modal-content input { 
+    width: 100%; 
+    padding: 12px; 
+    font-size: 1.6rem; 
+    font-weight: 700;
+    font-family: monospace;
+    text-align: center; 
+    border: 2px solid var(--accent-blue); 
+    border-radius: 10px; 
+    margin-bottom: 20px; 
+    outline: none;
+    color: var(--text-primary);
+    background-color: var(--bg-input);
+    transition: all 0.2s ease;
+}
+
+.modal-content input:focus {
+    background-color: var(--bg-container);
+    box-shadow: 0 0 0 4px var(--shadow-input-focus);
+}
+
+/* ปุ่มปิด (X) */
+.close {
+    position: absolute;
+    right: 20px;
+    top: 16px;
+    cursor: pointer;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-light);
+    transition: color 0.15s ease;
+}
+
+.close:hover {
+    color: var(--text-danger);
+}
+
+/* 4. Signature Pad - พื้นที่วาดลายเซ็น */
+#signature-pad { 
+    border: 2px dashed var(--border-signature); 
+    background-color: var(--bg-signature-pad); 
+    border-radius: 8px;
+    margin-bottom: 20px; 
+    touch-action: none;
+    display: block;
+    max-width: 100%;
+}
+
+.sign-btn-group { 
+    display: flex;
+    gap: 12px; 
+    justify-content: flex-end; 
+}
+
+/* 5. Footer Layout */
+footer {
+    text-align: center; 
+    padding: 32px 20px 8px 20px; 
+    color: var(--text-light); 
+    font-size: 0.8rem; 
+}
+
+footer hr {
+    border: 0; 
+    border-top: 1px solid var(--border-light); 
+    margin-bottom: 16px;
+}
+
+/* ==========================================================================
+   Responsive Design & Mobile Optimization
+   ========================================================================== */
+
+/* 1. Tablet & Small Screens (หน้าจอขนาดเล็กกว่า 768px - แท็บเล็ตและหน้างานเคลื่อนที่) */
+@media (max-width: 768px) {
+    body {
+        padding: 12px;
+    }
+
+    .report-container { 
+        padding: 16px; 
+    }
+
+    /* ปรับปรุงแถบจับเวลาให้เรียงซ้อนกันเป็นระเบียบ */
+    .stopwatch-bar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 16px;
+        padding: 16px;
+        position: static; /* ปลดล็อก Sticky บนหน้าจอมือถือเพื่อไม่ให้บังเนื้อหาตาราง */
+    }
+    
+    .control-group-left, .control-group-right {
+        justify-content: center;
+        flex-wrap: wrap;
+        width: 100%;
+    }
+
+    /* ปรับแต่งส่วนทางวิ่ง Progress Bar บนอุปกรณ์พกพา */
+    .race-track {
+        margin: 8px 0;
+        width: 100%;
+        height: 32px;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+        width: 100%;
+        gap: 8px;
+    }
+
+    .action-buttons .btn {
+        width: 100%; /* ปุ่มขยายเต็มความกว้างในมือถือเพื่อให้กดง่ายขึ้น */
+    }
+    
+    .form-header {
+        grid-template-columns: 1fr; /* ปรับฟอร์มข้อมูลด้านบนให้เรียงเดี่ยว */
+        gap: 12px;
+        padding: 14px;
+    }
+    
+    /* แก้ไข Layout ของป๊อปอัปบนหน้าจอสัมผัส */
+    .modal-content {
+        width: 92%;
+        padding: 20px;
+    }
+
+    #signature-pad {
+        width: 100%;
+        height: 160px; /* ปรับลดขนาดบอร์ดเซ็นชื่อลงเล็กน้อยให้พอดีหน้าจอมือถือ */
+    }
+}
+
+/* 2. Mobile Screens (หน้าจอขนาดเล็กกว่า 480px - สมาร์ตโฟนพกพา) */
+@media (max-width: 480px) {
+    body {
+        padding: 6px;
+    }
+    
+    .report-container {
+        padding: 12px;
+        border-radius: 8px;
+    }
+    
+    .timer-display {
+        font-size: 1.3rem;
+        min-width: 130px;
+        padding: 4px 12px;
+    }
+
+    .btn {
+        padding: 10px 14px;
+        font-size: 0.25rem;
+    }
+}
+
+/* ==========================================================================
+   Custom Notification Modal Components
+   ========================================================================== */
+
+/* ฉากหลังโปร่งแสงคลุมทั้งหน้าจอ */
+.modal-overlay {
+    display: none; 
+    position: fixed; 
+    z-index: 1000; 
+    left: 0; 
+    top: 0; 
+    width: 100%; 
+    height: 100%; 
+    background-color: var(--bg-modal-overlay2); /* ผูกกับตัวแปร overlay */
+}
+
+/* กล่องเนื้อหา Modal */
+.custom-modal-content {
+    background-color: var(--bg-modal); /* รองรับโหมดมืดสลับเป็นสี Slate เข้ม */
+    margin: 15% auto; 
+    padding: 24px; 
+    border-radius: 12px; 
+    width: 90%; 
+    max-width: 450px; 
+    box-shadow: 0 10px 25px -5px var(--shadow-light), 0 8px 10px -6px var(--shadow-strong);
+    font-family: inherit; 
+    text-align: center;
+}
+
+/* หัวข้อแจ้งเตือน */
+.custom-modal-content h3 {
+    margin-top: 0; 
+    color: var(--text-primary); 
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+/* ข้อความรายละเอียด */
+.custom-modal-content p {
+    color: var(--text-muted); 
+    font-size: 0.95rem; 
+    line-height: 1.5; 
+    margin: 16px 0 24px 0; 
+    white-space: pre-line;
+}
+
+/* กล่องจัดการปุ่ม */
+.notif-actions {
+    display: flex; 
+    justify-content: center; 
+    gap: 12px;
+}
+
+/* ปุ่มยกเลิก/ปฏิเสธสไตล์มินิมอล */
+.btn-cancel {
+    background-color: var(--btn-cancel) !important; 
+    color: var(--text-muted) !important; 
+    border: none !important; 
+    padding: 8px 16px; 
+    border-radius: 6px; 
+    cursor: pointer;
+}
+.btn-cancel:hover {
+    background-color: var(--border-input) !important; /* ใช้สีขอบอินพุตที่เข้มขึ้นเล็กน้อยเมื่อโฮเวอร์ในโหมดมืด */
+}
+
+/* ==========================================================================
+   On-Screen Numeric Keypad Layout (Touch Friendly)
+   ========================================================================== */
+
+/* กล่องควบคุมกริดแป้นพิมพ์ */
+.numpad-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin: 16px 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* ปุ่มตัวเลขเดี่ยวแบบกลมมนโมเดิร์น */
+.numpad-btn {
+    background-color: var(--bg-input-readonly);
+    border: 1px solid var(--border-light);
+    color: var(--text-primary);
+    font-size: 1.4rem;
+    font-weight: 700;
+    padding: 14px 0;
+    border-radius: 10px;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.1s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* เอฟเฟกต์ตอนกดสัมผัส */
+.numpad-btn:hover {
+    background-color: var(--bg-table-hover);
+}
+.numpad-btn:active {
+    background-color: var(--border-input);
+    transform: scale(0.96);
+}
+
+/* ปุ่มล้างค่าสีแดงจาง */
+.numpad-clear {
+    background-color: var(--bg-qfail) !important;
+    color: var(--text-qfail) !important;
+}
+.numpad-clear:hover {
+    background-color: var(--bg-qfail-hover) !important;
+}
+
+/* ปุ่มลบทีละตัวอักษร */
+.numpad-back {
+    background-color: var(--bg-input-readonly);
+    font-size: 1.2rem;
+}
+
+/* ==========================================================================
+   Manual Input Modal Footer Buttons
+   ========================================================================== */
+
+/* กล่องจัดระเบียบปุ่มใต้แป้นตัวเลข */
+.modal-action-footer {
+    display: flex;
+    gap: 12px;
+    margin-top: 16px;
+    width: 100%;
+}
+
+/* ปุ่มยกเลิกปรับให้กว้างพอดีคำ */
+.modal-action-footer .btn-cancel {
+    flex: 1;
+    padding: 12px;
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+/* ปุ่มบันทึกข้อมูลหลัก ขยายตัวกว้างพิเศษ (สไตล์โมเดิร์นคราม) */
+.btn-save-modal {
+    flex: 2; /* ขยายกว้างเป็น 2 เท่าของปุ่มยกเลิกเพื่อให้กดง่าย */
+    background-color: var(--btn-save);
+    color: #ffffff;
+    border: none;
+    border-radius: 9999px;
+    padding: 12px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    box-shadow: 0 4px 6px -1px var(--shadow-light);
+}
+
+.btn-save-modal:hover {
+    filter: brightness(110%);
+    transform: translateY(-1px);
+}
+
+.btn-save-modal:active {
+    transform: translateY(0);
+}
+
+/* 💡 ปรับแต่งช่องไฟให้กับข้อความแสดงวันที่บันทึกผลภายในกล่องป๊อปอัป */
+.custom-modal-content p.text,
+.modal-content p.text {
+    margin-top: 16px !important;    /* ดันระยะให้ห่างจากกล่อง Input ด้านบน */
+    margin-bottom: 16px !important; /* ดันระยะให้ห่างจากปุ่ม Numpad เลข 7 8 9 ด้านล่าง */
+    font-size: 0.95rem;
+    font-weight: 500;
+}
