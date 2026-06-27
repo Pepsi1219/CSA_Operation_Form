@@ -29,17 +29,21 @@ function initializeTable() {
     for(let d=1; d<=30; d++) {
         const row = document.createElement("tr");
         row.innerHTML = `
-            <td class="day-cell">${d}</td>
+            <td class="day-cell-readonly" tabIndex="-1">${d}</td>
             
-            <td class="calculated-cell"><input type="text" id="targetEff_${d}" readonly tabIndex="-1"></td>
-            <td class="calculated-cell"><input type="text" id="targetQty_${d}" readonly tabIndex="-1"></td>
+            <td class="calculated-cell"><input type="text" id="targetEff_${d}" disabled tabIndex="-1"></td>
+            <td class="calculated-cell"><input type="text" id="targetQty_${d}" disabled tabIndex="-1"></td>
+            
             <td><input type="text" id="resAvgSec_${d}" readonly class="clickable-input" onclick="openManualModal(${d})" placeholder=""></td>
-            <td class="calculated-cell"><input type="text" id="resAvgMin_${d}" readonly tabIndex="-1"></td>
-            <td class="calculated-cell font-bold"><input type="text" id="resEffPerc_${d}" readonly tabIndex="-1"></td>
-            <td class="calculated-cell"><input type="text" id="resEffPcs_${d}" readonly tabIndex="-1"></td>
+            
+            <td class="calculated-cell"><input type="text" id="resAvgMin_${d}" disabled tabIndex="-1"></td>
+            <td class="calculated-cell font-bold"><input type="text" id="resEffPerc_${d}" disabled tabIndex="-1"></td>
+            <td class="calculated-cell"><input type="text" id="resEffPcs_${d}" disabled tabIndex="-1"></td>
+            
             <td><input type="text" id="qPass_${d}" readonly class="clickable-input" onclick="openManualModal(${d}, 'pass')"></td>
             <td><input type="text" id="qFail_${d}" readonly class="clickable-input" onclick="openManualModal(${d}, 'fail')"></td>
-            <td class="calculated-cell"><input type="text" id="resQRates_${d}" readonly tabIndex="-1"></td>
+            
+            <td class="calculated-cell"><input type="text" id="resQRates_${d}" disabled tabIndex="-1"></td>
             
             <td><input type="checkbox"></td>
             <td><input type="checkbox"></td>

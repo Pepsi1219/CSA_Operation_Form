@@ -366,12 +366,18 @@ body {
     border-color: var(--border-light);
     color: var(--text-light); 
     cursor: not-allowed; 
+    
+    /* 💡 เพิ่ม 3 บรรทัดนี้ลงในสไตล์เดิมของคุณ */
+    pointer-events: none;       /* บล็อกการจิ้มสัมผัส เมาส์จะทะลุผ่าน ไม่เกิดเอฟเฟกต์ใดๆ */
+    outline: none !important;   /* ลบกรอบดำ/กรอบส้ม ดั้งเดิมของเบราว์เซอร์ */
+    text-align: center;         /* จัดตัวเลขให้อยู่กึ่งกลางช่องตาราง */
 }
 
 /* กรณีช่อง Read-only ถูกคลิก จะไม่มีเอฟเฟกต์เรืองแสงเพื่อไม่ให้พนักงานสับสน */
 .field input[readonly]:focus {
     border-color: var(--border-light);
     box-shadow: none;
+    outline: none !important;   /* 💡 เติมล็อกความชัวร์ตรงนี้อีกจุด */
 }
 
 /* Stopwatch Bar */
@@ -1192,4 +1198,27 @@ footer hr {
     margin-bottom: 16px !important; /* ดันระยะให้ห่างจากปุ่ม Numpad เลข 7 8 9 ด้านล่าง */
     font-size: 0.95rem;
     font-weight: 500;
+}
+
+/* ==========================================================================
+   Readonly & Calculated Cells Style (Inert Elements)
+   ========================================================================== */
+
+/* 💡 บล็อกไม่ให้เมาส์หรือการทัชสกรีนคลิกลงไปบนอินพุตคำนวณได้เลย */
+.calculated-cell input[disabled] {
+    pointer-events: none;       /* จิ้มไม่โดน ทะลุผ่านเหมือนเป็นอากาศ */
+    user-select: none;          /* ห้ามลากคลุมดำเลือกข้อความ */
+    background-color: transparent !important; /* ไม่ให้ขึ้นสีเทาเข้มบดบังธีม */
+    color: var(--text-primary) !important;    /* คงสีตัวอักษรให้คมชัดพนักงานอ่านง่าย */
+    border: none !important;    /* เอาเส้นขอบอินพุตออกเพื่อให้ดูกลมกลืนกับตาราง */
+    outline: none !important;   /* ป้องกัน Focus Ring สีฟ้าเวลาใช้คีย์บอร์ด */
+    box-shadow: none !important;
+    text-align: center;
+}
+
+/* ลบกรอบและเงาของช่องวันระบุลำดับ */
+.day-cell-readonly {
+    pointer-events: none;
+    user-select: none;
+    text-align: center;
 }
