@@ -12,10 +12,10 @@
 <body>
     <div class="report-container">
     <div class="report-header-wrapper">
-        <h1 class="report-title">CSA OPERATION SIGN-OFF REPORT</h1>
-        
+        <h1 class="report-title" data-i18n="reportTitle">CSA OPERATION SIGN-OFF REPORT</h1>
+
         <div class="system-controls">
-            
+
             <div class="lang-selector">
                 <select id="langSelect" onchange="changeLanguage(this.value)">
                     <option value="th">TH</option>
@@ -25,7 +25,7 @@
                 </select>
             </div>
 
-            <button id="themeToggleBtn" class="theme-toggle-btn" onclick="toggleTheme()" title="เปลี่ยนโหมดสี">
+            <button id="themeToggleBtn" class="theme-toggle-btn" onclick="toggleTheme()" data-i18n-title="themeToggle" title="เปลี่ยนโหมดสี">
                 <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
                 <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
             </button>
@@ -33,13 +33,13 @@
             <div class="control-divider"></div>
 
             <div class="action-buttons-group">
-                <button class="btn btn-success" onclick="exportToExcel()" title="ส่งออกไปที่ Excel">
-                    <i class="fa-solid fa-file-excel" style="font-size: 1.1rem;"></i> 
+                <button class="btn btn-success" onclick="exportToExcel()" data-i18n-title="btnExport" title="ส่งออกไปที่ Excel">
+                    <i class="fa-solid fa-file-excel" style="font-size: 1.1rem;"></i>
                 </button>
-                <button class="btn btn-danger" onclick="clearAllData()" title="ล้างข้อมูล">
+                <button class="btn btn-danger" onclick="clearAllData()" data-i18n-title="btnClear" title="ล้างข้อมูล">
                     <i class="fa-solid fa-trash" style="font-size: 1.1rem;"></i>
                 </button>
-                <button class="btn btn-info" onclick="showPerformanceChart()" title="กราฟประสิทธิภาพ">
+                <button class="btn btn-info" onclick="showPerformanceChart()" data-i18n-title="btnChart" title="กราฟประสิทธิภาพ">
                     <i class="fa-solid fa-chart-line" style="font-size: 1.1rem;"></i>
                 </button>
             </div>
@@ -49,31 +49,31 @@
         <!-- Form Header -->
         <div class="form-header">
             <div class="field">
-                <label>ขั้นตอนหลัก</label>
+                <label data-i18n="lblProcess">ขั้นตอนหลัก</label>
                 <input type="text" id="header_process">
             </div>
             <div class="field">
-                <label>พนักงาน</label>
+                <label data-i18n="lblEmployee">พนักงาน</label>
                 <input type="text" id="header_employee">
             </div>
             <div class="field">
-                <label>ครูฝึก</label>
+                <label data-i18n="lblTrainer">ครูฝึก</label>
                 <input type="text" id="header_trainer">
             </div>
             <div class="field">
-                <label>SAM (นาที)</label>
+                <label data-i18n="lblSam">SAM (นาที)</label>
                 <input type="number" id="globalSam" step="0.001" inputmode="decimal" oninput="calculateAdaptiveGoals()">
             </div>
             <div class="field">
-                <label>เป้าหมาย Eff (%)</label>
+                <label data-i18n="lblEffTarget">เป้าหมาย Eff (%)</label>
                 <input type="number" id="globalEffTarget" inputmode="numeric" oninput="calculateAdaptiveGoals()">
             </div>
             <div class="field">
-                <label>เป้าหมาย Q'ty (ชิ้น/ชม.)</label>
+                <label data-i18n="lblQtyTarget">เป้าหมาย Q'ty (ชิ้น/ชม.)</label>
                 <input type="number" id="globalQtyTarget" readonly>
             </div>
             <div class="field">
-                <label>ระดับงาน</label>
+                <label data-i18n="lblWorkLevel">ระดับงาน</label>
                 <select id="workLevel">
                     <option value="" disabled selected></option>
                     <option value="A">A</option>
@@ -83,15 +83,15 @@
                 </select>
             </div>
             <div class="field">
-                <label>จำนวนวันที่จะต้องฝึก</label>
+                <label data-i18n="lblTrainingDays">จำนวนวันที่จะต้องฝึก</label>
                 <input type="number" id="trainingDays" inputmode="numeric" oninput="calculateAdaptiveGoals()">
             </div>
             <div class="field">
-                <label>วันที่เริ่มฝึก</label>
+                <label data-i18n="lblStartDate">วันที่เริ่มฝึก</label>
                 <input type="date" id="header_startDate">
             </div>
             <div class="field">
-                <label>วันที่โอนย้าย</label>
+                <label data-i18n="lblTransferDate">วันที่โอนย้าย</label>
                 <input type="date" id="header_transferDate">
             </div>
         </div>
@@ -100,26 +100,29 @@
         <div class="stopwatch-bar">
             <div class="control-group-left">
                 <div class="control-group">
-                    <label>วัน/ชั่วโมงที่:</label>
+                    <label data-i18n="lblDayHour">วัน/ชั่วโมงที่:</label>
                     <input type="number" id="targetDay" value="1" min="1" max="30">
                 </div>
-                <button id="btnPlanA" class="btn btn-danger" onclick="adjustPlan('A')" disabled>แผน A</button>
-                <button id="btnPlanB" class="btn btn-success" onclick="adjustPlan('B')" disabled>แผน B</button>
+                <button id="btnPlanA" class="btn btn-danger" onclick="adjustPlan('A')" data-i18n="btnPlanA" disabled>แผน A</button>
+                <button id="btnPlanB" class="btn btn-success" onclick="adjustPlan('B')" data-i18n="btnPlanB" disabled>แผน B</button>
             </div>
             <div class="control-group-right">
                 <div id="timerDisplay" class="timer-display">00:00:00</div>
-                <button class="btn btn-start" id="startStopBtn" onclick="toggleTimer()">Start</button>
-                <button class="btn btn-reset" onclick="resetTimer()">Reset</button>
-                <button class="btn btn-save" onclick="recordAndCalculate()">Save</button>
+                <button class="btn btn-start" id="startStopBtn" onclick="toggleTimer()" data-i18n="btnStart">Start</button>
+                <button class="btn btn-reset" onclick="resetTimer()" data-i18n="btnReset">Reset</button>
+                <button class="btn btn-save" onclick="recordAndCalculate()" data-i18n="btnSave">Save</button>
             </div>
         </div>
 
-        <!-- Race Track Progress -->
+        <!-- Progress Bar (SaaS style) -->
         <div id="raceTrackContainer" class="race-track">
-            <div id="progressLine" class="progress-line"></div>
-            <div id="distanceLabel" class="distance-label text">เป้าหมาย: 0% | ปัจจุบัน: 0%</div>
-            <div id="runnerAvatar" class="runner-avatar">🏃‍♂️</div>
-            <div class="finish-flag">🏁</div>
+            <div class="race-track-header">
+                <span id="distanceLabel" class="race-track-status text">เป้าหมาย: 0% | ปัจจุบัน: 0%</span>
+            </div>
+            <div class="race-track-bar">
+                <div id="progressLine" class="progress-line"></div>
+                <div id="progressBadge" class="progress-badge">0%</div>
+            </div>
         </div>
 
         <!-- Data Table -->
@@ -127,7 +130,7 @@
             <table class="report-table">
                 <colgroup>
                     <col style="width:20px">
-                    <col span="6" style="width:30px"> 
+                    <col span="6" style="width:30px">
                     <col class="quality-col">
                     <col class="quality-col">
                     <col class="quality-col">
@@ -135,32 +138,32 @@
                     <col class="cause-col">
                     <col class="cause-col">
                     <col class="cause-col">
-                    <col style="width:100px"> 
-                    <col style="width:60px"> 
+                    <col style="width:100px">
+                    <col style="width:60px">
                 </colgroup>
                 <thead>
                     <tr>
-                        <th rowspan="2"><span class="vertical-text">วัน/ชั่วโมง</span></th>
-                        <th colspan="6">ประสิทธิภาพ</th>
-                        <th colspan="3">คุณภาพ</th>
-                        <th colspan="4">สาเหตุหลัก</th>
-                        <th rowspan="2">แผนการแก้ไข</th>
-                        <th rowspan="2">ลายเซ็น</th>
+                        <th rowspan="2"><span class="vertical-text" data-i18n="thDayHour">วัน/ชั่วโมง</span></th>
+                        <th colspan="6" data-i18n="thEfficiency">ประสิทธิภาพ</th>
+                        <th colspan="3" data-i18n="thQuality">คุณภาพ</th>
+                        <th colspan="4" data-i18n="thRootCause">สาเหตุหลัก</th>
+                        <th rowspan="2" data-i18n="thActionPlan">แผนการแก้ไข</th>
+                        <th rowspan="2" data-i18n="thSignature">ลายเซ็น</th>
                     </tr>
                     <tr>
-                        <th class="header-wrap">เป้า<br>หมาย<br>(%)</th>
-                        <th class="header-wrap">เป้า<br>หมาย<br>(ชิ้น)</th>
-                        <th class="header-wrap">เวลา<br>เฉลี่ย<br>(วินาที)</th>
-                        <th class="header-wrap">เวลา<br>ต่อรอบ<br>(นาที)</th>
-                        <th class="header-wrap">ประสิทธิ<br>ภาพ<br>(%)</th>
-                        <th class="header-wrap">ประสิทธิ<br>ภาพ<br>(ชิ้น)</th>
-                        <th class="quality-col"><span class="vertical-text">ผ่าน</span></th>
-                        <th class="quality-col"><span class="vertical-text">ไม่ผ่าน</span></th>
-                        <th class="quality-col"><span class="vertical-text">อัตราผ่าน %</span></th>
-                        <th class="cause-col"><span class="vertical-text">คน</span></th>
-                        <th class="cause-col"><span class="vertical-text">เครื่อง</span></th>
-                        <th class="cause-col"><span class="vertical-text">วิธีการ</span></th>
-                        <th class="cause-col"><span class="vertical-text">วัสดุ</span></th>
+                        <th class="header-wrap" data-i18n-html="thTargetPct">เป้า<br>หมาย<br>(%)</th>
+                        <th class="header-wrap" data-i18n-html="thTargetPcs">เป้า<br>หมาย<br>(ชิ้น)</th>
+                        <th class="header-wrap" data-i18n-html="thAvgSec">เวลา<br>เฉลี่ย<br>(วินาที)</th>
+                        <th class="header-wrap" data-i18n-html="thCycleMin">เวลา<br>ต่อรอบ<br>(นาที)</th>
+                        <th class="header-wrap" data-i18n-html="thEffPct">ประสิทธิ<br>ภาพ<br>(%)</th>
+                        <th class="header-wrap" data-i18n-html="thEffPcs">ประสิทธิ<br>ภาพ<br>(ชิ้น)</th>
+                        <th class="quality-col"><span class="vertical-text" data-i18n="thPass">ผ่าน</span></th>
+                        <th class="quality-col"><span class="vertical-text" data-i18n="thFail">ไม่ผ่าน</span></th>
+                        <th class="quality-col"><span class="vertical-text" data-i18n="thPassRate">อัตราผ่าน %</span></th>
+                        <th class="cause-col"><span class="vertical-text" data-i18n="thMan">คน</span></th>
+                        <th class="cause-col"><span class="vertical-text" data-i18n="thMachine">เครื่อง</span></th>
+                        <th class="cause-col"><span class="vertical-text" data-i18n="thMethod">วิธีการ</span></th>
+                        <th class="cause-col"><span class="vertical-text" data-i18n="thMaterial">วัสดุ</span></th>
                     </tr>
                 </thead>
                 <tbody id="tableBody"></tbody>
@@ -172,7 +175,7 @@
     <div id="chartModal" class="modal">
         <div class="modal-content chart-modal-content">
             <span onclick="document.getElementById('chartModal').style.display='none'" class="close">&times;</span>
-            <h2 class="text">กราฟเปรียบเทียบเป้าหมาย vs ประสิทธิภาพจริง</h2>
+            <h2 class="text" data-i18n="chartTitle">กราฟเปรียบเทียบเป้าหมาย vs ประสิทธิภาพจริง</h2>
             <canvas id="performanceChart" width="400" height="200"></canvas>
         </div>
     </div>
@@ -180,44 +183,44 @@
     <div id="manualInputModal" class="modal">
     <div class="modal-content">
         <span class="close" onclick="closeManualModal()">&times;</span>
-        <h3>ระบุเวลาเฉลี่ย (วินาที)</h3>
-        <p class="text">วันที่บันทึกผล: <span id="modalDayLabel" class="text">-</span></p>
-        
+        <h3 id="manualModalTitle" data-i18n="modalAvgSec">ระบุเวลาเฉลี่ย (วินาที)</h3>
+        <p class="text"><span data-i18n="modalDayRecorded">วันที่บันทึกผล:</span> <span id="modalDayLabel" class="text">-</span></p>
+
         <input type="number" id="manualSecondsInput" pattern="[0-9]*" inputmode="numeric">
-        
+
         <div class="numpad-container">
             <button type="button" class="numpad-btn" onclick="pressNum(7)">7</button>
             <button type="button" class="numpad-btn" onclick="pressNum(8)">8</button>
             <button type="button" class="numpad-btn" onclick="pressNum(9)">9</button>
-            
+
             <button type="button" class="numpad-btn" onclick="pressNum(4)">4</button>
             <button type="button" class="numpad-btn" onclick="pressNum(5)">5</button>
             <button type="button" class="numpad-btn" onclick="pressNum(6)">6</button>
-            
+
             <button type="button" class="numpad-btn" onclick="pressNum(1)">1</button>
             <button type="button" class="numpad-btn" onclick="pressNum(2)">2</button>
             <button type="button" class="numpad-btn" onclick="pressNum(3)">3</button>
-            
+
             <button type="button" class="numpad-btn numpad-clear" onclick="pressClear()">C</button>
             <button type="button" class="numpad-btn" onclick="pressNum(0)">0</button>
             <button type="button" class="numpad-btn numpad-back" onclick="pressBackspace()">
                 <i class="fa-solid fa-backspace"></i>
             </button>
         </div>
-        
+
         <div class="modal-action-footer">
-            <button type="button" class="btn btn-cancel" onclick="closeManualModal()">ยกเลิก</button>
-            <button type="button" class="btn btn-save-modal" onclick="saveManualSeconds()">บันทึกข้อมูล</button>
+            <button type="button" class="btn btn-cancel" onclick="closeManualModal()" data-i18n="btnCancel">ยกเลิก</button>
+            <button type="button" class="btn btn-save-modal" onclick="saveManualSeconds()" data-i18n="btnSaveData">บันทึกข้อมูล</button>
         </div>
     </div>
 </div>
 
     <div id="notificationModal" class="modal-overlay">
     <div class="custom-modal-content">
-        <h3 id="notifTitle">แจ้งเตือนระบบ</h3>
+        <h3 id="notifTitle" data-i18n="notifTitle">แจ้งเตือนระบบ</h3>
         <p id="notifMessage"></p>
         <div class="notif-actions">
-            <button id="notifCancelBtn" class="btn btn-cancel" onclick="closeNotifModal()">ยกเลิก</button>
+            <button id="notifCancelBtn" class="btn btn-cancel" onclick="closeNotifModal()" data-i18n="btnCancel">ยกเลิก</button>
             <button id="notifConfirmBtn" class="btn btn-success">ตกลง</button>
             </div>
          </div>
@@ -225,12 +228,12 @@
 
     <div id="signModal" class="modal">
         <div class="modal-content">
-            <h3>ลงลายเซ็น</h3>
+            <h3 data-i18n="signTitle">ลงลายเซ็น</h3>
             <canvas id="signature-pad" width="350" height="200"></canvas>
             <div class="sign-btn-group">
-                <button class="btn btn-reset" onclick="clearPad()">ล้าง</button>
-                <button class="btn btn-save" onclick="saveSignature()">บันทึก</button>
-                <button class="btn btn-stop" onclick="closeSignPad()">ยกเลิก</button>
+                <button class="btn btn-reset" onclick="clearPad()" data-i18n="btnClearPad">ล้าง</button>
+                <button class="btn btn-save" onclick="saveSignature()" data-i18n="btnSaveShort">บันทึก</button>
+                <button class="btn btn-stop" onclick="closeSignPad()" data-i18n="btnCancel">ยกเลิก</button>
             </div>
         </div>
     </div>
@@ -238,16 +241,17 @@
     <div id="actionPlanModal" class="modal">
     <div class="modal-content" style="max-width: 500px;">
         <span class="close" onclick="closeActionPlanModal()">&times;</span>
-        <h3>📝 ระบุแผนการแก้ไข (Action Plan)</h3>
-        <p class="text">วันที่บันทึกแผน: <span id="actionPlanDayLabel" class="text-title-color" style="font-weight: 700;">-</span></p>
-        
-        <textarea id="modalActionPlanInput" rows="6" class="text" 
-                  placeholder="กรุณาระบุรายละเอียดแผนการแก้ไขปัญหาที่พบ..." 
+        <h3 data-i18n="actionPlanTitle">📝 ระบุแผนการแก้ไข (Action Plan)</h3>
+        <p class="text"><span data-i18n="actionPlanDayRecorded">วันที่บันทึกแผน:</span> <span id="actionPlanDayLabel" class="text-title-color" style="font-weight: 700;">-</span></p>
+
+        <textarea id="modalActionPlanInput" rows="6" class="text"
+                  data-i18n-placeholder="actionPlanPlaceholder"
+                  placeholder="กรุณาระบุรายละเอียดแผนการแก้ไขปัญหาที่พบ..."
                   style="width: 100%; border: 1px solid var(--border-input); background-color: var(--bg-input); border-radius: 8px; padding: 12px; font-family: inherit; font-size: 0.9rem; resize: vertical; outline: none; box-sizing: border-box; margin: 12px 0 20px 0; color: var(--text-primary);"></textarea>
-        
+
         <div class="modal-action-footer">
-            <button type="button" class="btn btn-cancel" onclick="closeActionPlanModal()">ยกเลิก</button>
-            <button type="button" class="btn btn-save-modal" onclick="saveActionPlanInput()">บันทึกข้อมูล</button>
+            <button type="button" class="btn btn-cancel" onclick="closeActionPlanModal()" data-i18n="btnCancel">ยกเลิก</button>
+            <button type="button" class="btn btn-save-modal" onclick="saveActionPlanInput()" data-i18n="btnSaveData">บันทึกข้อมูล</button>
         </div>
     </div>
 </div>

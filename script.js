@@ -4,6 +4,452 @@ let currentActiveDay = null;
 let lastAdjustedDay = 0;
 let myChart = null;
 
+// ==================== i18n / Translations ====================
+const translations = {
+    th: {
+        reportTitle: "CSA OPERATION SIGN-OFF REPORT",
+        themeToggle: "เปลี่ยนโหมดสี",
+        btnExport: "ส่งออกไปที่ Excel",
+        btnClear: "ล้างข้อมูล",
+        btnChart: "กราฟประสิทธิภาพ",
+        lblProcess: "ขั้นตอนหลัก",
+        lblEmployee: "พนักงาน",
+        lblTrainer: "ครูฝึก",
+        lblSam: "SAM (นาที)",
+        lblEffTarget: "เป้าหมาย Eff (%)",
+        lblQtyTarget: "เป้าหมาย Q'ty (ชิ้น/ชม.)",
+        lblWorkLevel: "ระดับงาน",
+        lblTrainingDays: "จำนวนวันที่จะต้องฝึก",
+        lblStartDate: "วันที่เริ่มฝึก",
+        lblTransferDate: "วันที่โอนย้าย",
+        lblDayHour: "วัน/ชั่วโมงที่:",
+        btnPlanA: "แผน A",
+        btnPlanB: "แผน B",
+        btnStart: "Start",
+        btnStop: "Stop",
+        btnContinue: "Continue",
+        btnReset: "Reset",
+        btnSave: "Save",
+        thDayHour: "วัน/ชั่วโมง",
+        thEfficiency: "ประสิทธิภาพ",
+        thQuality: "คุณภาพ",
+        thRootCause: "สาเหตุหลัก",
+        thActionPlan: "แผนการแก้ไข",
+        thSignature: "ลายเซ็น",
+        thTargetPct: "เป้า<br>หมาย<br>(%)",
+        thTargetPcs: "เป้า<br>หมาย<br>(ชิ้น)",
+        thAvgSec: "เวลา<br>เฉลี่ย<br>(วินาที)",
+        thCycleMin: "เวลา<br>ต่อรอบ<br>(นาที)",
+        thEffPct: "ประสิทธิ<br>ภาพ<br>(%)",
+        thEffPcs: "ประสิทธิ<br>ภาพ<br>(ชิ้น)",
+        thPass: "ผ่าน",
+        thFail: "ไม่ผ่าน",
+        thPassRate: "อัตราผ่าน %",
+        thMan: "คน",
+        thMachine: "เครื่อง",
+        thMethod: "วิธีการ",
+        thMaterial: "วัสดุ",
+        chartTitle: "กราฟเปรียบเทียบเป้าหมาย vs ประสิทธิภาพจริง",
+        modalAvgSec: "ระบุเวลาเฉลี่ย (วินาที)",
+        modalPass: 'ระบุจำนวนงานที่ "ผ่าน"',
+        modalFail: 'ระบุจำนวนงานที่ "ไม่ผ่าน"',
+        modalDayRecorded: "วันที่บันทึกผล:",
+        btnCancel: "ยกเลิก",
+        btnSaveData: "บันทึกข้อมูล",
+        notifTitle: "แจ้งเตือนระบบ",
+        signTitle: "ลงลายเซ็น",
+        btnClearPad: "ล้าง",
+        btnSaveShort: "บันทึก",
+        actionPlanTitle: "📝 ระบุแผนการแก้ไข (Action Plan)",
+        actionPlanDayRecorded: "วันที่บันทึกแผน:",
+        actionPlanPlaceholder: "กรุณาระบุรายละเอียดแผนการแก้ไขปัญหาที่พบ...",
+        actionPlanCellPlaceholder: "คลิกเพื่อระบุรายละเอียด...",
+        signCellText: "✍️ เซ็นชื่อ",
+        chartLegendTarget: "เป้าหมายประสิทธิภาพ (%)",
+        chartLegendActual: "ประสิทธิภาพจริง (%)",
+        chartXDay: (d) => `วันที่ ${d}`,
+        chartYAxis: "เปอร์เซ็นต์ (%)",
+        raceOver: (act, gap) => `ปัจจุบัน: ${act}% | คุณทำได้มากกว่าเป้าหมาย +${gap}%`,
+        raceGap: (act, gap, tgt) => `ปัจจุบัน: ${act}% | อีก ${gap}% จะถึงเป้าหมาย (${tgt}%)`,
+        raceInitial: "เป้าหมาย: 0% | ปัจจุบัน: 0%",
+        confirmYes: "ใช่, ต้องการปรับแผน",
+        acknowledge: "รับทราบ",
+        titleNoData: "⚠️ บันทึกข้อมูลไม่ครบ",
+        msgNoData: "กรุณาบันทึกผลประสิทธิภาพจริงก่อนปรับแผน",
+        titleAlreadyAdjusted: "⏳ ปรับแผนไปแล้ว",
+        msgAlreadyAdjusted: (d) => `คุณได้ปรับแผนสำหรับผลงานวันที่ ${d} ไปแล้ว\n(กดได้วันละ 1 ครั้ง)`,
+        titleConfirmPlanA: "📈 ยืนยันปรับแผน A (ขยายวันฝึก)",
+        msgConfirmPlanA: (eff, tgt) => `ประสิทธิภาพจริง (${eff}%) ต่ำกว่าเป้าหมาย (${tgt}%)\nคุณต้องการขยายระยะเวลาการฝึกเพิ่มอีก 1 วัน ใช่หรือไม่?`,
+        titleConfirmPlanB: "📉 ยืนยันปรับแผน B (ลดวันฝึก)",
+        msgConfirmPlanB: (eff, tgt) => `ประสิทธิภาพจริง (${eff}%) สูงกว่าเป้าหมาย (${tgt}%)\nคุณต้องการลดระยะเวลาการฝึกลง 1 วัน ใช่หรือไม่?`,
+        titleSuccess: "✨ สำเร็จ",
+        msgPlanASuccess: (d) => `ปรับแผน A สำเร็จ: ขยายเวลาฝึกเป็น ${d} วัน`,
+        msgPlanBSuccess: (d) => `ปรับแผน B สำเร็จ: ลดเวลาฝึกเหลือ ${d} วัน`,
+        titleCondFail: "❌ ไม่ตรงเงื่อนไข",
+        msgPlanACond: "เงื่อนไขไม่ตรง: แผน A ใช้เมื่อประสิทธิภาพจริง 'ต่ำกว่า' เป้าหมายเท่านั้น",
+        msgPlanBCond: "เงื่อนไขไม่ตรง: แผน B ใช้เมื่อประสิทธิภาพจริง 'สูงกว่า' เป้าหมายเท่านั้น",
+        titleCantReduce: "⚠️ ไม่สามารถปรับลดได้",
+        msgCantReduce: "ไม่สามารถลดวันฝึกให้ต่ำกว่าวันปัจจุบันได้",
+        titleConfirmExport: "📊 ยืนยันการส่งออกข้อมูล",
+        msgConfirmExport: (name) => `คุณต้องการส่งออกรายงาน CSA Sign-off\nของพนักงาน: "${name}"\nออกเป็นไฟล์ Excel ใช่หรือไม่?`,
+        titleConfirmClear: "⚠️ ยืนยันการล้างข้อมูลทั้งหมด",
+        msgConfirmClear: "คุณต้องการลบข้อมูลทั้งหมดในฟอร์มนี้ใช่หรือไม่?\nข้อมูลที่ลบแล้วไม่สามารถเรียกคืนได้",
+        titleDone: "✨ ทำรายการสำเร็จ",
+        msgClearDone: "ล้างข้อมูลทั้งหมดในระบบเรียบร้อยแล้ว",
+        alertTimeFirst: "กรุณาจับเวลาก่อน",
+        alertRowNotFound: "ไม่พบแถวที่ระบุในตาราง",
+        alertInvalidNumber: "กรุณาระบุตัวเลขที่ถูกต้อง",
+        noName: "ไม่ระบุชื่อ"
+    },
+    en: {
+        reportTitle: "CSA OPERATION SIGN-OFF REPORT",
+        themeToggle: "Toggle Theme",
+        btnExport: "Export to Excel",
+        btnClear: "Clear Data",
+        btnChart: "Performance Chart",
+        lblProcess: "Main Process",
+        lblEmployee: "Employee",
+        lblTrainer: "Trainer",
+        lblSam: "SAM (min)",
+        lblEffTarget: "Eff Target (%)",
+        lblQtyTarget: "Q'ty Target (pcs/hr)",
+        lblWorkLevel: "Operation Grade",
+        lblTrainingDays: "Training Days",
+        lblStartDate: "Start Date",
+        lblTransferDate: "Transfer Date",
+        lblDayHour: "Day/Hour:",
+        btnPlanA: "Plan A",
+        btnPlanB: "Plan B",
+        btnStart: "Start",
+        btnStop: "Stop",
+        btnContinue: "Continue",
+        btnReset: "Reset",
+        btnSave: "Save",
+        thDayHour: "Day/Hour",
+        thEfficiency: "Efficiency",
+        thQuality: "Quality",
+        thRootCause: "Root Cause",
+        thActionPlan: "Action Plan",
+        thSignature: "Signature",
+        thTargetPct: "Target<br>(%)",
+        thTargetPcs: "Target<br>(pcs)",
+        thAvgSec: "Avg<br>Time<br>(sec)",
+        thCycleMin: "Cycle<br>Time<br>(min)",
+        thEffPct: "Eff<br>(%)",
+        thEffPcs: "Eff<br>(pcs)",
+        thPass: "Pass",
+        thFail: "Fail",
+        thPassRate: "Pass Rate %",
+        thMan: "Man",
+        thMachine: "Machine",
+        thMethod: "Method",
+        thMaterial: "Material",
+        chartTitle: "Target vs Actual Efficiency Comparison",
+        modalAvgSec: "Enter Average Time (seconds)",
+        modalPass: 'Enter number of "Pass"',
+        modalFail: 'Enter number of "Fail"',
+        modalDayRecorded: "Recorded Day:",
+        btnCancel: "Cancel",
+        btnSaveData: "Save",
+        notifTitle: "System Notification",
+        signTitle: "Sign Here",
+        btnClearPad: "Clear",
+        btnSaveShort: "Save",
+        actionPlanTitle: "📝 Enter Action Plan",
+        actionPlanDayRecorded: "Plan Day:",
+        actionPlanPlaceholder: "Please describe the corrective action plan...",
+        actionPlanCellPlaceholder: "Click to add details...",
+        signCellText: "✍️ Sign",
+        chartLegendTarget: "Target Efficiency (%)",
+        chartLegendActual: "Actual Efficiency (%)",
+        chartXDay: (d) => `Day ${d}`,
+        chartYAxis: "Percentage (%)",
+        raceOver: (act, gap) => `Current: ${act}% | You exceeded target by +${gap}%`,
+        raceGap: (act, gap, tgt) => `Current: ${act}% | ${gap}% more to reach target (${tgt}%)`,
+        raceInitial: "Target: 0% | Current: 0%",
+        confirmYes: "Yes, adjust plan",
+        acknowledge: "OK",
+        titleNoData: "⚠️ Incomplete Data",
+        msgNoData: "Please record actual efficiency before adjusting the plan",
+        titleAlreadyAdjusted: "⏳ Already Adjusted",
+        msgAlreadyAdjusted: (d) => `You have already adjusted the plan for day ${d}\n(Only 1 adjustment per day)`,
+        titleConfirmPlanA: "📈 Confirm Plan A (Extend Training)",
+        msgConfirmPlanA: (eff, tgt) => `Actual efficiency (${eff}%) is below target (${tgt}%)\nDo you want to extend training by 1 more day?`,
+        titleConfirmPlanB: "📉 Confirm Plan B (Reduce Training)",
+        msgConfirmPlanB: (eff, tgt) => `Actual efficiency (${eff}%) is above target (${tgt}%)\nDo you want to reduce training by 1 day?`,
+        titleSuccess: "✨ Success",
+        msgPlanASuccess: (d) => `Plan A applied: training extended to ${d} days`,
+        msgPlanBSuccess: (d) => `Plan B applied: training reduced to ${d} days`,
+        titleCondFail: "❌ Condition Not Met",
+        msgPlanACond: "Condition failed: Plan A only applies when actual efficiency is 'below' target",
+        msgPlanBCond: "Condition failed: Plan B only applies when actual efficiency is 'above' target",
+        titleCantReduce: "⚠️ Cannot Reduce",
+        msgCantReduce: "Cannot reduce training days below the current day",
+        titleConfirmExport: "📊 Confirm Export",
+        msgConfirmExport: (name) => `Export CSA Sign-off report\nfor employee: "${name}"\nto Excel file?`,
+        titleConfirmClear: "⚠️ Confirm Clear All Data",
+        msgConfirmClear: "Do you want to delete all data in this form?\nDeleted data cannot be recovered",
+        titleDone: "✨ Done",
+        msgClearDone: "All data has been cleared successfully",
+        alertTimeFirst: "Please start the timer first",
+        alertRowNotFound: "Row not found in the table",
+        alertInvalidNumber: "Please enter a valid number",
+        noName: "Unnamed"
+    },
+    vn: {
+        reportTitle: "BÁO CÁO KÝ DUYỆT VẬN HÀNH CSA",
+        themeToggle: "Chuyển chế độ",
+        btnExport: "Xuất ra Excel",
+        btnClear: "Xóa dữ liệu",
+        btnChart: "Biểu đồ hiệu suất",
+        lblProcess: "Công đoạn chính",
+        lblEmployee: "Công nhân",
+        lblTrainer: "Huấn luyện viên",
+        lblSam: "SAM (phút)",
+        lblEffTarget: "Mục tiêu Eff (%)",
+        lblQtyTarget: "Mục tiêu SL (cái/giờ)",
+        lblWorkLevel: "Cấp độ vận hành",
+        lblTrainingDays: "Số ngày đào tạo",
+        lblStartDate: "Ngày bắt đầu",
+        lblTransferDate: "Ngày chuyển giao",
+        lblDayHour: "Ngày/Giờ:",
+        btnPlanA: "Kế hoạch A",
+        btnPlanB: "Kế hoạch B",
+        btnStart: "Bắt đầu",
+        btnStop: "Dừng",
+        btnContinue: "Tiếp tục",
+        btnReset: "Đặt lại",
+        btnSave: "Lưu",
+        thDayHour: "Ngày/Giờ",
+        thEfficiency: "Hiệu suất",
+        thQuality: "Chất lượng",
+        thRootCause: "Nguyên nhân chính",
+        thActionPlan: "Kế hoạch khắc phục",
+        thSignature: "Chữ ký",
+        thTargetPct: "Mục<br>tiêu<br>(%)",
+        thTargetPcs: "Mục<br>tiêu<br>(cái)",
+        thAvgSec: "Thời<br>gian TB<br>(giây)",
+        thCycleMin: "Chu kỳ<br>(phút)",
+        thEffPct: "Hiệu<br>suất<br>(%)",
+        thEffPcs: "Hiệu<br>suất<br>(cái)",
+        thPass: "Đạt",
+        thFail: "Không đạt",
+        thPassRate: "Tỷ lệ đạt %",
+        thMan: "Con người",
+        thMachine: "Máy móc",
+        thMethod: "Phương pháp",
+        thMaterial: "Vật liệu",
+        chartTitle: "So sánh Mục tiêu vs Hiệu suất thực tế",
+        modalAvgSec: "Nhập thời gian trung bình (giây)",
+        modalPass: 'Nhập số lượng "Đạt"',
+        modalFail: 'Nhập số lượng "Không đạt"',
+        modalDayRecorded: "Ngày ghi nhận:",
+        btnCancel: "Hủy",
+        btnSaveData: "Lưu dữ liệu",
+        notifTitle: "Thông báo hệ thống",
+        signTitle: "Ký tên",
+        btnClearPad: "Xóa",
+        btnSaveShort: "Lưu",
+        actionPlanTitle: "📝 Nhập kế hoạch khắc phục",
+        actionPlanDayRecorded: "Ngày ghi kế hoạch:",
+        actionPlanPlaceholder: "Vui lòng mô tả chi tiết kế hoạch khắc phục vấn đề...",
+        actionPlanCellPlaceholder: "Nhấn để thêm chi tiết...",
+        signCellText: "✍️ Ký tên",
+        chartLegendTarget: "Mục tiêu hiệu suất (%)",
+        chartLegendActual: "Hiệu suất thực tế (%)",
+        chartXDay: (d) => `Ngày ${d}`,
+        chartYAxis: "Phần trăm (%)",
+        raceOver: (act, gap) => `Hiện tại: ${act}% | Bạn vượt mục tiêu +${gap}%`,
+        raceGap: (act, gap, tgt) => `Hiện tại: ${act}% | Còn ${gap}% để đạt mục tiêu (${tgt}%)`,
+        raceInitial: "Mục tiêu: 0% | Hiện tại: 0%",
+        confirmYes: "Có, điều chỉnh kế hoạch",
+        acknowledge: "Đồng ý",
+        titleNoData: "⚠️ Dữ liệu chưa đủ",
+        msgNoData: "Vui lòng ghi nhận hiệu suất thực tế trước khi điều chỉnh kế hoạch",
+        titleAlreadyAdjusted: "⏳ Đã điều chỉnh",
+        msgAlreadyAdjusted: (d) => `Bạn đã điều chỉnh kế hoạch cho ngày ${d}\n(Chỉ điều chỉnh 1 lần/ngày)`,
+        titleConfirmPlanA: "📈 Xác nhận Kế hoạch A (Kéo dài đào tạo)",
+        msgConfirmPlanA: (eff, tgt) => `Hiệu suất thực tế (${eff}%) thấp hơn mục tiêu (${tgt}%)\nBạn có muốn kéo dài đào tạo thêm 1 ngày?`,
+        titleConfirmPlanB: "📉 Xác nhận Kế hoạch B (Giảm ngày đào tạo)",
+        msgConfirmPlanB: (eff, tgt) => `Hiệu suất thực tế (${eff}%) cao hơn mục tiêu (${tgt}%)\nBạn có muốn giảm đào tạo 1 ngày?`,
+        titleSuccess: "✨ Thành công",
+        msgPlanASuccess: (d) => `Áp dụng Kế hoạch A: kéo dài đào tạo lên ${d} ngày`,
+        msgPlanBSuccess: (d) => `Áp dụng Kế hoạch B: giảm đào tạo còn ${d} ngày`,
+        titleCondFail: "❌ Không đủ điều kiện",
+        msgPlanACond: "Điều kiện không đáp ứng: Kế hoạch A chỉ áp dụng khi hiệu suất 'thấp hơn' mục tiêu",
+        msgPlanBCond: "Điều kiện không đáp ứng: Kế hoạch B chỉ áp dụng khi hiệu suất 'cao hơn' mục tiêu",
+        titleCantReduce: "⚠️ Không thể giảm",
+        msgCantReduce: "Không thể giảm ngày đào tạo xuống dưới ngày hiện tại",
+        titleConfirmExport: "📊 Xác nhận xuất dữ liệu",
+        msgConfirmExport: (name) => `Bạn muốn xuất báo cáo CSA Sign-off\ncủa công nhân: "${name}"\nra file Excel?`,
+        titleConfirmClear: "⚠️ Xác nhận xóa toàn bộ dữ liệu",
+        msgConfirmClear: "Bạn muốn xóa toàn bộ dữ liệu trong biểu mẫu này?\nDữ liệu đã xóa không thể khôi phục",
+        titleDone: "✨ Hoàn tất",
+        msgClearDone: "Đã xóa toàn bộ dữ liệu thành công",
+        alertTimeFirst: "Vui lòng bấm giờ trước",
+        alertRowNotFound: "Không tìm thấy hàng trong bảng",
+        alertInvalidNumber: "Vui lòng nhập số hợp lệ",
+        noName: "Chưa xác định"
+    },
+    lo: {
+        reportTitle: "ບົດລາຍງານການເຊັນຮັບຮອງການດຳເນີນງານ CSA",
+        themeToggle: "ປ່ຽນໂໝດ",
+        btnExport: "ສົ່ງອອກເປັນ Excel",
+        btnClear: "ລຶບຂໍ້ມູນ",
+        btnChart: "ກຣາຟປະສິດທິພາບ",
+        lblProcess: "ຂັ້ນຕອນຫຼັກ",
+        lblEmployee: "ພະນັກງານ",
+        lblTrainer: "ຄູຝຶກ",
+        lblSam: "SAM (ນາທີ)",
+        lblEffTarget: "ເປົ້າໝາຍ Eff (%)",
+        lblQtyTarget: "ເປົ້າໝາຍ Q'ty (ຊິ້ນ/ຊົ່ວໂມງ)",
+        lblWorkLevel: "ລະດັບການດຳເນີນງານ",
+        lblTrainingDays: "ຈຳນວນວັນທີ່ຕ້ອງຝຶກ",
+        lblStartDate: "ວັນທີເລີ່ມຝຶກ",
+        lblTransferDate: "ວັນທີໂອນຍ້າຍ",
+        lblDayHour: "ວັນ/ຊົ່ວໂມງ:",
+        btnPlanA: "ແຜນ A",
+        btnPlanB: "ແຜນ B",
+        btnStart: "ເລີ່ມ",
+        btnStop: "ຢຸດ",
+        btnContinue: "ຕໍ່",
+        btnReset: "ຣີເຊັດ",
+        btnSave: "ບັນທຶກ",
+        thDayHour: "ວັນ/ຊົ່ວໂມງ",
+        thEfficiency: "ປະສິດທິພາບ",
+        thQuality: "ຄຸນນະພາບ",
+        thRootCause: "ສາເຫດຫຼັກ",
+        thActionPlan: "ແຜນແກ້ໄຂ",
+        thSignature: "ລາຍເຊັນ",
+        thTargetPct: "ເປົ້າ<br>ໝາຍ<br>(%)",
+        thTargetPcs: "ເປົ້າ<br>ໝາຍ<br>(ຊິ້ນ)",
+        thAvgSec: "ເວລາ<br>ສະເລ່ຍ<br>(ວິນາທີ)",
+        thCycleMin: "ເວລາ<br>ຕໍ່ຮອບ<br>(ນາທີ)",
+        thEffPct: "ປະສິດ<br>ທິພາບ<br>(%)",
+        thEffPcs: "ປະສິດ<br>ທິພາບ<br>(ຊິ້ນ)",
+        thPass: "ຜ່ານ",
+        thFail: "ບໍ່ຜ່ານ",
+        thPassRate: "ອັດຕາຜ່ານ %",
+        thMan: "ຄົນ",
+        thMachine: "ເຄື່ອງ",
+        thMethod: "ວິທີການ",
+        thMaterial: "ວັດສະດຸ",
+        chartTitle: "ກຣາຟປຽບທຽບເປົ້າໝາຍ vs ປະສິດທິພາບຈິງ",
+        modalAvgSec: "ລະບຸເວລາສະເລ່ຍ (ວິນາທີ)",
+        modalPass: 'ລະບຸຈຳນວນວຽກທີ່ "ຜ່ານ"',
+        modalFail: 'ລະບຸຈຳນວນວຽກທີ່ "ບໍ່ຜ່ານ"',
+        modalDayRecorded: "ວັນທີບັນທຶກຜົນ:",
+        btnCancel: "ຍົກເລີກ",
+        btnSaveData: "ບັນທຶກຂໍ້ມູນ",
+        notifTitle: "ແຈ້ງເຕືອນລະບົບ",
+        signTitle: "ເຊັນລາຍເຊັນ",
+        btnClearPad: "ລຶບ",
+        btnSaveShort: "ບັນທຶກ",
+        actionPlanTitle: "📝 ລະບຸແຜນແກ້ໄຂ (Action Plan)",
+        actionPlanDayRecorded: "ວັນທີບັນທຶກແຜນ:",
+        actionPlanPlaceholder: "ກະລຸນາລະບຸລາຍລະອຽດແຜນແກ້ໄຂບັນຫາທີ່ພົບ...",
+        actionPlanCellPlaceholder: "ຄລິກເພື່ອລະບຸລາຍລະອຽດ...",
+        signCellText: "✍️ ເຊັນຊື່",
+        chartLegendTarget: "ເປົ້າໝາຍປະສິດທິພາບ (%)",
+        chartLegendActual: "ປະສິດທິພາບຈິງ (%)",
+        chartXDay: (d) => `ວັນທີ ${d}`,
+        chartYAxis: "ເປີເຊັນ (%)",
+        raceOver: (act, gap) => `ປັດຈຸບັນ: ${act}% | ທ່ານເຮັດໄດ້ຫຼາຍກວ່າເປົ້າໝາຍ +${gap}%`,
+        raceGap: (act, gap, tgt) => `ປັດຈຸບັນ: ${act}% | ອີກ ${gap}% ຈະຮອດເປົ້າໝາຍ (${tgt}%)`,
+        raceInitial: "ເປົ້າໝາຍ: 0% | ປັດຈຸບັນ: 0%",
+        confirmYes: "ແມ່ນ, ຕ້ອງການປັບແຜນ",
+        acknowledge: "ຮັບຊາບ",
+        titleNoData: "⚠️ ບັນທຶກຂໍ້ມູນບໍ່ຄົບ",
+        msgNoData: "ກະລຸນາບັນທຶກຜົນປະສິດທິພາບຈິງກ່ອນປັບແຜນ",
+        titleAlreadyAdjusted: "⏳ ປັບແຜນໄປແລ້ວ",
+        msgAlreadyAdjusted: (d) => `ທ່ານໄດ້ປັບແຜນສຳລັບຜົນວັນທີ ${d} ໄປແລ້ວ\n(ກົດໄດ້ວັນລະ 1 ຄັ້ງ)`,
+        titleConfirmPlanA: "📈 ຢືນຢັນປັບແຜນ A (ຂະຫຍາຍວັນຝຶກ)",
+        msgConfirmPlanA: (eff, tgt) => `ປະສິດທິພາບຈິງ (${eff}%) ຕ່ຳກວ່າເປົ້າໝາຍ (${tgt}%)\nທ່ານຕ້ອງການຂະຫຍາຍໄລຍະຝຶກເພີ່ມອີກ 1 ວັນ ບໍ?`,
+        titleConfirmPlanB: "📉 ຢືນຢັນປັບແຜນ B (ຫຼຸດວັນຝຶກ)",
+        msgConfirmPlanB: (eff, tgt) => `ປະສິດທິພາບຈິງ (${eff}%) ສູງກວ່າເປົ້າໝາຍ (${tgt}%)\nທ່ານຕ້ອງການຫຼຸດໄລຍະຝຶກລົງ 1 ວັນ ບໍ?`,
+        titleSuccess: "✨ ສຳເລັດ",
+        msgPlanASuccess: (d) => `ປັບແຜນ A ສຳເລັດ: ຂະຫຍາຍເວລາຝຶກເປັນ ${d} ວັນ`,
+        msgPlanBSuccess: (d) => `ປັບແຜນ B ສຳເລັດ: ຫຼຸດເວລາຝຶກເຫຼືອ ${d} ວັນ`,
+        titleCondFail: "❌ ບໍ່ຕົງເງື່ອນໄຂ",
+        msgPlanACond: "ເງື່ອນໄຂບໍ່ຕົງ: ແຜນ A ໃຊ້ເມື່ອປະສິດທິພາບຈິງ 'ຕ່ຳກວ່າ' ເປົ້າໝາຍເທົ່ານັ້ນ",
+        msgPlanBCond: "ເງື່ອນໄຂບໍ່ຕົງ: ແຜນ B ໃຊ້ເມື່ອປະສິດທິພາບຈິງ 'ສູງກວ່າ' ເປົ້າໝາຍເທົ່ານັ້ນ",
+        titleCantReduce: "⚠️ ບໍ່ສາມາດຫຼຸດໄດ້",
+        msgCantReduce: "ບໍ່ສາມາດຫຼຸດວັນຝຶກໃຫ້ຕ່ຳກວ່າວັນປັດຈຸບັນໄດ້",
+        titleConfirmExport: "📊 ຢືນຢັນການສົ່ງອອກຂໍ້ມູນ",
+        msgConfirmExport: (name) => `ທ່ານຕ້ອງການສົ່ງອອກລາຍງານ CSA Sign-off\nຂອງພະນັກງານ: "${name}"\nອອກເປັນໄຟລ໌ Excel ບໍ?`,
+        titleConfirmClear: "⚠️ ຢືນຢັນການລຶບຂໍ້ມູນທັງໝົດ",
+        msgConfirmClear: "ທ່ານຕ້ອງການລຶບຂໍ້ມູນທັງໝົດໃນຟອມນີ້ບໍ?\nຂໍ້ມູນທີ່ລຶບແລ້ວບໍ່ສາມາດເອົາຄືນໄດ້",
+        titleDone: "✨ ດຳເນີນການສຳເລັດ",
+        msgClearDone: "ລຶບຂໍ້ມູນທັງໝົດໃນລະບົບຮຽບຮ້ອຍແລ້ວ",
+        alertTimeFirst: "ກະລຸນາຈັບເວລາກ່ອນ",
+        alertRowNotFound: "ບໍ່ພົບແຖວທີ່ລະບຸໃນຕາຕະລາງ",
+        alertInvalidNumber: "ກະລຸນາລະບຸຕົວເລກທີ່ຖືກຕ້ອງ",
+        noName: "ບໍ່ລະບຸຊື່"
+    }
+};
+
+let currentLang = localStorage.getItem('lang') || 'th';
+
+function t(key, ...args) {
+    const dict = translations[currentLang] || translations.th;
+    const v = dict[key];
+    if (typeof v === 'function') return v(...args);
+    if (v == null) return translations.th[key] || key;
+    return v;
+}
+
+function applyTranslations() {
+    document.documentElement.lang = currentLang === 'lo' ? 'lo' : currentLang;
+
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        const val = t(key);
+        if (typeof val === 'string') el.textContent = val;
+    });
+    document.querySelectorAll('[data-i18n-html]').forEach(el => {
+        const key = el.getAttribute('data-i18n-html');
+        const val = t(key);
+        if (typeof val === 'string') el.innerHTML = val;
+    });
+    document.querySelectorAll('[data-i18n-title]').forEach(el => {
+        const key = el.getAttribute('data-i18n-title');
+        el.title = t(key);
+    });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        el.placeholder = t(key);
+    });
+
+    // Dynamic: table cells (action plan placeholder & sign text)
+    for (let d = 1; d <= 30; d++) {
+        const ap = document.getElementById(`actionPlan_${d}`);
+        if (ap) ap.placeholder = t('actionPlanCellPlaceholder');
+        const st = document.getElementById(`signText_${d}`);
+        if (st) st.textContent = t('signCellText');
+    }
+
+    // Timer button label if it's in initial "Start" state
+    const startBtn = document.getElementById('startStopBtn');
+    if (startBtn) {
+        if (!isRunning && elapsedTime === 0) startBtn.innerText = t('btnStart');
+        else if (isRunning) startBtn.innerText = t('btnStop');
+        else startBtn.innerText = t('btnContinue');
+    }
+
+    // Language dropdown reflect current
+    const langSel = document.getElementById('langSelect');
+    if (langSel && langSel.value !== currentLang) langSel.value = currentLang;
+
+    // Refresh race track label
+    if (typeof updateRaceTrack === 'function') updateRaceTrack();
+}
+
+function changeLanguage(lang) {
+    currentLang = lang;
+    localStorage.setItem('lang', lang);
+    applyTranslations();
+}
+
 // Signature Pad Variables
 const canvas = document.getElementById('signature-pad');
 let ctx = null;
@@ -20,6 +466,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeSignaturePad();
     calculateAdaptiveGoals();
     updateAutoTargetDay();
+    applyTranslations();
 });
 
 function initializeTable() {
@@ -51,11 +498,11 @@ function initializeTable() {
             <td><input type="checkbox"></td>
             
             <td class="action-plan-cell" onclick="openActionPlanModal(${d})" style="cursor: pointer;">
-                <textarea id="actionPlan_${d}" placeholder="คลิกเพื่อระบุรายละเอียด..." readonly style="cursor: pointer;"></textarea>
+                <textarea id="actionPlan_${d}" placeholder="${t('actionPlanCellPlaceholder')}" readonly style="cursor: pointer;"></textarea>
             </td>
-            
+
             <td class="sign-cell" onclick="openSignPad(${d})">
-                <span class="placeholder-text" id="signText_${d}">✍️ เซ็นชื่อ</span>
+                <span class="placeholder-text" id="signText_${d}">${t('signCellText')}</span>
                 <img id="signImg_${d}" src="">
             </td>
         `;
@@ -66,8 +513,7 @@ function initializeTable() {
 // ==================== Race Track Functions ====================
 function updateRaceTrack() {
     const globalEffTarget = parseFloat(document.getElementById('globalEffTarget').value) || 100;
-    
-    // หาค่าประสิทธิภาพจริงล่าสุด
+
     let lastActualEff = 0;
     for (let d = 1; d <= 30; d++) {
         let val = document.getElementById(`resEffPerc_${d}`).value;
@@ -76,37 +522,41 @@ function updateRaceTrack() {
         }
     }
 
-    // คำนวณ % ความคืบหน้า (0-100)
     let progress = (lastActualEff / globalEffTarget) * 100;
     if (progress > 100) progress = 100;
     if (progress < 0) progress = 0;
 
-    // อัปเดตตำแหน่ง UI
-    const runner = document.getElementById('runnerAvatar');
     const line = document.getElementById('progressLine');
     const label = document.getElementById('distanceLabel');
+    const badge = document.getElementById('progressBadge');
 
-    if (!runner || !line || !label) return;
+    if (!line || !label) return;
 
-    // เลื่อนตัวการ์ตูน
-    runner.style.left = `calc(${progress}% - 30px)`;
-    if (progress < 5) runner.style.left = "5px"; 
     line.style.width = `${progress}%`;
-    
-    if (lastActualEff > globalEffTarget) {
-        // กรณีเกินเป้าหมาย
-        const surplus = (lastActualEff - globalEffTarget).toFixed(1);
-        label.innerText = `ปัจจุบัน: ${lastActualEff}% | คุณทำได้มากกว่าเป้าหมาย +${surplus}%`;
-        label.style.color = "#155724";
-    } else {
-        // กรณีปกติหรือยังไม่ถึงเป้าหมาย
-        const gap = Math.round(globalEffTarget - lastActualEff);
-        label.innerText = `ปัจจุบัน: ${lastActualEff}% | อีก ${gap}% จะถึงเป้าหมาย (${globalEffTarget}%)`;
-        label.style.color = "#555";
+
+    if (badge) {
+        badge.style.left = `${progress}%`;
+        badge.textContent = `${Math.round(lastActualEff)}%`;
+        badge.classList.toggle('is-complete', lastActualEff >= globalEffTarget);
+
+        if (progress <= 5) {
+            badge.style.transform = 'translate(0, -50%)';
+        } else if (progress >= 95) {
+            badge.style.transform = 'translate(-100%, -50%)';
+        } else {
+            badge.style.transform = 'translate(-50%, -50%)';
+        }
     }
-    
-    // ถ้าถึงหรือเกินเป้าหมาย เปลี่ยนตัวการ์ตูนเป็นฉลอง
-    runner.innerHTML = lastActualEff >= globalEffTarget ? "🥳" : "🏃‍♂";
+
+    if (lastActualEff > globalEffTarget) {
+        const surplus = (lastActualEff - globalEffTarget).toFixed(1);
+        label.innerText = t('raceOver', lastActualEff, surplus);
+        label.style.color = "var(--accent-green)";
+    } else {
+        const gap = Math.round(globalEffTarget - lastActualEff);
+        label.innerText = t('raceGap', lastActualEff, gap, globalEffTarget);
+        label.style.color = "var(--text-muted)";
+    }
 }
 
 // ==================== Plan Adjustment Functions ====================
@@ -123,12 +573,13 @@ function showCustomModal(title, message, isConfirm = false, onConfirmCallback = 
     
     if (isConfirm) {
         cancelBtn.style.display = 'block';
-        confirmBtn.innerText = 'ใช่, ต้องการปรับแผน';
+        cancelBtn.innerText = t('btnCancel');
+        confirmBtn.innerText = t('confirmYes');
         confirmBtn.className = 'btn btn-success';
-        onModalConfirmCallback = onConfirmCallback; // ผูกฟังก์ชันที่จะให้ทำงานเมื่อกดตกลง
+        onModalConfirmCallback = onConfirmCallback;
     } else {
-        cancelBtn.style.display = 'none'; // ถ้าเป็น Alert ธรรมดาให้ซ่อนปุ่มยกเลิก
-        confirmBtn.innerText = 'รับทราบ';
+        cancelBtn.style.display = 'none';
+        confirmBtn.innerText = t('acknowledge');
         confirmBtn.className = 'btn';
         confirmBtn.style.backgroundColor = '#0ea5e9';
         confirmBtn.style.color = '#fff';
@@ -172,55 +623,50 @@ function adjustPlan(type) {
     }
 
     if (lastDay === 0) {
-        showCustomModal("⚠️ บันทึกข้อมูลไม่ครบ", "กรุณาบันทึกผลประสิทธิภาพจริงก่อนปรับแผน", false);
+        showCustomModal(t('titleNoData'), t('msgNoData'), false);
         return;
     }
 
     if (lastAdjustedDay === lastDay) {
-        showCustomModal("⏳ ปรับแผนไปแล้ว", `คุณได้ปรับแผนสำหรับผลงานวันที่ ${lastDay} ไปแล้ว\n(กดได้วันละ 1 ครั้ง)`, false);
+        showCustomModal(t('titleAlreadyAdjusted'), t('msgAlreadyAdjusted', lastDay), false);
         return;
     }
 
     if (type === 'A') {
         if (lastEff < lastTarget) {
-            const msg = `ประสิทธิภาพจริง (${lastEff}%) ต่ำกว่าเป้าหมาย (${lastTarget}%)\nคุณต้องการขยายระยะเวลาการฝึกเพิ่มอีก 1 วัน ใช่หรือไม่?`;
-            
-            // ส่ง Callback Function เข้าไปรันเมื่อพนักงานกด "ใช่" ในหน้าต่าง Modal
-            showCustomModal("📈 ยืนยันปรับแผน A (ขยายวันฝึก)", msg, true, function() {
+            showCustomModal(t('titleConfirmPlanA'), t('msgConfirmPlanA', lastEff, lastTarget), true, function() {
                 trainDays += 1;
                 trainDaysInput.value = trainDays;
                 lastAdjustedDay = lastDay;
-                
+
                 calculateAdaptiveGoals();
                 updateAfterAdjust();
-                
-                showCustomModal("✨ สำเร็จ", `ปรับแผน A สำเร็จ: ขยายเวลาฝึกเป็น ${trainDays} วัน`, false);
+
+                showCustomModal(t('titleSuccess'), t('msgPlanASuccess', trainDays), false);
             });
         } else {
-            showCustomModal("❌ ไม่ตรงเงื่อนไข", "เงื่อนไขไม่ตรง: แผน A ใช้เมื่อประสิทธิภาพจริง 'ต่ำกว่า' เป้าหมายเท่านั้น", false);
+            showCustomModal(t('titleCondFail'), t('msgPlanACond'), false);
             return;
         }
     } else if (type === 'B') {
         if (lastEff > lastTarget) {
             if (trainDays > lastDay) {
-                const msg = `ประสิทธิภาพจริง (${lastEff}%) สูงกว่าเป้าหมาย (${lastTarget}%)\nคุณต้องการลดระยะเวลาการฝึกลง 1 วัน ใช่หรือไม่?`;
-                
-                showCustomModal("📉 ยืนยันปรับแผน B (ลดวันฝึก)", msg, true, function() {
+                showCustomModal(t('titleConfirmPlanB'), t('msgConfirmPlanB', lastEff, lastTarget), true, function() {
                     trainDays -= 1;
                     trainDaysInput.value = trainDays;
                     lastAdjustedDay = lastDay;
-                    
+
                     calculateAdaptiveGoals();
                     updateAfterAdjust();
-                    
-                    showCustomModal("✨ สำเร็จ", `ปรับแผน B สำเร็จ: ลดเวลาฝึกเหลือ ${trainDays} วัน`, false);
+
+                    showCustomModal(t('titleSuccess'), t('msgPlanBSuccess', trainDays), false);
                 });
             } else {
-                showCustomModal("⚠️ ไม่สามารถปรับลดได้", "ไม่สามารถลดวันฝึกให้ต่ำกว่าวันปัจจุบันได้", false);
+                showCustomModal(t('titleCantReduce'), t('msgCantReduce'), false);
                 return;
             }
         } else {
-            showCustomModal("❌ ไม่ตรงเงื่อนไข", "เงื่อนไขไม่ตรง: แผน B ใช้เมื่อประสิทธิภาพจริง 'สูงกว่า' เป้าหมายเท่านั้น", false);
+            showCustomModal(t('titleCondFail'), t('msgPlanBCond'), false);
             return;
         }
     }
@@ -280,7 +726,7 @@ function showPerformanceChart() {
     const actualData = [];
 
     for (let d = 1; d <= 30; d++) {
-        labels.push("วันที่ " + d);
+        labels.push(t('chartXDay', d));
         
         // เคลียร์สัญลักษณ์ % ออกก่อนแปลงค่าเป็นตัวเลข (ป้องกันการ Parse ค่าผิดพลาด)
         const tVal = document.getElementById(`targetEff_${d}`).value.replace('%', '');
@@ -310,7 +756,7 @@ function showPerformanceChart() {
             labels: labels,
             datasets: [
                 {
-                    label: 'เป้าหมายประสิทธิภาพ (%)',
+                    label: t('chartLegendTarget'),
                     data: targetData,
                     borderColor: colorBlue,          /* 💡 เปลี่ยนเป็นสีฟ้าตามตัวแปรระบบ */
                     backgroundColor: 'transparent',
@@ -319,7 +765,7 @@ function showPerformanceChart() {
                     spanGaps: true
                 },
                 {
-                    label: 'ประสิทธิภาพจริง (%)',
+                    label: t('chartLegendActual'),
                     data: actualData,
                     borderColor: colorGreen,         /* 💡 เปลี่ยนเป็นสีเขียวตามตัวแปรระบบ */
                     backgroundColor: 'transparent',
@@ -350,10 +796,10 @@ function showPerformanceChart() {
                     ticks: {
                         color: colorText             /* 💡 ตัวเลขเปอร์เซ็นต์เปลี่ยนตามโหมด */
                     },
-                    title: { 
-                        display: true, 
-                        text: 'Percentage (%)',
-                        color: colorText             /* 💡 หัวข้อแกน Y เปลี่ยนตามโหมด */
+                    title: {
+                        display: true,
+                        text: t('chartYAxis'),
+                        color: colorText
                     }
                 }
             },
@@ -372,13 +818,12 @@ function showPerformanceChart() {
 // ==================== Excel Export ====================
 function exportToExcel() {
     // 💡 ดึงชื่อพนักงานมาแสดงในข้อความแจ้งเตือนล่วงหน้าเพื่อความชัดเจน
-    const empName = document.getElementById('header_employee')?.value || "ไม่ระบุชื่อ";
+    const empName = document.getElementById('header_employee')?.value || t('noName');
 
-    // เรียกใช้ Modal แจ้งเตือนอเนกประสงค์ตัวเดิม
     showCustomModal(
-        "📊 ยืนยันการส่งออกข้อมูล", 
-        `คุณต้องการส่งออกรายงาน CSA Sign-off\nของพนักงาน: "${empName}"\nออกเป็นไฟล์ Excel ใช่หรือไม่?`,
-        true, // เปิดใช้งานปุ่ม ยืนยัน/ยกเลิก
+        t('titleConfirmExport'),
+        t('msgConfirmExport', empName),
+        true,
         function() {
             // โค้ดส่วนนี้จะทำงานทันทีเมื่อพนักงานกดปุ่ม "ตกลง" บนกล่องคำสั่ง
             
@@ -487,9 +932,9 @@ function exportToExcel() {
 function clearAllData() {
     // 💡 เรียกใช้ Modal อเนกประสงค์ตัวเดิม โดยส่งข้อความเตือน และแนบลอจิกการลบเป็น Callback ฟังก์ชัน
     showCustomModal(
-        "⚠️ ยืนยันการล้างข้อมูลทั้งหมด", 
-        "คุณต้องการลบข้อมูลทั้งหมดในฟอร์มนี้ใช่หรือไม่?\nข้อมูลที่ลบแล้วไม่สามารถเรียกคืนได้", 
-        true, // เปิดใช้งานปุ่มยืนยัน/ยกเลิก
+        t('titleConfirmClear'),
+        t('msgConfirmClear'),
+        true,
         function() {
             // โค้ดส่วนนี้จะทำงานทันทีเมื่อพนักงานกด "ตกลง" บน Modal
             
@@ -546,8 +991,7 @@ function clearAllData() {
             lastAdjustedDay = 0;
             updatePlanButtons();
             
-            // 5. แจ้งเตือนเมื่อทำงานเสร็จสิ้นด้วย Modal ตัวเดิม (ส่งเป็น Alert แบบไม่มีปุ่มยกเลิก)
-            showCustomModal("✨ ทำรายการสำเร็จ", "ล้างข้อมูลทั้งหมดในระบบเรียบร้อยแล้ว", false);
+            showCustomModal(t('titleDone'), t('msgClearDone'), false);
         }
     );
 }
@@ -669,8 +1113,8 @@ function manualCalculate(d) {
 function toggleTimer() {
     const btn = document.getElementById('startStopBtn');
     if (!isRunning) {
-        isRunning = true; 
-        btn.innerText = "Stop"; 
+        isRunning = true;
+        btn.innerText = t('btnStop');
         btn.className = "btn btn-stop";
         startTime = Date.now() - elapsedTime;
         timerInterval = setInterval(() => {
@@ -678,8 +1122,8 @@ function toggleTimer() {
             updateTimerDisplay();
         }, 10);
     } else {
-        isRunning = false; 
-        btn.innerText = "Continue"; 
+        isRunning = false;
+        btn.innerText = t('btnContinue');
         btn.className = "btn btn-start";
         clearInterval(timerInterval);
     }
@@ -698,7 +1142,7 @@ function resetTimer() {
     elapsedTime = 0; 
     isRunning = false;
     document.getElementById('timerDisplay').innerText = "00:00:00";
-    document.getElementById('startStopBtn').innerText = "Start";
+    document.getElementById('startStopBtn').innerText = t('btnStart');
     document.getElementById('startStopBtn').className = "btn btn-start";
 }
 
@@ -706,7 +1150,7 @@ function recordAndCalculate() {
     const day = document.getElementById('targetDay').value;
     
     if (elapsedTime === 0) {
-        alert("กรุณาจับเวลาก่อน");
+        showCustomModal(t('titleNoData'), t('alertTimeFirst'), false);
         return;
     }
     
@@ -720,7 +1164,7 @@ function recordAndCalculate() {
         updateAutoTargetDay();
         resetTimer(); 
     } else {
-        alert("ไม่พบแถวที่ระบุในตาราง");
+        showCustomModal(t('titleNoData'), t('alertRowNotFound'), false);
     }
 }
 
@@ -746,16 +1190,15 @@ function openManualModal(day, type = 'sec') {
     
     document.getElementById('modalDayLabel').innerText = day;
     
-    // เลือกดึงค่าให้ตรงกับช่องที่คลิกจริง
     let targetId = `resAvgSec_${day}`;
-    let modalTitle = "ระบุเวลาเฉลี่ย (วินาที)";
-    
+    let modalTitle = t('modalAvgSec');
+
     if (type === 'pass') {
         targetId = `qPass_${day}`;
-        modalTitle = 'ระบุจำนวนงานที่ "ผ่าน"';
+        modalTitle = t('modalPass');
     } else if (type === 'fail') {
         targetId = `qFail_${day}`;
-        modalTitle = 'ระบุจำนวนงานที่ "ไม่ผ่าน"';
+        modalTitle = t('modalFail');
     }
     
     // เปลี่ยนหัวข้อหน้าต่างตามบริบทที่กด
@@ -813,7 +1256,7 @@ function saveManualSeconds() {
     const inputValue = parseFloat(document.getElementById('manualSecondsInput').value);
     
     if (isNaN(inputValue) || inputValue < 0) {
-        alert("กรุณาระบุตัวเลขที่ถูกต้อง");
+        showCustomModal(t('titleNoData'), t('alertInvalidNumber'), false);
         return;
     }
 
@@ -953,6 +1396,8 @@ document.addEventListener('DOMContentLoaded', function() {
     if (savedTheme === 'dark') {
         document.documentElement.setAttribute('data-theme', 'dark');
     }
+    const langSel = document.getElementById('langSelect');
+    if (langSel) langSel.value = currentLang;
 });
 
 // ==================== Action Plan Modal Controls ====================
@@ -1015,6 +1460,7 @@ window.openSignPad = openSignPad;
 window.closeSignPad = closeSignPad;
 window.clearPad = clearPad;
 window.saveSignature = saveSignature;
+window.changeLanguage = changeLanguage;
 
 // ==================== Shortcut Keys Listener ====================
 // ระบบดักจับการกดปุ่มบนคีย์บอร์ด (ปุ่ม ESC เพื่อปิด Modal)

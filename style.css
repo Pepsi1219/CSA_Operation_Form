@@ -537,61 +537,96 @@ body {
    ========================================================================== */
 
 .race-track {
-    flex-grow: 1; 
-    margin: 8px 16px; 
-    position: relative; 
-    height: 36px; 
-    background: var(--bg-race-track); 
-    border-radius: 18px; 
-    display: flex; 
-    align-items: center; 
-    overflow: hidden; 
-    box-shadow: inset 0 2px 4px var(--shadow-strong);
-    border: 1px solid var(--border-light);
+    flex-grow: 1;
+    margin: 8px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 4px 2px;
+}
+
+.race-track-header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 16px;
+}
+
+.race-track-status {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    letter-spacing: 0.01em;
+}
+
+.race-track-bar {
+    position: relative;
+    width: 100%;
+    height: 10px;
+    background: var(--bg-race-track);
+    border-radius: 999px;
+    overflow: visible;
+    box-shadow: inset 0 1px 2px var(--shadow-light);
 }
 
 .progress-line {
-    position: absolute; 
-    left: 0; 
-    top: 0; 
-    height: 100%; 
-    background: linear-gradient(90deg, var(--accent-blue) 0%, var(--accent-green) 100%); 
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
     width: 0%;
-    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 2px 0 8px rgba(16, 185, 129, 0.3);
+    background: linear-gradient(90deg, var(--accent-blue) 0%, var(--accent-green) 100%);
+    border-radius: 999px;
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.08), 0 2px 8px rgba(16, 185, 129, 0.25);
     z-index: 1;
+    overflow: hidden;
 }
 
-.distance-label {
-    position: absolute; 
-    width: 100%; 
-    text-align: center; 
-    font-size: 0.65rem; 
-    font-weight: 700; 
-    color: var(--text-primary); 
-    z-index: 3; 
+.progress-line::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.35) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    transform: translateX(-100%);
+    animation: progress-shimmer 2.4s ease-in-out infinite;
+}
+
+@keyframes progress-shimmer {
+    0%   { transform: translateX(-100%); }
+    60%  { transform: translateX(100%); }
+    100% { transform: translateX(100%); }
+}
+
+.progress-badge {
+    position: absolute;
+    left: 0%;
+    top: 50%;
+    transform: translate(0, -50%);
+    padding: 3px 9px;
+    min-width: 40px;
+    text-align: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #fff;
+    background: linear-gradient(135deg, var(--accent-blue) 0%, var(--accent-green) 100%);
+    border-radius: 999px;
+    box-shadow: 0 2px 6px var(--shadow-strong), 0 0 0 2px var(--bg-container);
+    transition: left 0.6s cubic-bezier(0.4, 0, 0.2, 1), transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 3;
     pointer-events: none;
-    text-shadow: 0 1px 2px var(--bg-container); 
+    white-space: nowrap;
+    letter-spacing: 0.02em;
 }
 
-.runner-avatar {
-    position: absolute; 
-    left: 0%; 
-    top: 50%;
-    transform: translateY(-50%) scaleX(-1); 
-    font-size: 22px; 
-    transition: left 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    filter: drop-shadow(0 2px 4px var(--shadow-light));
-    z-index: 4;
-}
-
-.finish-flag {
-    position: absolute; 
-    right: 12px; 
-    top: 50%;
-    transform: translateY(-50%); 
-    z-index: 2; 
-    font-size: 20px;
+.progress-badge.is-complete {
+    background: linear-gradient(135deg, var(--accent-green) 0%, #059669 100%);
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.5), 0 0 0 2px var(--bg-container);
 }
 
 /* ==========================================================================
@@ -967,11 +1002,10 @@ footer hr {
         width: 100%;
     }
 
-    /* ปรับแต่งส่วนทางวิ่ง Progress Bar บนอุปกรณ์พกพา */
+    /* ปรับแต่งส่วน Progress Bar บนอุปกรณ์พกพา */
     .race-track {
         margin: 8px 0;
         width: 100%;
-        height: 32px;
     }
     
     .action-buttons {
