@@ -302,19 +302,23 @@ body {
 }
 
 /* Form Header */
-.form-header { 
-    display: grid; 
+.form-header {
+    display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: 12px 16px; 
-    margin-bottom: 20px; 
-    
-    background: var(--bg-form-header); 
-    border: 1px solid var(--border-light); 
-    
-    padding: 20px; 
-    border-radius: 12px; 
+    gap: 12px 16px;
+    margin-bottom: 20px;
+
+    background: var(--bg-form-header);
+    border: 1px solid var(--border-light);
+
+    padding: 20px;
+    border-radius: 12px;
     width: 100%;
     box-sizing: border-box;
+
+    /* สร้าง stacking context ให้ hint (absolute) อยู่เหนือ stopwatch-bar (z-index: 100) */
+    position: relative;
+    z-index: 200;
 }
 
 /* ==========================================================================
@@ -322,10 +326,49 @@ body {
    ========================================================================== */
 
 /* 1. โครงสร้างการจัดเรียงแนวตั้งของแต่ละช่อง */
-.field { 
-    display: flex; 
-    flex-direction: column; 
-    gap: 6px; 
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+/* ช่องกรอกช่วงวันที่ (เริ่ม → โอนย้าย) รวมอยู่ในกล่องเดียว */
+.date-range {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.date-range input[type="date"] {
+    flex: 1;
+    min-width: 0;
+}
+.date-range-sep {
+    color: var(--text-muted);
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+/* กลุ่ม input 2 ช่องในฟิลด์เดียว (เช่น ขั้นตอนหลัก+ระดับงาน, เป้าหมาย Eff+Qty) */
+.field-inline {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.field-inline > input,
+.field-inline > select {
+    flex: 1;
+    min-width: 0;
+}
+.field-inline > .inline-select {
+    flex: 0 0 90px;
+}
+.field-inline > .inline-select-wide {
+    flex: 0 0 110px;
+}
+.field-inline-sep {
+    color: var(--text-muted);
+    font-weight: 700;
+    flex-shrink: 0;
 }
 
 /* 2. หัวข้อประจำช่องกรอกข้อมูล (Label) */
@@ -890,6 +933,261 @@ th, td {
 .chart-modal-content {
     max-width: 1200px;
     width: 100%;
+    position: relative;
+}
+
+/* กลุ่มปุ่ม toggle — วางเป็นแถวใต้หัวเรื่อง จัดกลาง กันชนหัวเรื่องเอง */
+.chart-toggle-group {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: 12px 0 4px;
+}
+
+/* ปุ่มเปิด-ปิดตัวเลข / เปลี่ยนหน่วย */
+.btn-toggle-labels {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: var(--bg-input-readonly);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-input);
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+    z-index: 5;
+}
+.btn-toggle-labels:hover {
+    background: var(--bg-container);
+    color: var(--accent-blue);
+    border-color: var(--accent-blue);
+}
+.btn-toggle-labels.is-off {
+    color: var(--text-light);
+    opacity: 0.7;
+}
+.btn-toggle-labels.is-off:hover {
+    opacity: 1;
+}
+/* ปุ่ม fixed plan ตอนเปิด — สีส้มเน้นว่าเป็นโหมดล็อค */
+.btn-toggle-labels.is-on {
+    background: rgba(249, 115, 22, 0.12);
+    color: #f97316;
+    border-color: #f97316;
+    opacity: 1;
+}
+.btn-toggle-labels.is-on:hover {
+    background: rgba(249, 115, 22, 0.18);
+    color: #f97316;
+    border-color: #f97316;
+}
+.btn-toggle-labels i {
+    font-size: 0.85rem;
+}
+
+/* แถบเลือกรูปแบบ curve ในกราฟ */
+.chart-controls {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin: 8px 0 16px;
+    flex-wrap: wrap;
+}
+.chart-controls label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+}
+.chart-controls select {
+    padding: 8px 12px;
+    border: 1px solid var(--border-input);
+    border-radius: 8px;
+    background: var(--bg-input);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    min-width: 260px;
+    cursor: pointer;
+}
+.chart-controls select:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+}
+
+/* แถบปรับค่าสด (Target / Duration / SAM) เหนือกราฟ — โทน modern, compact */
+.chart-param-bar {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin: 20px auto;   /* เว้นระยะบน 20px จาก h2 หัวเรื่อง + ล่าง 20px จากกราฟ */
+    padding: 14px 18px;
+    background: var(--bg-form-header);
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    max-width: fit-content;
+}
+.chart-param {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    text-align: left;
+}
+.chart-param label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    line-height: 1;
+}
+.chart-param input,
+.chart-param select {
+    height: 34px;
+    padding: 0 10px;
+    border: 1px solid var(--border-input);
+    border-radius: 6px;
+    background: var(--bg-input);
+    color: var(--text-primary);
+    font-size: 0.88rem;
+    font-weight: 500;
+    box-sizing: border-box;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+.chart-param input {
+    width: 110px;
+    text-align: center;
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+.chart-param input:focus,
+.chart-param select:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 3px var(--shadow-input-focus, rgba(14, 165, 233, 0.15));
+}
+.chart-param input::placeholder {
+    color: var(--text-light);
+    font-size: 0.8rem;
+    font-weight: 400;
+    font-family: inherit;
+    opacity: 0.7;
+}
+.chart-param-inline {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.chart-param-inline input {
+    width: 80px;
+}
+.chart-param-inline select {
+    width: auto;
+    min-width: 90px;
+    padding-right: 24px;
+}
+
+/* คอลัมน์ของ dropdown "รูปแบบแผนการฝึก" ต้องกว้างพอเห็นข้อความ + relative สำหรับ hint ลอย */
+.chart-param-model {
+    position: relative;
+}
+.chart-param-model > select {
+    width: 260px;
+    text-align: left;
+    font-family: inherit;
+}
+
+/* กล่องคำอธิบายรูปแบบ curve — ลอยออกมาไม่ดันเลย์เอาต์ */
+.curve-hint {
+    padding: 12px 14px;
+    background: var(--bg-container);
+    border: 1px solid var(--border-light);
+    border-left: 3px solid var(--accent-blue);
+    border-radius: 8px;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    text-align: left;
+    text-transform: none;
+    letter-spacing: normal;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.15);
+}
+
+/* โหมดลอย — absolute overlay, ค่าเริ่มต้นซ่อน + fade-in เมื่อ .is-visible */
+.curve-hint-floating {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    z-index: 100;
+    opacity: 0;
+    transform: translateY(-4px);
+    pointer-events: none;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    min-width: 320px;
+    max-width: 420px;
+}
+.curve-hint-floating.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+/* พ่อของกล่องลอยต้อง relative เพื่อจัดตำแหน่ง absolute ได้ถูก */
+.field {
+    position: relative;
+}
+
+.curve-hint-title {
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+    font-size: 0.9rem;
+}
+.curve-hint-row {
+    margin-top: 4px;
+}
+.curve-hint-label {
+    font-weight: 700;
+    color: var(--text-muted);
+}
+.curve-hint-formula-row {
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px dashed var(--border-light);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.curve-hint-formula {
+    display: inline-block;
+    padding: 4px 10px;
+    background: var(--bg-input-readonly);
+    border: 1px solid var(--border-light);
+    border-radius: 6px;
+    color: var(--text-primary);
+}
+/* ทำให้ KaTeX สืบทอดสีตาม theme */
+.curve-hint-formula .katex { color: inherit; font-size: 1em; }
+
+/* เวอร์ชันในกราฟ — วางใต้ dropdown Training Plan Model, ชิดซ้าย + ยืดขวาได้ 520px */
+.curve-hint-chart {
+    top: calc(100% + 8px);
+    left: 0;
+    right: auto;
+    transform: translateY(-4px);
+    width: 480px;
+    max-width: 90vw;
+}
+.curve-hint-chart.is-visible {
+    transform: translateY(0);
 }
 
 @keyframes modalScaleUp {
@@ -904,24 +1202,71 @@ th, td {
     margin-bottom: 14px;
 }
 
-/* กล่องกรอกตัวเลขความเร็วเฉลีย์ใน Modal */
-.modal-content input { 
-    width: 100%; 
-    padding: 12px; 
-    font-size: 1.6rem; 
+/* Quick Entry Modal — เปิดจากการคลิกป้าย X-axis ของกราฟ */
+#quickEntryModal .modal-content {
+    max-width: 460px;
+    text-align: left;
+}
+#quickEntryModal h3 {
+    text-align: center;
+    margin-bottom: 18px;
+}
+.quick-entry-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 20px;
+}
+.quick-entry-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.quick-entry-field label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+.quick-entry-field input {
+    height: 42px;
+    padding: 0 12px;
+    border: 1px solid var(--border-input);
+    border-radius: 8px;
+    background: var(--bg-input);
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    font-weight: 600;
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    text-align: center;
+    box-sizing: border-box;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+.quick-entry-field input:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 3px var(--shadow-input-focus, rgba(14, 165, 233, 0.15));
+}
+
+/* กล่องกรอกตัวเลขความเร็วเฉลี่ยใน manualInputModal เท่านั้น (ไม่ leak ไป modal อื่น) */
+#manualInputModal .modal-content input {
+    width: 100%;
+    padding: 12px;
+    font-size: 1.6rem;
     font-weight: 700;
     font-family: monospace;
-    text-align: center; 
-    border: 2px solid var(--accent-blue); 
-    border-radius: 10px; 
-    margin-bottom: 20px; 
+    text-align: center;
+    border: 2px solid var(--accent-blue);
+    border-radius: 10px;
+    margin-bottom: 20px;
     outline: none;
     color: var(--text-primary);
     background-color: var(--bg-input);
     transition: all 0.2s ease;
 }
 
-.modal-content input:focus {
+#manualInputModal .modal-content input:focus {
     background-color: var(--bg-container);
     box-shadow: 0 0 0 4px var(--shadow-input-focus);
 }
@@ -1065,13 +1410,13 @@ footer hr {
 
 /* ฉากหลังโปร่งแสงคลุมทั้งหน้าจอ */
 .modal-overlay {
-    display: none; 
-    position: fixed; 
-    z-index: 1000; 
-    left: 0; 
-    top: 0; 
-    width: 100%; 
-    height: 100%; 
+    display: none;
+    position: fixed;
+    z-index: 1100; /* สูงกว่า .modal (1001) เพราะเป็น confirm dialog ที่เด้งบนสุดเสมอ */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
     background-color: var(--bg-modal-overlay2); /* ผูกกับตัวแปร overlay */
 }
 
@@ -1224,6 +1569,39 @@ footer hr {
     transform: translateY(0);
 }
 
+/* ปุ่มลบข้อมูลใน quickEntryModal — สีแดง, ชิดซ้ายด้วย margin-right: auto ผลักปุ่มอื่นไปขวา */
+.btn-delete-modal {
+    padding: 12px 18px;
+    background-color: transparent;
+    color: var(--text-danger, #ef4444);
+    border: 1px solid var(--text-danger, #ef4444);
+    border-radius: 9999px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    flex: 0 0 auto;
+    margin-right: auto;
+}
+.btn-delete-modal:hover {
+    background-color: var(--text-danger, #ef4444);
+    color: #ffffff;
+    transform: translateY(-1px);
+}
+.btn-delete-modal:active {
+    transform: translateY(0);
+}
+/* คู่กับ delete → cancel/save ไม่ต้อง flex-grow แล้ว ให้อยู่ขวาแบบ auto width */
+#quickEntryModal .modal-action-footer .btn-cancel,
+#quickEntryModal .modal-action-footer .btn-save-modal {
+    flex: 0 0 auto;
+    padding-left: 24px;
+    padding-right: 24px;
+}
+.modal-action-footer .footer-spacer {
+    display: none; /* ใช้ margin-right: auto บน delete แทน — spacer ไม่จำเป็น */
+}
+
 /* 💡 ปรับแต่งช่องไฟให้กับข้อความแสดงวันที่บันทึกผลภายในกล่องป๊อปอัป */
 .custom-modal-content p.text,
 .modal-content p.text {
@@ -1250,7 +1628,36 @@ footer hr {
 
 /* ลบกรอบและเงาของช่องวันระบุลำดับ */
 .day-cell-readonly {
-    pointer-events: none;
     user-select: none;
     text-align: center;
+    padding: 4px 6px;
+}
+.day-cell-readonly .day-num {
+    display: block;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.2;
+}
+.row-del-btn {
+    margin-top: 4px;
+    padding: 2px 6px;
+    border: none;
+    border-radius: 4px;
+    background: transparent;
+    color: var(--text-light);
+    cursor: pointer;
+    font-size: 0.75rem;
+    opacity: 0.4;
+    transition: opacity 0.15s, background 0.15s, color 0.15s;
+}
+.row-del-btn:hover {
+    opacity: 1;
+    background: rgba(239, 68, 68, 0.12);
+    color: var(--text-danger, #ef4444);
+}
+.row-del-btn:focus {
+    outline: none;
+    opacity: 1;
+    background: rgba(239, 68, 68, 0.12);
+    color: var(--text-danger, #ef4444);
 }

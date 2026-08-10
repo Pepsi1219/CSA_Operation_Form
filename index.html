@@ -5,14 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CSA Operation Sign-Off Report (v1.0.12)</title>
     <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"
+            integrity="sha384-Sse/HDqcypGpyTDpvZOJNnG0TT3feGQUkF9H+mnRvic+LjR+K1NhTt8f51KIQ3v3"
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"
+            integrity="sha384-y49Zu59jZHJL/PLKgZPv3k2WI9c0Yp3pWB76V8OBVCb0QBKS8l4Ff3YslzHVX76Y"
+            crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"
+          integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+"
+          crossorigin="anonymous">
+    <script defer
+            src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"
+            integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg"
+            crossorigin="anonymous"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="report-container">
     <div class="report-header-wrapper">
-        <h1 class="report-title" data-i18n="reportTitle">CSA OPERATION SIGN-OFF REPORT</h1>
+        <h1 class="report-title" data-i18n="reportTitle">Operation Training Record</h1>
 
         <div class="system-controls">
 
@@ -49,8 +62,21 @@
         <!-- Form Header -->
         <div class="form-header">
             <div class="field">
-                <label data-i18n="lblProcess">ขั้นตอนหลัก</label>
-                <input type="text" id="header_process">
+                <label data-i18n="lblProcessLevel">ขั้นตอนหลัก / ระดับงาน</label>
+                <div class="field-inline">
+                    <input type="text" id="header_process" aria-label="ขั้นตอนหลัก">
+                    <select id="workLevel" class="inline-select" aria-label="ระดับงาน">
+                        <option value="" disabled selected></option>
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                        <option value="C">C</option>
+                        <option value="D">D</option>
+                    </select>
+                </div>
+            </div>
+            <div class="field">
+                <label data-i18n="lblEmpCode">รหัสพนักงาน</label>
+                <input type="number" id="header_empCode" inputmode="numeric">
             </div>
             <div class="field">
                 <label data-i18n="lblEmployee">พนักงาน</label>
@@ -61,48 +87,56 @@
                 <input type="text" id="header_trainer">
             </div>
             <div class="field">
-                <label data-i18n="lblSam">SAM (นาที)</label>
-                <input type="number" id="globalSam" step="0.001" inputmode="decimal" oninput="calculateAdaptiveGoals()">
+                <label data-i18n="lblSam">SAM (นาที / วินาที)</label>
+                <div class="field-inline">
+                    <input type="number" id="globalSam" step="0.001" inputmode="decimal" oninput="syncSam('min')" aria-label="SAM (นาที)" placeholder="นาที">
+                    <span class="field-inline-sep">/</span>
+                    <input type="number" id="globalSamSec" step="0.01" inputmode="decimal" oninput="syncSam('sec')" aria-label="SAM (วินาที)" placeholder="วินาที">
+                </div>
             </div>
             <div class="field">
-                <label data-i18n="lblEffTarget">เป้าหมาย Eff (%)</label>
-                <input type="number" id="globalEffTarget" inputmode="numeric" oninput="calculateAdaptiveGoals()">
+                <label data-i18n="lblTrainingPeriod">ช่วงฝึก (เริ่ม → โอนย้าย)</label>
+                <div class="date-range">
+                    <input type="date" id="header_startDate" aria-label="วันที่เริ่มฝึก">
+                    <span class="date-range-sep">→</span>
+                    <input type="date" id="header_transferDate" aria-label="วันที่โอนย้าย">
+                </div>
             </div>
             <div class="field">
-                <label data-i18n="lblQtyTarget">เป้าหมาย Q'ty (ชิ้น/ชม.)</label>
-                <input type="number" id="globalQtyTarget" readonly>
+                <label data-i18n="lblTargets">เป้าหมาย (Eff % / Q'ty ชิ้น/ชม.)</label>
+                <div class="field-inline">
+                    <input type="number" id="globalEffTarget" inputmode="numeric" oninput="calculateAdaptiveGoals()" aria-label="เป้าหมาย Eff (%)" placeholder="%">
+                    <span class="field-inline-sep">/</span>
+                    <input type="number" id="globalQtyTarget" readonly aria-label="เป้าหมาย Q'ty (ชิ้น/ชม.)" placeholder="ชิ้น/ชม.">
+                </div>
             </div>
             <div class="field">
-                <label data-i18n="lblWorkLevel">ระดับงาน</label>
-                <select id="workLevel">
+                <label data-i18n="lblTrainingDuration">จำนวนที่จะต้องฝึก</label>
+                <div class="field-inline">
+                    <input type="number" id="trainingDays" inputmode="numeric" oninput="calculateAdaptiveGoals()" placeholder="จำนวน">
+                    <select id="trainingUnit" class="inline-select-wide" onchange="onTrainingUnitChange()" aria-label="หน่วย">
+                        <option value="day" data-i18n="unitDay">วัน</option>
+                        <option value="hour" data-i18n="unitHour">ชั่วโมง</option>
+                    </select>
+                </div>
+            </div>
+            <div class="field">
+                <label data-i18n="lblCurveModel">รูปแบบแผนการฝึก</label>
+                <select id="curveModel" onchange="onCurveModelMainChange()" onfocus="showCurveHint('curveHint')">
                     <option value="" disabled selected></option>
-                    <option value="A">A</option>
-                    <option value="B">B</option>
-                    <option value="C">C</option>
-                    <option value="D">D</option>
+                    <option value="scurve" data-i18n="curveScurve">S-Curve (ค่อย ๆ เร่ง แล้วชะลอ)</option>
+                    <option value="log" data-i18n="curveLog">Logarithmic (เร็วช่วงแรก และชะลอช่วงปลาย)</option>
+                    <option value="power" data-i18n="curvePower">Power (เร็วช่วงแรก(แต่น้อยกว่า Log) และชะลอช่วงปลาย)</option>
+                    <option value="linear" data-i18n="curveLinear">Linear (เพิ่มขึ้นสม่ำเสมอ)</option>
                 </select>
-            </div>
-            <div class="field">
-                <label data-i18n="lblTrainingDays">จำนวนวันที่จะต้องฝึก</label>
-                <input type="number" id="trainingDays" inputmode="numeric" oninput="calculateAdaptiveGoals()">
-            </div>
-            <div class="field">
-                <label data-i18n="lblStartDate">วันที่เริ่มฝึก</label>
-                <input type="date" id="header_startDate">
-            </div>
-            <div class="field">
-                <label data-i18n="lblTransferDate">วันที่โอนย้าย</label>
-                <input type="date" id="header_transferDate">
+                <div class="curve-hint curve-hint-floating" id="curveHint"></div>
             </div>
         </div>
 
         <!-- Stopwatch Bar -->
         <div class="stopwatch-bar">
             <div class="control-group-left">
-                <div class="control-group">
-                    <label data-i18n="lblDayHour">วัน/ชั่วโมงที่:</label>
-                    <input type="number" id="targetDay" value="1" min="1" max="30">
-                </div>
+                <input type="hidden" id="targetDay" value="1">
                 <button id="btnPlanA" class="btn btn-danger" onclick="adjustPlan('A')" data-i18n="btnPlanA" disabled>แผน A</button>
                 <button id="btnPlanB" class="btn btn-success" onclick="adjustPlan('B')" data-i18n="btnPlanB" disabled>แผน B</button>
             </div>
@@ -176,7 +210,86 @@
         <div class="modal-content chart-modal-content">
             <span onclick="document.getElementById('chartModal').style.display='none'" class="close">&times;</span>
             <h2 class="text" data-i18n="chartTitle">กราฟเปรียบเทียบเป้าหมาย vs ประสิทธิภาพจริง</h2>
+            <div class="chart-toggle-group">
+                <button type="button" id="toggleFixedPlanBtn" class="btn-toggle-labels" onclick="toggleFixedPlan()" title="สลับโหมดวางแผน">
+                    <i class="fa-solid fa-lock-open"></i>
+                    <span class="btn-toggle-labels-text" data-i18n="btnPlanAdaptive">แผนปรับตามผลจริง</span>
+                </button>
+                <button type="button" id="toggleUnitBtn" class="btn-toggle-labels" onclick="toggleChartUnit()" title="สลับหน่วย % ↔ ชิ้น">
+                    <i class="fa-solid fa-repeat"></i>
+                    <span class="btn-toggle-labels-text" data-i18n="btnUnitToPcs">แสดงเป็นชิ้น</span>
+                </button>
+                <button type="button" id="toggleLabelsBtn" class="btn-toggle-labels" onclick="toggleChartLabels()" data-i18n-title="btnToggleLabels" title="ซ่อน/แสดงตัวเลข">
+                    <i class="fa-solid fa-eye"></i>
+                    <span class="btn-toggle-labels-text" data-i18n="btnHideLabels">ซ่อน</span>
+                </button>
+            </div>
+            <!-- แถบควบคุมกราฟ (ทุกอย่างบรรทัดเดียว): Model + Target + Duration + SAM -->
+            <div class="chart-param-bar">
+                <div class="chart-param chart-param-model">
+                    <label for="curveModelChart" data-i18n="lblCurveModel">รูปแบบแผนการฝึก</label>
+                    <select id="curveModelChart" onchange="onCurveModelChartChange()" onfocus="showCurveHint('curveHintChart')">
+                        <option value="" disabled selected></option>
+                        <option value="scurve" data-i18n="curveScurve">S-Curve (ค่อย ๆ เร่ง แล้วชะลอ)</option>
+                        <option value="log" data-i18n="curveLog">Logarithmic (เร็วช่วงแรก และชะลอช่วงปลาย)</option>
+                        <option value="power" data-i18n="curvePower">Power (เร็วช่วงแรก(แต่น้อยกว่า Log) และชะลอช่วงปลาย)</option>
+                        <option value="linear" data-i18n="curveLinear">Linear (เพิ่มขึ้นสม่ำเสมอ)</option>
+                    </select>
+                    <div class="curve-hint curve-hint-floating curve-hint-chart" id="curveHintChart"></div>
+                </div>
+                <div class="chart-param">
+                    <label for="chartEffTarget" data-i18n="lblEffTargetShort">เป้าหมาย Eff (%)</label>
+                    <input type="number" id="chartEffTarget" inputmode="numeric" oninput="onChartParamChange('eff')">
+                </div>
+                <div class="chart-param">
+                    <label data-i18n="lblTrainingDuration">จำนวนที่จะต้องฝึก</label>
+                    <div class="chart-param-inline">
+                        <input type="number" id="chartTrainingDays" inputmode="numeric" oninput="onChartParamChange('days')">
+                        <select id="chartTrainingUnit" onchange="onChartParamChange('unit')">
+                            <option value="day" data-i18n="unitDay">วัน</option>
+                            <option value="hour" data-i18n="unitHour">ชั่วโมง</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="chart-param">
+                    <label data-i18n="lblSamShort">SAM (นาที / วินาที)</label>
+                    <div class="chart-param-inline">
+                        <input type="number" id="chartSamMin" step="0.001" inputmode="decimal" oninput="onChartParamChange('samMin')" placeholder="นาที">
+                        <span class="field-inline-sep">/</span>
+                        <input type="number" id="chartSamSec" step="0.01" inputmode="decimal" oninput="onChartParamChange('samSec')" placeholder="วินาที">
+                    </div>
+                </div>
+            </div>
+
             <canvas id="performanceChart" width="400" height="200"></canvas>
+        </div>
+    </div>
+
+    <!-- Quick entry modal — เปิดจากการคลิกป้าย X-axis ของกราฟ -->
+    <div id="quickEntryModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeQuickEntryModal()">&times;</span>
+            <h3><span data-i18n="quickEntryTitle">บันทึกผลของ</span> <span id="quickEntryDayLabel" class="text">-</span></h3>
+            <div class="quick-entry-grid">
+                <div class="quick-entry-field">
+                    <label for="quickAvgSec" data-i18n="quickAvgSec">เวลาเฉลี่ย (วินาที)</label>
+                    <input type="number" id="quickAvgSec" step="0.01" inputmode="decimal">
+                </div>
+                <div class="quick-entry-field">
+                    <label for="quickPass" data-i18n="quickPass">ผ่าน</label>
+                    <input type="number" id="quickPass" inputmode="numeric">
+                </div>
+                <div class="quick-entry-field">
+                    <label for="quickFail" data-i18n="quickFail">ไม่ผ่าน</label>
+                    <input type="number" id="quickFail" inputmode="numeric">
+                </div>
+            </div>
+            <div class="modal-action-footer">
+                <button class="btn btn-delete-modal" onclick="deleteQuickEntry()" data-i18n="btnDeleteRow">ลบข้อมูลแถวนี้</button>
+                <div class="footer-spacer"></div>
+                <button class="btn btn-cancel" onclick="closeQuickEntryModal()" data-i18n="btnCancel">ยกเลิก</button>
+                <button class="btn btn-save-modal" onclick="saveQuickEntry()" data-i18n="btnSaveData">บันทึกข้อมูล</button>
+            </div>
         </div>
     </div>
 
@@ -258,7 +371,7 @@
 
     <footer>
         <hr>
-        <p>© CSA OPERATION SIGN-OFF REPORT | v1.1.0</p>
+        <p>© Operation Training Record | v2.0.0</p>
     </footer>
 
     <!-- Custom JavaScript -->

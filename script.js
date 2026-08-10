@@ -7,21 +7,39 @@ let myChart = null;
 // ==================== i18n / Translations ====================
 const translations = {
     th: {
-        reportTitle: "CSA OPERATION SIGN-OFF REPORT",
+        reportTitle: "Operation Training Record",
         themeToggle: "เปลี่ยนโหมดสี",
         btnExport: "ส่งออกไปที่ Excel",
         btnClear: "ล้างข้อมูล",
         btnChart: "กราฟประสิทธิภาพ",
         lblProcess: "ขั้นตอนหลัก",
-        lblEmployee: "พนักงาน",
+        lblProcessLevel: "ขั้นตอนหลัก / ระดับงาน",
+        lblEmpCode: "รหัสพนักงาน",
+        lblTargets: "เป้าหมาย (Eff % / Q'ty ชิ้น/ชม.)",
+        lblEmployee: "ชื่อพนักงาน",
         lblTrainer: "ครูฝึก",
-        lblSam: "SAM (นาที)",
+        lblSam: "SAM (นาที / วินาที)",
         lblEffTarget: "เป้าหมาย Eff (%)",
         lblQtyTarget: "เป้าหมาย Q'ty (ชิ้น/ชม.)",
         lblWorkLevel: "ระดับงาน",
         lblTrainingDays: "จำนวนวันที่จะต้องฝึก",
+        lblTrainingDuration: "จำนวนที่จะต้องฝึก",
+        unitDay: "วัน",
+        unitHour: "ชั่วโมง",
+        lblEffTargetShort: "เป้าหมาย Eff (%)",
+        lblSamShort: "SAM (นาที / วินาที)",
+        quickEntryTitle: "บันทึกผลของ",
+        quickAvgSec: "เวลาเฉลี่ย (วินาที)",
+        quickPass: "ผ่าน",
+        quickFail: "ไม่ผ่าน",
+        lblCurveModel: "รูปแบบแผนการฝึก",
+        curveScurve: "S-Curve (ค่อย ๆ เร่ง แล้วชะลอ)",
+        curveLog: "Logarithmic (เร็วช่วงแรก และชะลอช่วงปลาย)",
+        curvePower: "Power (เร็วช่วงแรก(แต่น้อยกว่า Log) และชะลอช่วงปลาย)",
+        curveLinear: "Linear (เพิ่มขึ้นสม่ำเสมอ)",
         lblStartDate: "วันที่เริ่มฝึก",
         lblTransferDate: "วันที่โอนย้าย",
+        lblTrainingPeriod: "ช่วงฝึก (เริ่ม → โอนย้าย)",
         lblDayHour: "วัน/ชั่วโมงที่:",
         btnPlanA: "แผน A",
         btnPlanB: "แผน B",
@@ -68,6 +86,7 @@ const translations = {
         chartLegendTarget: "เป้าหมายประสิทธิภาพ (%)",
         chartLegendActual: "ประสิทธิภาพจริง (%)",
         chartXDay: (d) => `วันที่ ${d}`,
+        chartXHour: (d) => `ชั่วโมงที่ ${d}`,
         chartYAxis: "เปอร์เซ็นต์ (%)",
         raceOver: (act, gap) => `ปัจจุบัน: ${act}% | คุณทำได้มากกว่าเป้าหมาย +${gap}%`,
         raceGap: (act, gap, tgt) => `ปัจจุบัน: ${act}% | อีก ${gap}% จะถึงเป้าหมาย (${tgt}%)`,
@@ -93,6 +112,17 @@ const translations = {
         titleConfirmExport: "📊 ยืนยันการส่งออกข้อมูล",
         msgConfirmExport: (name) => `คุณต้องการส่งออกรายงาน CSA Sign-off\nของพนักงาน: "${name}"\nออกเป็นไฟล์ Excel ใช่หรือไม่?`,
         titleConfirmClear: "⚠️ ยืนยันการล้างข้อมูลทั้งหมด",
+        btnDeleteRow: "ลบข้อมูลแถวนี้",
+        btnToggleLabels: "ซ่อน/แสดงตัวเลข %",
+        btnHideLabels: "ซ่อน %",
+        btnShowLabels: "แสดง %",
+        btnUnitToPcs: "แสดงเป็นชิ้น",
+        btnUnitToPct: "แสดงเป็น %",
+        btnPlanAdaptive: "แผนปรับตามผลจริง",
+        btnPlanFixed: "แผนคงที่ (Q100 → เป้า)",
+        chartYAxisPcs: "จำนวน (ชิ้น/ชม.)",
+        titleConfirmDeleteRow: "⚠️ ยืนยันการลบข้อมูล",
+        msgConfirmDeleteRow: (d) => `คุณต้องการลบข้อมูลของแถวที่ ${d} ทั้งหมดใช่หรือไม่?\nข้อมูลที่ลบแล้วไม่สามารถเรียกคืนได้`,
         msgConfirmClear: "คุณต้องการลบข้อมูลทั้งหมดในฟอร์มนี้ใช่หรือไม่?\nข้อมูลที่ลบแล้วไม่สามารถเรียกคืนได้",
         titleDone: "✨ ทำรายการสำเร็จ",
         msgClearDone: "ล้างข้อมูลทั้งหมดในระบบเรียบร้อยแล้ว",
@@ -102,21 +132,39 @@ const translations = {
         noName: "ไม่ระบุชื่อ"
     },
     en: {
-        reportTitle: "CSA OPERATION SIGN-OFF REPORT",
+        reportTitle: "Operation Training Record",
         themeToggle: "Toggle Theme",
         btnExport: "Export to Excel",
         btnClear: "Clear Data",
         btnChart: "Performance Chart",
         lblProcess: "Main Process",
-        lblEmployee: "Employee",
+        lblProcessLevel: "Main Process / Operation Grade",
+        lblEmpCode: "Employee Code",
+        lblTargets: "Target (Eff % / Q'ty pcs/hr)",
+        lblEmployee: "Employee Name",
         lblTrainer: "Trainer",
-        lblSam: "SAM (min)",
+        lblSam: "SAM (min / sec)",
         lblEffTarget: "Eff Target (%)",
         lblQtyTarget: "Q'ty Target (pcs/hr)",
         lblWorkLevel: "Operation Grade",
         lblTrainingDays: "Training Days",
+        lblTrainingDuration: "Training Duration",
+        unitDay: "Days",
+        unitHour: "Hours",
+        lblEffTargetShort: "Target Eff (%)",
+        lblSamShort: "SAM (min / sec)",
+        quickEntryTitle: "Record data for",
+        quickAvgSec: "Avg Time (sec)",
+        quickPass: "Pass",
+        quickFail: "Fail",
+        lblCurveModel: "Training Plan Model",
+        curveScurve: "S-Curve (gradual → fast → plateau)",
+        curveLog: "Logarithmic (fast early, slower late)",
+        curvePower: "Power (fast early (less than Log), slower late)",
+        curveLinear: "Linear (steady increase)",
         lblStartDate: "Start Date",
         lblTransferDate: "Transfer Date",
+        lblTrainingPeriod: "Training Period (Start → Transfer)",
         lblDayHour: "Day/Hour:",
         btnPlanA: "Plan A",
         btnPlanB: "Plan B",
@@ -163,6 +211,7 @@ const translations = {
         chartLegendTarget: "Target Efficiency (%)",
         chartLegendActual: "Actual Efficiency (%)",
         chartXDay: (d) => `Day ${d}`,
+        chartXHour: (d) => `Hour ${d}`,
         chartYAxis: "Percentage (%)",
         raceOver: (act, gap) => `Current: ${act}% | You exceeded target by +${gap}%`,
         raceGap: (act, gap, tgt) => `Current: ${act}% | ${gap}% more to reach target (${tgt}%)`,
@@ -188,6 +237,17 @@ const translations = {
         titleConfirmExport: "📊 Confirm Export",
         msgConfirmExport: (name) => `Export CSA Sign-off report\nfor employee: "${name}"\nto Excel file?`,
         titleConfirmClear: "⚠️ Confirm Clear All Data",
+        btnDeleteRow: "Delete this row",
+        btnToggleLabels: "Toggle % labels",
+        btnHideLabels: "Hide %",
+        btnShowLabels: "Show %",
+        btnUnitToPcs: "Show as pcs",
+        btnUnitToPct: "Show as %",
+        btnPlanAdaptive: "Adaptive plan (follows actual)",
+        btnPlanFixed: "Fixed plan (Q100 → target)",
+        chartYAxisPcs: "Quantity (pcs/hr)",
+        titleConfirmDeleteRow: "⚠️ Confirm Delete Row",
+        msgConfirmDeleteRow: (d) => `Delete all data in row ${d}?\nThis action cannot be undone.`,
         msgConfirmClear: "Do you want to delete all data in this form?\nDeleted data cannot be recovered",
         titleDone: "✨ Done",
         msgClearDone: "All data has been cleared successfully",
@@ -203,15 +263,33 @@ const translations = {
         btnClear: "Xóa dữ liệu",
         btnChart: "Biểu đồ hiệu suất",
         lblProcess: "Công đoạn chính",
-        lblEmployee: "Công nhân",
+        lblProcessLevel: "Công đoạn chính / Cấp độ công việc",
+        lblEmpCode: "Mã nhân viên",
+        lblTargets: "Mục tiêu (Eff % / Q'ty cái/giờ)",
+        lblEmployee: "Tên công nhân",
         lblTrainer: "Huấn luyện viên",
-        lblSam: "SAM (phút)",
+        lblSam: "SAM (phút / giây)",
         lblEffTarget: "Mục tiêu Eff (%)",
         lblQtyTarget: "Mục tiêu SL (cái/giờ)",
         lblWorkLevel: "Cấp độ vận hành",
         lblTrainingDays: "Số ngày đào tạo",
+        lblTrainingDuration: "Thời lượng đào tạo",
+        unitDay: "Ngày",
+        unitHour: "Giờ",
+        lblEffTargetShort: "Mục tiêu Eff (%)",
+        lblSamShort: "SAM (phút / giây)",
+        quickEntryTitle: "Ghi dữ liệu cho",
+        quickAvgSec: "Thời gian TB (giây)",
+        quickPass: "Đạt",
+        quickFail: "Không đạt",
+        lblCurveModel: "Mô hình kế hoạch đào tạo",
+        curveScurve: "S-Curve (chậm → nhanh → chậm dần)",
+        curveLog: "Logarithmic (nhanh ban đầu, chậm về cuối)",
+        curvePower: "Power (nhanh ban đầu (ít hơn Log), chậm về cuối)",
+        curveLinear: "Linear (tăng đều)",
         lblStartDate: "Ngày bắt đầu",
         lblTransferDate: "Ngày chuyển giao",
+        lblTrainingPeriod: "Kỳ đào tạo (Bắt đầu → Chuyển giao)",
         lblDayHour: "Ngày/Giờ:",
         btnPlanA: "Kế hoạch A",
         btnPlanB: "Kế hoạch B",
@@ -258,6 +336,7 @@ const translations = {
         chartLegendTarget: "Mục tiêu hiệu suất (%)",
         chartLegendActual: "Hiệu suất thực tế (%)",
         chartXDay: (d) => `Ngày ${d}`,
+        chartXHour: (d) => `Giờ ${d}`,
         chartYAxis: "Phần trăm (%)",
         raceOver: (act, gap) => `Hiện tại: ${act}% | Bạn vượt mục tiêu +${gap}%`,
         raceGap: (act, gap, tgt) => `Hiện tại: ${act}% | Còn ${gap}% để đạt mục tiêu (${tgt}%)`,
@@ -283,6 +362,17 @@ const translations = {
         titleConfirmExport: "📊 Xác nhận xuất dữ liệu",
         msgConfirmExport: (name) => `Bạn muốn xuất báo cáo CSA Sign-off\ncủa công nhân: "${name}"\nra file Excel?`,
         titleConfirmClear: "⚠️ Xác nhận xóa toàn bộ dữ liệu",
+        btnDeleteRow: "Xóa hàng này",
+        btnToggleLabels: "Ẩn/hiện nhãn %",
+        btnHideLabels: "Ẩn %",
+        btnShowLabels: "Hiện %",
+        btnUnitToPcs: "Hiện theo cái",
+        btnUnitToPct: "Hiện theo %",
+        btnPlanAdaptive: "Kế hoạch thích ứng (theo thực tế)",
+        btnPlanFixed: "Kế hoạch cố định (Q100 → mục tiêu)",
+        chartYAxisPcs: "Số lượng (cái/giờ)",
+        titleConfirmDeleteRow: "⚠️ Xác nhận xóa hàng",
+        msgConfirmDeleteRow: (d) => `Xóa toàn bộ dữ liệu ở hàng ${d}?\nDữ liệu đã xóa không thể khôi phục.`,
         msgConfirmClear: "Bạn muốn xóa toàn bộ dữ liệu trong biểu mẫu này?\nDữ liệu đã xóa không thể khôi phục",
         titleDone: "✨ Hoàn tất",
         msgClearDone: "Đã xóa toàn bộ dữ liệu thành công",
@@ -298,15 +388,33 @@ const translations = {
         btnClear: "ລຶບຂໍ້ມູນ",
         btnChart: "ກຣາຟປະສິດທິພາບ",
         lblProcess: "ຂັ້ນຕອນຫຼັກ",
-        lblEmployee: "ພະນັກງານ",
+        lblProcessLevel: "ຂັ້ນຕອນຫຼັກ / ລະດັບງານ",
+        lblEmpCode: "ລະຫັດພະນັກງານ",
+        lblTargets: "ເປົ້າໝາຍ (Eff % / Q'ty ຊິ້ນ/ຊົ່ວໂມງ)",
+        lblEmployee: "ຊື່ພະນັກງານ",
         lblTrainer: "ຄູຝຶກ",
-        lblSam: "SAM (ນາທີ)",
+        lblSam: "SAM (ນາທີ / ວິນາທີ)",
         lblEffTarget: "ເປົ້າໝາຍ Eff (%)",
         lblQtyTarget: "ເປົ້າໝາຍ Q'ty (ຊິ້ນ/ຊົ່ວໂມງ)",
         lblWorkLevel: "ລະດັບການດຳເນີນງານ",
         lblTrainingDays: "ຈຳນວນວັນທີ່ຕ້ອງຝຶກ",
+        lblTrainingDuration: "ຈຳນວນທີ່ຕ້ອງຝຶກ",
+        unitDay: "ວັນ",
+        unitHour: "ຊົ່ວໂມງ",
+        lblEffTargetShort: "ເປົ້າໝາຍ Eff (%)",
+        lblSamShort: "SAM (ນາທີ / ວິນາທີ)",
+        quickEntryTitle: "ບັນທຶກຜົນຂອງ",
+        quickAvgSec: "ເວລາສະເລ່ຍ (ວິນາທີ)",
+        quickPass: "ຜ່ານ",
+        quickFail: "ບໍ່ຜ່ານ",
+        lblCurveModel: "ຮູບແບບແຜນການຝຶກ",
+        curveScurve: "S-Curve (ຄ່ອຍໆ ເລັ່ງ ແລ້ວຊະລໍ)",
+        curveLog: "Logarithmic (ໄວຊ່ວງຕົ້ນ ແລະ ຊະລໍຊ່ວງທ້າຍ)",
+        curvePower: "Power (ໄວຊ່ວງຕົ້ນ(ແຕ່ໜ້ອຍກວ່າ Log) ແລະ ຊະລໍຊ່ວງທ້າຍ)",
+        curveLinear: "Linear (ເພີ່ມຂຶ້ນສະໝ່ຳສະເໝີ)",
         lblStartDate: "ວັນທີເລີ່ມຝຶກ",
         lblTransferDate: "ວັນທີໂອນຍ້າຍ",
+        lblTrainingPeriod: "ຊ່ວງຝຶກ (ເລີ່ມ → ໂອນຍ້າຍ)",
         lblDayHour: "ວັນ/ຊົ່ວໂມງ:",
         btnPlanA: "ແຜນ A",
         btnPlanB: "ແຜນ B",
@@ -353,6 +461,7 @@ const translations = {
         chartLegendTarget: "ເປົ້າໝາຍປະສິດທິພາບ (%)",
         chartLegendActual: "ປະສິດທິພາບຈິງ (%)",
         chartXDay: (d) => `ວັນທີ ${d}`,
+        chartXHour: (d) => `ຊົ່ວໂມງທີ ${d}`,
         chartYAxis: "ເປີເຊັນ (%)",
         raceOver: (act, gap) => `ປັດຈຸບັນ: ${act}% | ທ່ານເຮັດໄດ້ຫຼາຍກວ່າເປົ້າໝາຍ +${gap}%`,
         raceGap: (act, gap, tgt) => `ປັດຈຸບັນ: ${act}% | ອີກ ${gap}% ຈະຮອດເປົ້າໝາຍ (${tgt}%)`,
@@ -378,6 +487,17 @@ const translations = {
         titleConfirmExport: "📊 ຢືນຢັນການສົ່ງອອກຂໍ້ມູນ",
         msgConfirmExport: (name) => `ທ່ານຕ້ອງການສົ່ງອອກລາຍງານ CSA Sign-off\nຂອງພະນັກງານ: "${name}"\nອອກເປັນໄຟລ໌ Excel ບໍ?`,
         titleConfirmClear: "⚠️ ຢືນຢັນການລຶບຂໍ້ມູນທັງໝົດ",
+        btnDeleteRow: "ລຶບຂໍ້ມູນແຖວນີ້",
+        btnToggleLabels: "ເຊື່ອງ/ສະແດງຕົວເລກ %",
+        btnHideLabels: "ເຊື່ອງ %",
+        btnShowLabels: "ສະແດງ %",
+        btnUnitToPcs: "ສະແດງເປັນຊິ້ນ",
+        btnUnitToPct: "ສະແດງເປັນ %",
+        btnPlanAdaptive: "ແຜນປັບຕາມຜົນຈິງ",
+        btnPlanFixed: "ແຜນຄົງທີ່ (Q100 → ເປົ້າ)",
+        chartYAxisPcs: "ຈຳນວນ (ຊິ້ນ/ຊົ່ວໂມງ)",
+        titleConfirmDeleteRow: "⚠️ ຢືນຢັນການລຶບຂໍ້ມູນ",
+        msgConfirmDeleteRow: (d) => `ທ່ານຕ້ອງການລຶບຂໍ້ມູນຂອງແຖວທີ ${d} ທັງໝົດບໍ?\nຂໍ້ມູນທີ່ລຶບແລ້ວບໍ່ສາມາດເອົາຄືນໄດ້`,
         msgConfirmClear: "ທ່ານຕ້ອງການລຶບຂໍ້ມູນທັງໝົດໃນຟອມນີ້ບໍ?\nຂໍ້ມູນທີ່ລຶບແລ້ວບໍ່ສາມາດເອົາຄືນໄດ້",
         titleDone: "✨ ດຳເນີນການສຳເລັດ",
         msgClearDone: "ລຶບຂໍ້ມູນທັງໝົດໃນລະບົບຮຽບຮ້ອຍແລ້ວ",
@@ -387,6 +507,215 @@ const translations = {
         noName: "ບໍ່ລະບຸຊື່"
     }
 };
+
+// ==================== Curve Hint Data ====================
+const curveHintData = {
+    th: {
+        linear: {
+            title: "Linear (เส้นตรง / การเรียนรู้แบบสม่ำเสมอ)",
+            desc: "เป้าหมายเพิ่มขึ้นคงที่เท่ากันทุกวัน เหมาะกับงานเย็บที่ไม่ซับซ้อน เช่น งานพับชายผ้า งานเย็บเส้นตรง หรือพนักงานที่มีพื้นฐานการใช้จักรมาแล้ว",
+            formula: "progress(x) = x / N",
+            latex: String.raw`\text{progress}(x) = \dfrac{x}{N}`
+        },
+        log: {
+            title: "Logarithmic (พุ่งเร็วช่วงแรก / เร่งการเรียนรู้)",
+            desc: "เป้าหมายพุ่งสูงขึ้นอย่างรวดเร็วตั้งแต่วันแรก ๆ เหมาะกับงานที่เน้นให้จำลำดับขั้นตอนมากกว่าทักษะความแม่นยำของมือ เช่น พอผู้เรียนจำสเต็ปการทำได้ ก็จะสามารถเร่งความเร็วได้ทันที",
+            formula: "progress(x) = ln(x + 1) / ln(N + 1)",
+            latex: String.raw`\text{progress}(x) = \dfrac{\ln(x + 1)}{\ln(N + 1)}`
+        },
+        power: {
+            title: "Power / Wright's Law (อัตราเร่งปานกลางตามรอบการทำงาน)",
+            desc: "เป้าหมายเพิ่มขึ้นตามความชำนาญสะสมจากการฝึกเย็บซ้ำ ๆ เหมาะกับงานเย็บมาตรฐานทั่วไปที่ความเร็วจะเพิ่มขึ้นตามจำนวนชิ้นงานที่ผ่านมือ",
+            formula: "progress(x) = √(x / N)",
+            latex: String.raw`\text{progress}(x) = \sqrt{\dfrac{x}{N}}`
+        },
+        scurve: {
+            title: "S-Curve (นุ่มนวลช่วงแรก)",
+            desc: "เป้าหมายเพิ่มขึ้นอย่างนุ่มนวลในวันแรก ๆ ให้เวลาผู้เรียนปรับตัวและจับจังหวะจักร จากนั้นจะเร่งสปีดขึ้นช่วงกลางเมื่อมือเริ่มชิน เหมาะที่สุดสำหรับงานเย็บที่ใช้ทักษะฝีมือสูง เช่น งานเข้าปก งานติดซิป หรือพนักงานใหม่ที่เพิ่งเริ่มจับจักร",
+            formula: "progress(x) = 3t² − 2t³  (โดย t = x / N)",
+            latex: String.raw`\text{progress}(x) = 3t^{2} - 2t^{3} \quad \left(t = \dfrac{x}{N}\right)`
+        }
+    },
+    en: {
+        linear: {
+            title: "Linear (Straight line / Steady learning)",
+            desc: "Target grows at a constant rate every day. Best for simple sewing operations like hemming or straight-line stitching, or for operators who already have sewing-machine experience.",
+            formula: "progress(x) = x / N",
+            latex: String.raw`\text{progress}(x) = \dfrac{x}{N}`
+        },
+        log: {
+            title: "Logarithmic (Fast early / Accelerated learning)",
+            desc: "Target rises sharply from the first days. Best for work that relies more on remembering the sequence than on precise handwork — once the operator remembers the steps, speed can be ramped up immediately.",
+            formula: "progress(x) = ln(x + 1) / ln(N + 1)",
+            latex: String.raw`\text{progress}(x) = \dfrac{\ln(x + 1)}{\ln(N + 1)}`
+        },
+        power: {
+            title: "Power / Wright's Law (Moderate acceleration with repetition)",
+            desc: "Target grows with skill accumulated from repeated sewing practice. Best for standard sewing operations where speed increases with the number of pieces the operator has completed.",
+            formula: "progress(x) = √(x / N)",
+            latex: String.raw`\text{progress}(x) = \sqrt{\dfrac{x}{N}}`
+        },
+        scurve: {
+            title: "S-Curve (Soft start)",
+            desc: "Target grows gently in the first days, giving the operator time to adjust and get the machine's rhythm; it then accelerates in the middle once the hands are used to it. Best for high-skill sewing (e.g. collar attaching, zipper insertion) or new operators just starting on the machine.",
+            formula: "progress(x) = 3t² − 2t³  (t = x / N)",
+            latex: String.raw`\text{progress}(x) = 3t^{2} - 2t^{3} \quad \left(t = \dfrac{x}{N}\right)`
+        }
+    },
+    vn: {
+        linear: {
+            title: "Linear (Đường thẳng / Học đều đặn)",
+            desc: "Mục tiêu tăng đều mỗi ngày. Phù hợp với công đoạn may đơn giản như vắt lai, may đường thẳng, hoặc công nhân đã có nền tảng sử dụng máy may.",
+            formula: "progress(x) = x / N",
+            latex: String.raw`\text{progress}(x) = \dfrac{x}{N}`
+        },
+        log: {
+            title: "Logarithmic (Tăng nhanh ban đầu / Học tăng tốc)",
+            desc: "Mục tiêu tăng vọt ngay từ những ngày đầu. Phù hợp với công việc thiên về ghi nhớ trình tự hơn là độ chính xác của tay — khi công nhân nhớ được các bước, tốc độ có thể tăng ngay.",
+            formula: "progress(x) = ln(x + 1) / ln(N + 1)",
+            latex: String.raw`\text{progress}(x) = \dfrac{\ln(x + 1)}{\ln(N + 1)}`
+        },
+        power: {
+            title: "Power / Định luật Wright (Tăng tốc vừa theo số lần)",
+            desc: "Mục tiêu tăng theo kỹ năng tích lũy từ việc may lặp lại. Phù hợp với các công đoạn may tiêu chuẩn — tốc độ tăng theo số sản phẩm đã hoàn thành.",
+            formula: "progress(x) = √(x / N)",
+            latex: String.raw`\text{progress}(x) = \sqrt{\dfrac{x}{N}}`
+        },
+        scurve: {
+            title: "S-Curve (Nhẹ nhàng giai đoạn đầu)",
+            desc: "Mục tiêu tăng nhẹ trong những ngày đầu, cho công nhân thời gian làm quen và bắt nhịp máy; sau đó tăng tốc ở giữa khi tay đã quen. Phù hợp nhất cho công đoạn may đòi hỏi tay nghề cao (may cổ, tra khóa) hoặc công nhân mới bắt đầu.",
+            formula: "progress(x) = 3t² − 2t³  (t = x / N)",
+            latex: String.raw`\text{progress}(x) = 3t^{2} - 2t^{3} \quad \left(t = \dfrac{x}{N}\right)`
+        }
+    },
+    lo: {
+        linear: {
+            title: "Linear (ເສັ້ນຊື່ / ຮຽນຮູ້ສະໝ່ຳສະເໝີ)",
+            desc: "ເປົ້າໝາຍເພີ່ມຄົງທີ່ທຸກມື້ ເໝາະກັບງານຫຍິບບໍ່ຊັບຊ້ອນ ເຊັ່ນ ພັບຊາຍຜ້າ ຫຍິບເສັ້ນຊື່ ຫຼືພະນັກງານທີ່ມີພື້ນຖານໃຊ້ຈັກແລ້ວ",
+            formula: "progress(x) = x / N",
+            latex: String.raw`\text{progress}(x) = \dfrac{x}{N}`
+        },
+        log: {
+            title: "Logarithmic (ພຸ່ງໄວຊ່ວງຕົ້ນ / ເລັ່ງການຮຽນຮູ້)",
+            desc: "ເປົ້າໝາຍພຸ່ງສູງໄວແຕ່ວັນທຳອິດ ເໝາະກັບງານທີ່ເນັ້ນຈື່ລຳດັບຂັ້ນຕອນຫຼາຍກວ່າຄວາມແມ່ນຍຳຂອງມື — ພໍຜູ້ຮຽນຈື່ຂັ້ນຕອນໄດ້ ກໍເລັ່ງຄວາມໄວໄດ້ທັນທີ",
+            formula: "progress(x) = ln(x + 1) / ln(N + 1)",
+            latex: String.raw`\text{progress}(x) = \dfrac{\ln(x + 1)}{\ln(N + 1)}`
+        },
+        power: {
+            title: "Power / Wright's Law (ເລັ່ງປານກາງຕາມຮອບການເຮັດ)",
+            desc: "ເປົ້າໝາຍເພີ່ມຂຶ້ນຕາມຄວາມຊຳນານສະສົມຈາກການຫຍິບຊ້ຳ ໆ ເໝາະກັບງານຫຍິບມາດຕະຖານທົ່ວໄປທີ່ຄວາມໄວເພີ່ມຕາມຈຳນວນຊິ້ນທີ່ຜ່ານມື",
+            formula: "progress(x) = √(x / N)",
+            latex: String.raw`\text{progress}(x) = \sqrt{\dfrac{x}{N}}`
+        },
+        scurve: {
+            title: "S-Curve (ນຸ້ມນວນຊ່ວງຕົ້ນ)",
+            desc: "ເປົ້າໝາຍເພີ່ມນຸ້ມນວນໃນວັນທຳອິດ ໃຫ້ຜູ້ຮຽນມີເວລາປັບຕົວ ແລະ ຈັບຈັງຫວະຈັກ ຈາກນັ້ນຈຶ່ງເລັ່ງຊ່ວງກາງເມື່ອມືເລີ່ມຄຸ້ນ ເໝາະທີ່ສຸດສຳລັບງານຫຍິບທັກສະສູງ ເຊັ່ນ ເຂົ້າປົກ ຕິດຊິບ ຫຼືພະນັກງານໃໝ່",
+            formula: "progress(x) = 3t² − 2t³  (t = x / N)",
+            latex: String.raw`\text{progress}(x) = 3t^{2} - 2t^{3} \quad \left(t = \dfrac{x}{N}\right)`
+        }
+    }
+};
+
+function getCurveHint(model) {
+    const lang = curveHintData[currentLang] ? currentLang : 'th';
+    return curveHintData[lang][model] || curveHintData[lang].scurve;
+}
+
+function renderCurveHint(model, targetId) {
+    const box = document.getElementById(targetId);
+    if (!box) return;
+
+    // ถ้ายังไม่เลือก curve ให้ซ่อนกล่อง hint
+    if (!model) {
+        box.textContent = '';
+        box.classList.remove('is-visible');
+        return;
+    }
+
+    const h = getCurveHint(model);
+    const descLabel = { th: "คำอธิบาย", en: "Description", vn: "Mô tả", lo: "ຄຳອະທິບາຍ" }[currentLang] || "คำอธิบาย";
+    const formulaLabel = { th: "สูตรคำนวณ", en: "Formula", vn: "Công thức", lo: "ສູດຄຳນວນ" }[currentLang] || "สูตรคำนวณ";
+
+    // สร้าง DOM ด้วย textContent — ปลอดภัยจาก XSS
+    const makeRow = (label, value) => {
+        const row = document.createElement('div');
+        row.className = 'curve-hint-row';
+        const lbl = document.createElement('span');
+        lbl.className = 'curve-hint-label';
+        lbl.textContent = label + ':';
+        row.appendChild(lbl);
+        row.appendChild(document.createTextNode(' '));
+        row.appendChild(document.createTextNode(value));
+        return row;
+    };
+
+    box.textContent = '';
+    const title = document.createElement('div');
+    title.className = 'curve-hint-title';
+    title.textContent = h.title;
+    box.appendChild(title);
+    box.appendChild(makeRow(descLabel, h.desc));
+
+    // แถวสูตร — เรนเดอร์ด้วย KaTeX (fallback เป็นข้อความล้วนถ้า KaTeX โหลดไม่ทัน)
+    const formulaRow = document.createElement('div');
+    formulaRow.className = 'curve-hint-row curve-hint-formula-row';
+    const flbl = document.createElement('span');
+    flbl.className = 'curve-hint-label';
+    flbl.textContent = formulaLabel + ':';
+    formulaRow.appendChild(flbl);
+    formulaRow.appendChild(document.createTextNode(' '));
+    const math = document.createElement('span');
+    math.className = 'curve-hint-formula';
+    if (typeof katex !== 'undefined' && h.latex) {
+        try {
+            katex.render(h.latex, math, { throwOnError: false, displayMode: false });
+        } catch (_) {
+            math.textContent = h.formula;
+        }
+    } else {
+        math.textContent = h.formula;
+    }
+    formulaRow.appendChild(math);
+    box.appendChild(formulaRow);
+}
+
+function updateAllCurveHints() {
+    const mainSel = document.getElementById('curveModel');
+    const chartSel = document.getElementById('curveModelChart');
+    if (mainSel) renderCurveHint(mainSel.value, 'curveHint');
+    if (chartSel) renderCurveHint(chartSel.value, 'curveHintChart');
+}
+
+// ==================== Floating Hint Show/Hide ====================
+const _hintTimers = {};
+const HINT_AUTO_HIDE_MS = 10000;
+
+function showCurveHint(boxId) {
+    const box = document.getElementById(boxId);
+    if (!box || !box.textContent.trim()) return;
+    box.classList.add('is-visible');
+    clearTimeout(_hintTimers[boxId]);
+    _hintTimers[boxId] = setTimeout(() => hideCurveHint(boxId), HINT_AUTO_HIDE_MS);
+}
+
+function hideCurveHint(boxId) {
+    const box = document.getElementById(boxId);
+    if (box) box.classList.remove('is-visible');
+    clearTimeout(_hintTimers[boxId]);
+}
+
+function hideAllCurveHints() {
+    hideCurveHint('curveHint');
+    hideCurveHint('curveHintChart');
+}
+
+// ปิดกล่อง hint ทันทีเมื่อคลิกนอกกล่อง/นอก dropdown ที่เกี่ยวข้อง
+document.addEventListener('click', (e) => {
+    const inMainDrop = e.target.closest('#curveModel') || e.target.closest('#curveHint');
+    const inChartDrop = e.target.closest('#curveModelChart') || e.target.closest('#curveHintChart');
+    if (!inMainDrop) hideCurveHint('curveHint');
+    if (!inChartDrop) hideCurveHint('curveHintChart');
+});
 
 let currentLang = localStorage.getItem('lang') || 'th';
 
@@ -448,6 +777,7 @@ function changeLanguage(lang) {
     currentLang = lang;
     localStorage.setItem('lang', lang);
     applyTranslations();
+    updateAllCurveHints();
 }
 
 // Signature Pad Variables
@@ -460,13 +790,130 @@ if (canvas) {
 }
 let writing = false;
 
+// ==================== LocalStorage Persistence ====================
+const STORAGE_KEY = 'csaOperationForm.v1';
+let _saveDebounceTimer = null;
+let _isRestoring = false;
+
+function collectPersistedState() {
+    const state = { inputs: {}, textareas: {}, checkboxes: {}, signatures: {}, flags: {} };
+    state.flags.fixedPlanMode = _fixedPlanMode;
+
+    // Header inputs + selects
+    document.querySelectorAll('.form-header input, .form-header select').forEach(el => {
+        if (el.id) state.inputs[el.id] = el.value;
+    });
+
+    // Row inputs — เฉพาะช่องที่ user กรอกเอง (ช่อง calculated ระบบคำนวณกลับได้)
+    for (let d = 1; d <= 30; d++) {
+        ['resAvgSec', 'qPass', 'qFail'].forEach(prefix => {
+            const el = document.getElementById(`${prefix}_${d}`);
+            if (el && el.value !== "") state.inputs[`${prefix}_${d}`] = el.value;
+        });
+        const ta = document.getElementById(`actionPlan_${d}`);
+        if (ta && ta.value !== "") state.textareas[`actionPlan_${d}`] = ta.value;
+        const sig = document.getElementById(`signImg_${d}`);
+        if (sig && sig.src && sig.src.startsWith('data:')) {
+            state.signatures[`signImg_${d}`] = sig.src;
+        }
+        const cbs = document.querySelectorAll(`#tableBody tr:nth-child(${d}) input[type="checkbox"]`);
+        cbs.forEach((cb, i) => {
+            if (cb.checked) state.checkboxes[`cb_${d}_${i}`] = true;
+        });
+    }
+    return state;
+}
+
+function saveStateToStorage() {
+    if (_isRestoring) return;
+    try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(collectPersistedState()));
+    } catch (e) {
+        console.warn('LocalStorage save failed:', e);
+    }
+}
+
+function loadStateFromStorage() {
+    let state;
+    try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        state = JSON.parse(raw);
+    } catch (e) {
+        console.warn('LocalStorage load failed:', e);
+        return;
+    }
+    _isRestoring = true;
+
+    // Flags (toggle states)
+    if (state.flags) {
+        _fixedPlanMode = !!state.flags.fixedPlanMode;
+    }
+
+    // Header + row inputs
+    Object.entries(state.inputs || {}).forEach(([id, val]) => {
+        const el = document.getElementById(id);
+        if (el) el.value = val;
+    });
+    Object.entries(state.textareas || {}).forEach(([id, val]) => {
+        const el = document.getElementById(id);
+        if (el) el.value = val;
+    });
+    // ลายเซ็น — ต้องแสดง img และซ่อน text placeholder
+    Object.entries(state.signatures || {}).forEach(([id, src]) => {
+        const img = document.getElementById(id);
+        if (img) {
+            img.src = src;
+            img.style.display = 'block';
+            const d = id.replace('signImg_', '');
+            const txt = document.getElementById(`signText_${d}`);
+            if (txt) txt.style.display = 'none';
+        }
+    });
+    // Checkboxes
+    Object.entries(state.checkboxes || {}).forEach(([key, checked]) => {
+        const m = key.match(/^cb_(\d+)_(\d+)$/);
+        if (!m) return;
+        const [_, d, i] = m;
+        const cbs = document.querySelectorAll(`#tableBody tr:nth-child(${d}) input[type="checkbox"]`);
+        if (cbs[i]) cbs[i].checked = !!checked;
+    });
+
+    // คำนวณช่องที่ derive จาก raw inputs (resAvgMin, resEffPerc, resEffPcs, qRates)
+    for (let d = 1; d <= 30; d++) {
+        const hasAvgSec = document.getElementById(`resAvgSec_${d}`)?.value;
+        const hasQty = document.getElementById(`qPass_${d}`)?.value || document.getElementById(`qFail_${d}`)?.value;
+        if (hasAvgSec || hasQty) {
+            manualCalculate(d);
+        }
+    }
+
+    _isRestoring = false;
+}
+
+function clearStateFromStorage() {
+    try { localStorage.removeItem(STORAGE_KEY); } catch (_) {}
+}
+
+function scheduleSave() {
+    if (_isRestoring) return;
+    clearTimeout(_saveDebounceTimer);
+    _saveDebounceTimer = setTimeout(saveStateToStorage, 400);
+}
+
 // ==================== Initialization ====================
 document.addEventListener('DOMContentLoaded', function() {
     initializeTable();
     initializeSignaturePad();
+    loadStateFromStorage();
     calculateAdaptiveGoals();
     updateAutoTargetDay();
     applyTranslations();
+    updateAllCurveHints();
+
+    // Auto-save เมื่อมีการเปลี่ยนแปลง input ใด ๆ (debounce 400ms)
+    document.addEventListener('input', scheduleSave);
+    document.addEventListener('change', scheduleSave);
 });
 
 function initializeTable() {
@@ -476,7 +923,12 @@ function initializeTable() {
     for(let d=1; d<=30; d++) {
         const row = document.createElement("tr");
         row.innerHTML = `
-            <td class="day-cell-readonly" tabIndex="-1">${d}</td>
+            <td class="day-cell-readonly" tabIndex="-1">
+                <span class="day-num" id="dayCell_${d}"></span>
+                <button type="button" class="row-del-btn" onclick="deleteRowData(${d})" title="${t('btnDeleteRow')}" data-i18n-title="btnDeleteRow" aria-label="Delete row">
+                    <i class="fa-solid fa-trash-can"></i>
+                </button>
+            </td>
             
             <td class="calculated-cell"><input type="text" id="targetEff_${d}" disabled tabIndex="-1"></td>
             <td class="calculated-cell"><input type="text" id="targetQty_${d}" disabled tabIndex="-1"></td>
@@ -717,23 +1169,65 @@ function updatePlanButtons() {
 }
 
 // ==================== Chart Functions ====================
-function showPerformanceChart() {
+function onCurveModelMainChange() {
+    // เปลี่ยน dropdown หลัก → รี hint + recalc + sync ค่าไปยัง dropdown ในกราฟ
+    const mainSel = document.getElementById('curveModel');
+    const chartSel = document.getElementById('curveModelChart');
+    if (mainSel && chartSel) chartSel.value = mainSel.value;
+    calculateAdaptiveGoals();
+    updateAllCurveHints();
+    showCurveHint('curveHint');
+}
+
+function onCurveModelChartChange() {
+    // Sync ค่ากลับไปที่ dropdown หลัก แล้วคำนวณใหม่ + วาดกราฟใหม่ + รี hint
+    const chartSel = document.getElementById('curveModelChart');
+    const mainSel = document.getElementById('curveModel');
+    if (chartSel && mainSel) mainSel.value = chartSel.value;
+    calculateAdaptiveGoals();
+    updateAllCurveHints();
+    showCurveHint('curveHintChart');
+    showPerformanceChart();
+}
+
+function showPerformanceChart(skipParamSync) {
     document.getElementById('chartModal').style.display = 'block';
+
+    // Sync inputs กลับจากฟอร์มหลัก ทำเฉพาะตอนเปิดกราฟใหม่ ไม่ใช่ตอน user กำลังพิมพ์
+    // (ถ้าทำระหว่างพิมพ์ ค่า "0." จะโดนเขียนทับกลายเป็น "0" ทำให้พิมพ์ "." ไม่ได้)
+    if (!skipParamSync) {
+        const mainSel = document.getElementById('curveModel');
+        const chartSel = document.getElementById('curveModelChart');
+        if (mainSel && chartSel) chartSel.value = mainSel.value;
+        syncChartParamsFromMain();
+    }
+    updateAllCurveHints();
+    updateToggleLabelsBtn();
+    updateToggleUnitBtn();
+    updateToggleFixedPlanBtn();
 
     // เตรียมข้อมูลจากตาราง
     const labels = [];
     const targetData = [];
     const actualData = [];
 
-    for (let d = 1; d <= 30; d++) {
-        labels.push(t('chartXDay', d));
-        
-        // เคลียร์สัญลักษณ์ % ออกก่อนแปลงค่าเป็นตัวเลข (ป้องกันการ Parse ค่าผิดพลาด)
-        const tVal = document.getElementById(`targetEff_${d}`).value.replace('%', '');
-        targetData.push(tVal ? parseFloat(tVal) : null);
+    // เลือก key label ตามหน่วยที่ครูฝึกเลือก (วัน/ชั่วโมง)
+    const trainingUnit = document.getElementById('trainingUnit')?.value || 'day';
+    const xLabelKey = trainingUnit === 'hour' ? 'chartXHour' : 'chartXDay';
 
-        const aVal = document.getElementById(`resEffPerc_${d}`).value.replace('%', '');
-        actualData.push(aVal ? parseFloat(aVal) : null);
+    // เลือก column ที่จะ plot ตาม unit ที่เลือก
+    const usePcs = (_chartUnit === 'pcs');
+    const targetIdPrefix = usePcs ? 'targetQty' : 'targetEff';
+    const actualIdPrefix = usePcs ? 'resEffPcs' : 'resEffPerc';
+
+    for (let d = 1; d <= 30; d++) {
+        labels.push(t(xLabelKey, d));
+
+        const tRaw = document.getElementById(`${targetIdPrefix}_${d}`)?.value.replace('%', '') || "";
+        targetData.push(tRaw ? parseFloat(tRaw) : null);
+
+        const aRaw = document.getElementById(`${actualIdPrefix}_${d}`)?.value.replace('%', '') || "";
+        actualData.push(aRaw ? parseFloat(aRaw) : null);
     }
 
     // 💡 ดึงค่าสี Dynamic จาก CSS Variables ณ ขณะนั้น
@@ -743,11 +1237,34 @@ function showPerformanceChart() {
     const colorText = style.getPropertyValue('--text-muted').trim() || '#475569';
     const colorGrid = style.getPropertyValue('--border-light').trim() || '#e2e8f0';
 
+    // Register datalabels plugin กับ Chart.js (v4 ไม่ auto-register)
+    if (typeof Chart !== 'undefined' && typeof ChartDataLabels !== 'undefined' && !Chart._dataLabelsRegistered) {
+        Chart.register(ChartDataLabels);
+        Chart._dataLabelsRegistered = true;
+    }
+
     // สร้างกราฟ
     const ctx = document.getElementById('performanceChart').getContext('2d');
     
     if (myChart) { 
         myChart.destroy(); 
+    }
+
+    // Direct canvas click listener — เสริม Chart.js onClick กันกรณี plugin ดัก event
+    const canvas = document.getElementById('performanceChart');
+    if (canvas && !canvas._quickEntryBound) {
+        canvas._quickEntryBound = true;
+        canvas.addEventListener('click', (e) => {
+            if (!myChart || !myChart.chartArea || !myChart.scales?.x) return;
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            console.log('[Canvas click]', { x, y, bottom: myChart.chartArea.bottom });
+            if (y < myChart.chartArea.bottom - 8) return;
+            const idx = Math.round(myChart.scales.x.getValueForPixel(x));
+            console.log('[Canvas click] idx=', idx, '→ day', idx + 1);
+            if (idx >= 0 && idx < 30) openQuickEntryModal(idx + 1);
+        });
     }
 
     myChart = new Chart(ctx, {
@@ -778,6 +1295,27 @@ function showPerformanceChart() {
         },
         options: {
             responsive: true,
+            layout: {
+                padding: { top: 8, bottom: 4, left: 8, right: 16 }
+            },
+            // คลิกที่ label แกน X → เปิด modal บันทึกข้อมูลวันนั้น
+            onClick: (evt, _elems, chart) => {
+                if (!chart || !chart.chartArea || !chart.scales || !chart.scales.x) return;
+                const y = (evt && evt.y != null) ? evt.y : (evt.native ? evt.native.offsetY : null);
+                const x = (evt && evt.x != null) ? evt.x : (evt.native ? evt.native.offsetX : null);
+                console.log('[Chart click]', { x, y, bottom: chart.chartArea.bottom });
+                if (x == null || y == null) return;
+                if (y < chart.chartArea.bottom - 8) return;
+                const idx = Math.round(chart.scales.x.getValueForPixel(x));
+                console.log('[Chart click] idx=', idx, '→ day', idx + 1);
+                if (idx >= 0 && idx < 30) openQuickEntryModal(idx + 1);
+            },
+            onHover: (evt, _elems, chart) => {
+                if (!chart || !chart.chartArea || !chart.canvas) return;
+                const y = (evt && evt.y != null) ? evt.y : (evt.native ? evt.native.offsetY : null);
+                if (y == null) return;
+                chart.canvas.style.cursor = (y >= chart.chartArea.bottom - 8) ? 'pointer' : 'default';
+            },
             scales: {
                 x: {
                     grid: {
@@ -789,26 +1327,60 @@ function showPerformanceChart() {
                 },
                 y: {
                     beginAtZero: true,
-                    max: 100,
+                    // ทั้ง 2 mode ใช้ auto-scale + grace 8% เท่ากัน
+                    // → Target 100% ก็สวย, Target 500% หรือ pcs ก็ยืดหยุ่นตามค่าจริง
+                    grace: '8%',
                     grid: {
-                        color: colorGrid             /* 💡 เส้นกริดแนวนอนเปลี่ยนตามโหมด */
+                        color: colorGrid
                     },
                     ticks: {
-                        color: colorText             /* 💡 ตัวเลขเปอร์เซ็นต์เปลี่ยนตามโหมด */
+                        color: colorText
                     },
                     title: {
                         display: true,
-                        text: t('chartYAxis'),
+                        text: usePcs ? t('chartYAxisPcs') : t('chartYAxis'),
                         color: colorText
                     }
                 }
             },
             plugins: {
-                legend: { 
-                    position: 'top',
-                    labels: {
-                        color: colorText             /* 💡 คำอธิบายสัญลักษณ์กราฟเปลี่ยนตามโหมด */
-                    }
+                legend: {
+                    display: false
+                },
+                datalabels: {
+                    display: (ctx) => _chartLabelsVisible && ctx.dataset.data[ctx.dataIndex] != null,
+                    // ตำแหน่ง label: ปกติ target อยู่บน / actual อยู่ล่าง
+                    // แต่ถ้า actual > target ในวันนั้น ให้สลับข้าง (actual ขึ้นบน, target ลงล่าง)
+                    // เพื่อกันการซ้อนทับเมื่อสองเส้นแตะกัน
+                    align: (ctx) => {
+                        const i = ctx.dataIndex;
+                        const tVal = ctx.chart.data.datasets[0]?.data[i];
+                        const aVal = ctx.chart.data.datasets[1]?.data[i];
+                        const actualHigher = (aVal != null && tVal != null && aVal > tVal);
+                        if (ctx.datasetIndex === 0) return actualHigher ? 'bottom' : 'top';
+                        return actualHigher ? 'top' : 'bottom';
+                    },
+                    anchor: (ctx) => {
+                        const i = ctx.dataIndex;
+                        const tVal = ctx.chart.data.datasets[0]?.data[i];
+                        const aVal = ctx.chart.data.datasets[1]?.data[i];
+                        const actualHigher = (aVal != null && tVal != null && aVal > tVal);
+                        if (ctx.datasetIndex === 0) return actualHigher ? 'start' : 'end';
+                        return actualHigher ? 'end' : 'start';
+                    },
+                    offset: 10,
+                    clamp: true,
+                    clip: false,
+                    color: (ctx) => ctx.datasetIndex === 0 ? colorBlue : colorGreen,
+                    font: { weight: 'bold', size: 11 },
+                    backgroundColor: (style.getPropertyValue('--bg-modal').trim()
+                        || style.getPropertyValue('--bg-container').trim()
+                        || '#ffffff'),
+                    borderColor: (ctx) => ctx.datasetIndex === 0 ? colorBlue : colorGreen,
+                    borderWidth: 1,
+                    borderRadius: 6,
+                    padding: { top: 2, bottom: 2, left: 6, right: 6 },
+                    formatter: (v) => (v == null ? '' : `${Number(v).toFixed(1)}${usePcs ? '' : '%'}`)
                 }
             }
         }
@@ -831,9 +1403,10 @@ function exportToExcel() {
             
             // เตรียม Header ส่วนพนักงาน
             const headerData = [
-                ["CSA OPERATION SIGN-OFF REPORT"],
+                ["Operation Training Record"],
                 [""],
                 [`ขั้นตอนหลัก: ${document.getElementById('header_process')?.value || "-"}`],
+                [`รหัสพนักงาน: ${document.getElementById('header_empCode')?.value || "-"}`],
                 [`พนักงาน: ${document.getElementById('header_employee')?.value || "-"}`],
                 [`ครูฝึก: ${document.getElementById('header_trainer')?.value || "-"}`], 
                 [`ระดับงาน: ${document.getElementById('workLevel')?.value || "-"}`],
@@ -984,16 +1557,281 @@ function clearAllData() {
             // 3. รีเซ็ตนาฬิกาและตัวเลขวันเริ่มต้น
             resetTimer();
             document.getElementById('targetDay').value = 1;
-            
+
             // 4. คำนวณ Goal ใหม่
             calculateAdaptiveGoals();
-            
+
             lastAdjustedDay = 0;
             updatePlanButtons();
-            
+
+            // 5. ล้าง localStorage ด้วย เพื่อไม่ให้ข้อมูลถูก restore กลับตอนรีโหลด
+            clearStateFromStorage();
+
             showCustomModal(t('titleDone'), t('msgClearDone'), false);
         }
     );
+}
+
+// ==================== Training Unit (Day/Hour) ====================
+function onTrainingUnitChange() {
+    calculateAdaptiveGoals();
+    // ถ้ากราฟเปิดอยู่ ให้ re-render เพื่ออัปเดตแกน X
+    const chartModal = document.getElementById('chartModal');
+    if (chartModal && chartModal.style.display === 'block') {
+        showPerformanceChart();
+    }
+}
+
+// ==================== Delete Single Row Data ====================
+function deleteRowData(d) {
+    showCustomModal(
+        t('titleConfirmDeleteRow'),
+        t('msgConfirmDeleteRow', d),
+        true,
+        function() {
+            // ล้างช่อง raw + derived ทั้งหมดในแถว
+            const ids = [
+                `targetEff_${d}`, `targetQty_${d}`,
+                `resAvgSec_${d}`, `resAvgMin_${d}`, `resEffPerc_${d}`, `resEffPcs_${d}`,
+                `qPass_${d}`, `qFail_${d}`, `resQRates_${d}`
+            ];
+            ids.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = "";
+            });
+
+            // Uncheck คอลัมน์ 4M
+            document.querySelectorAll(`#tableBody tr:nth-child(${d}) input[type="checkbox"]`).forEach(cb => {
+                cb.checked = false;
+            });
+
+            // Action plan
+            const ta = document.getElementById(`actionPlan_${d}`);
+            if (ta) ta.value = "";
+
+            // ลายเซ็น
+            const sigImg = document.getElementById(`signImg_${d}`);
+            const sigTxt = document.getElementById(`signText_${d}`);
+            if (sigImg) { sigImg.src = ""; sigImg.style.display = 'none'; }
+            if (sigTxt) sigTxt.style.display = 'block';
+
+            // recalc + save
+            calculateAdaptiveGoals();
+            updateAutoTargetDay();
+            saveStateToStorage();
+
+            // ถ้ากราฟเปิดอยู่ ให้รี draw ทันที (กรณีกดลบจากในกราฟ)
+            const chartModal = document.getElementById('chartModal');
+            if (chartModal && chartModal.style.display === 'block') {
+                showPerformanceChart(true);
+            }
+        }
+    );
+}
+
+// ==================== Toggle Fixed Plan Mode (แผนคงที่ vs แผนปรับตามผลจริง) ====================
+let _fixedPlanMode = false;
+
+function toggleFixedPlan() {
+    _fixedPlanMode = !_fixedPlanMode;
+    updateToggleFixedPlanBtn();
+    calculateAdaptiveGoals();
+    saveStateToStorage();
+    showPerformanceChart(true);
+}
+
+function updateToggleFixedPlanBtn() {
+    const btn = document.getElementById('toggleFixedPlanBtn');
+    if (!btn) return;
+    const icon = btn.querySelector('i');
+    const txt = btn.querySelector('.btn-toggle-labels-text');
+    if (_fixedPlanMode) {
+        if (icon) icon.className = 'fa-solid fa-lock';
+        if (txt) txt.textContent = t('btnPlanFixed');
+        btn.classList.add('is-on');
+        btn.classList.remove('is-off');
+    } else {
+        if (icon) icon.className = 'fa-solid fa-lock-open';
+        if (txt) txt.textContent = t('btnPlanAdaptive');
+        btn.classList.remove('is-on');
+        btn.classList.add('is-off');
+    }
+}
+
+// ==================== Toggle Chart Unit (% ↔ ชิ้น/ชม.) ====================
+let _chartUnit = 'pct'; // 'pct' | 'pcs'
+
+function toggleChartUnit() {
+    _chartUnit = (_chartUnit === 'pct') ? 'pcs' : 'pct';
+    updateToggleUnitBtn();
+    showPerformanceChart(true);
+}
+
+function updateToggleUnitBtn() {
+    const btn = document.getElementById('toggleUnitBtn');
+    if (!btn) return;
+    const txt = btn.querySelector('.btn-toggle-labels-text');
+    if (_chartUnit === 'pct') {
+        if (txt) txt.textContent = t('btnUnitToPcs');
+        btn.classList.remove('is-off');
+    } else {
+        if (txt) txt.textContent = t('btnUnitToPct');
+        btn.classList.add('is-off');
+    }
+}
+
+// ==================== Toggle Chart Data Labels (แสดง/ซ่อน % บนกราฟ) ====================
+let _chartLabelsVisible = true;
+
+function toggleChartLabels() {
+    _chartLabelsVisible = !_chartLabelsVisible;
+    updateToggleLabelsBtn();
+    // วาดกราฟใหม่โดยไม่แตะช่องปรับค่า
+    showPerformanceChart(true);
+}
+
+function updateToggleLabelsBtn() {
+    const btn = document.getElementById('toggleLabelsBtn');
+    if (!btn) return;
+    const icon = btn.querySelector('i');
+    const txt = btn.querySelector('.btn-toggle-labels-text');
+    if (_chartLabelsVisible) {
+        icon.className = 'fa-solid fa-eye';
+        if (txt) txt.textContent = t('btnHideLabels');
+        btn.classList.remove('is-off');
+    } else {
+        icon.className = 'fa-solid fa-eye-slash';
+        if (txt) txt.textContent = t('btnShowLabels');
+        btn.classList.add('is-off');
+    }
+}
+
+// ==================== Quick Entry Modal (จากการคลิกป้ายแกน X ในกราฟ) ====================
+let _quickEntryDay = null;
+
+function openQuickEntryModal(day) {
+    _quickEntryDay = day;
+    const unit = document.getElementById('trainingUnit')?.value || 'day';
+    const labelKey = unit === 'hour' ? 'chartXHour' : 'chartXDay';
+    document.getElementById('quickEntryDayLabel').textContent = t(labelKey, day);
+
+    // เติมค่าเดิมของแถวนั้น (ถ้ามี)
+    document.getElementById('quickAvgSec').value = document.getElementById(`resAvgSec_${day}`)?.value || "";
+    document.getElementById('quickPass').value = document.getElementById(`qPass_${day}`)?.value || "";
+    document.getElementById('quickFail').value = document.getElementById(`qFail_${day}`)?.value || "";
+
+    document.getElementById('quickEntryModal').style.display = 'block';
+    setTimeout(() => document.getElementById('quickAvgSec')?.focus(), 50);
+}
+
+function closeQuickEntryModal() {
+    document.getElementById('quickEntryModal').style.display = 'none';
+    _quickEntryDay = null;
+}
+
+function saveQuickEntry() {
+    if (_quickEntryDay == null) return;
+    const d = _quickEntryDay;
+    const avgSec = document.getElementById('quickAvgSec').value;
+    const pass = document.getElementById('quickPass').value;
+    const fail = document.getElementById('quickFail').value;
+
+    document.getElementById(`resAvgSec_${d}`).value = avgSec;
+    document.getElementById(`qPass_${d}`).value = pass;
+    document.getElementById(`qFail_${d}`).value = fail;
+
+    manualCalculate(d);
+    updateAutoTargetDay();
+    saveStateToStorage();
+
+    closeQuickEntryModal();
+    // วาดกราฟใหม่โดยไม่แตะช่องปรับค่า (กัน sync ทับตอนกำลังพิมพ์)
+    showPerformanceChart(true);
+}
+
+function deleteQuickEntry() {
+    if (_quickEntryDay == null) return;
+    const d = _quickEntryDay;
+    closeQuickEntryModal();
+    // deleteRowData เปิด confirm modal + refresh กราฟให้อัตโนมัติถ้ากราฟเปิดอยู่
+    deleteRowData(d);
+}
+
+// ==================== Chart Parameter Sync ====================
+// ดึงค่าจากฟอร์มหลักมาเติมช่องในกราฟ (ตอนเปิดกราฟ)
+function syncChartParamsFromMain() {
+    const mainEff = document.getElementById('globalEffTarget');
+    const mainDays = document.getElementById('trainingDays');
+    const mainUnit = document.getElementById('trainingUnit');
+    const mainSamMin = document.getElementById('globalSam');
+    const mainSamSec = document.getElementById('globalSamSec');
+
+    const chartEff = document.getElementById('chartEffTarget');
+    const chartDays = document.getElementById('chartTrainingDays');
+    const chartUnit = document.getElementById('chartTrainingUnit');
+    const chartSamMin = document.getElementById('chartSamMin');
+    const chartSamSec = document.getElementById('chartSamSec');
+
+    if (chartEff && mainEff) chartEff.value = mainEff.value;
+    if (chartDays && mainDays) chartDays.value = mainDays.value;
+    if (chartUnit && mainUnit) chartUnit.value = mainUnit.value;
+    if (chartSamMin && mainSamMin) chartSamMin.value = mainSamMin.value;
+    if (chartSamSec && mainSamSec) chartSamSec.value = mainSamSec.value;
+}
+
+// เมื่อ user แก้ค่าใน panel ของกราฟ → sync กลับไปฟอร์มหลัก แล้วรี recalc + วาดกราฟใหม่
+function onChartParamChange(field) {
+    if (field === 'eff') {
+        document.getElementById('globalEffTarget').value = document.getElementById('chartEffTarget').value;
+    } else if (field === 'days') {
+        document.getElementById('trainingDays').value = document.getElementById('chartTrainingDays').value;
+    } else if (field === 'unit') {
+        document.getElementById('trainingUnit').value = document.getElementById('chartTrainingUnit').value;
+    } else if (field === 'samMin') {
+        const min = document.getElementById('chartSamMin').value;
+        document.getElementById('globalSam').value = min;
+        // sync ช่องวินาที (คำนวณเฉพาะเมื่อเป็นตัวเลขสมบูรณ์แล้ว) ไม่งั้นเว้นค่าปัจจุบันไว้
+        const minNum = parseFloat(min);
+        if (min !== "" && !isNaN(minNum)) {
+            const sec = (minNum * 60).toFixed(2);
+            document.getElementById('chartSamSec').value = sec;
+            document.getElementById('globalSamSec').value = sec;
+        } else if (min === "") {
+            document.getElementById('chartSamSec').value = "";
+            document.getElementById('globalSamSec').value = "";
+        }
+    } else if (field === 'samSec') {
+        const sec = document.getElementById('chartSamSec').value;
+        document.getElementById('globalSamSec').value = sec;
+        const secNum = parseFloat(sec);
+        if (sec !== "" && !isNaN(secNum)) {
+            const min = (secNum / 60).toFixed(3);
+            document.getElementById('chartSamMin').value = min;
+            document.getElementById('globalSam').value = min;
+        } else if (sec === "") {
+            document.getElementById('chartSamMin').value = "";
+            document.getElementById('globalSam').value = "";
+        }
+    }
+    calculateAdaptiveGoals();
+    // skipParamSync=true — ห้าม sync ค่ากลับมาที่ input ตอน user กำลังพิมพ์
+    showPerformanceChart(true);
+}
+
+// ==================== SAM Sync (นาที ↔ วินาที) ====================
+function syncSam(source) {
+    const minEl = document.getElementById('globalSam');
+    const secEl = document.getElementById('globalSamSec');
+    if (!minEl || !secEl) return;
+
+    if (source === 'min') {
+        const v = minEl.value;
+        secEl.value = (v === "") ? "" : (parseFloat(v) * 60).toFixed(2);
+    } else {
+        const v = secEl.value;
+        minEl.value = (v === "") ? "" : (parseFloat(v) / 60).toFixed(3);
+    }
+    calculateAdaptiveGoals();
 }
 
 // ==================== Goal Calculation ====================
@@ -1009,54 +1847,90 @@ function calculateAdaptiveGoals() {
     for (let d = 1; d <= 30; d++) {
         if (document.getElementById(`resQRates_${d}`).value === "100%") {
             firstDayQ100 = d;
-            break; 
+            break;
         }
+    }
+
+    // อัปเดตคอลัมน์ วัน/ชั่วโมง — เริ่มนับ 1 ที่แถวถัดจาก 100% แถวแรก
+    for (let d = 1; d <= 30; d++) {
+        const dayCell = document.getElementById(`dayCell_${d}`);
+        if (!dayCell) continue;
+        dayCell.textContent = (firstDayQ100 > 0 && d > firstDayQ100) ? (d - firstDayQ100) : "";
     }
 
     let lastActualEff = 0, lastActualDay = 0;
     for (let d = 1; d <= 30; d++) {
         let effStr = document.getElementById(`resEffPerc_${d}`).value;
-        if (effStr && effStr !== "") { 
-            lastActualEff = parseFloat(effStr); 
-            lastActualDay = d; 
+        if (effStr && effStr !== "") {
+            lastActualEff = parseFloat(effStr);
+            lastActualDay = d;
         }
+    }
+
+    // เลือก anchor ตามโหมด:
+    // - Fixed Plan (ON) → anchor คือวัน Q100 แรก + eff วันนั้น (แผนล็อคไม่ปรับตามผลใหม่)
+    // - Adaptive (OFF, default) → anchor คือวันล่าสุดที่บันทึกผล (แผนปรับตามผลจริง)
+    let anchorDay, anchorEff;
+    if (_fixedPlanMode && firstDayQ100 > 0) {
+        anchorDay = firstDayQ100;
+        const q100EffStr = document.getElementById(`resEffPerc_${firstDayQ100}`)?.value.replace('%', '') || "";
+        anchorEff = q100EffStr ? parseFloat(q100EffStr) : 0;
+    } else {
+        anchorDay = lastActualDay;
+        anchorEff = lastActualEff;
     }
 
     for (let d = 1; d <= 30; d++) {
         const targetInput = document.getElementById(`targetEff_${d}`);
         const targetQtyInput = document.getElementById(`targetQty_${d}`);
         const effInput = document.getElementById(`resEffPerc_${d}`);
-        
+
         if (!targetInput || !targetQtyInput || !effInput) continue;
-        
-        if (d <= lastActualDay && targetInput.value !== "") {
-            // ไม่ทำอะไร เพื่อรักษาค่าเป้าหมายเดิม
+
+        if (d <= anchorDay) {
+            // preserve: วันที่ผ่านมา + anchor day ไม่แตะ target
         } else {
             let targetValue = 0;
             let showTarget = false;
 
-            // คุมคุณภาพน100%
-            if (firstDayQ100 > 0 && d > firstDayQ100 && d <= trainDays) {
+            const curveModel = document.getElementById('curveModel')?.value || '';
+            if (curveModel && firstDayQ100 > 0 && d > firstDayQ100 && d <= trainDays) {
                 showTarget = true;
-                
-                // สถานการณ์ปัจจุบัน
-                const remainingDays = trainDays - lastActualDay;
+
+                const remainingDays = trainDays - anchorDay;
                 if (remainingDays > 0) {
 
-                    // จุดที่ใช้ปรับแผนครับ
-                    const increment = (globalEff - lastActualEff) / remainingDays;
-                    targetValue = lastActualEff + (increment * (d - lastActualDay));
-                } else { 
-                    targetValue = globalEff; 
+                    const deltaDay = d - anchorDay;
+                    let progress;
+
+                    if (curveModel === 'linear') {
+                        // Linear — เพิ่มสม่ำเสมอทุกวัน
+                        progress = deltaDay / remainingDays;
+                    } else if (curveModel === 'log') {
+                        // Logarithmic Y = a + b·ln(x+1) — โตเร็วช่วงแรก ชะลอช่วงท้าย
+                        progress = Math.log(deltaDay + 1) / Math.log(remainingDays + 1);
+                    } else if (curveModel === 'power') {
+                        // Power Y = a·x^b (Wright's Law), b = 0.5 → progress = t^0.5
+                        const tNorm = deltaDay / remainingDays;
+                        progress = Math.pow(tNorm, 0.5);
+                    } else {
+                        // S-Curve (smoothstep) — ค่อย ๆ ขึ้น เร่งกลาง ชะลอท้าย
+                        const tNorm = deltaDay / remainingDays;
+                        progress = tNorm * tNorm * (3 - 2 * tNorm);
+                    }
+
+                    targetValue = anchorEff + (globalEff - anchorEff) * progress;
+                } else {
+                    targetValue = globalEff;
                 }
             }
 
             if (showTarget) {
-                const finalT = Math.ceil(Math.min(targetValue, globalEff));
-                targetInput.value = finalT + "%";
-                if (sam > 0) targetQtyInput.value = Math.ceil((60 / sam) * (finalT / 100));
+                const finalT = Math.min(targetValue, globalEff);
+                targetInput.value = finalT.toFixed(1) + "%";
+                if (sam > 0) targetQtyInput.value = ((60 / sam) * (finalT / 100)).toFixed(1);
             } else {
-                targetInput.value = ""; 
+                targetInput.value = "";
                 targetQtyInput.value = "";
             }
         }
@@ -1086,21 +1960,24 @@ function calculateAdaptiveGoals() {
 function manualCalculate(d) {
     const sam = parseFloat(document.getElementById('globalSam').value) || 0;
     const avgSec = parseFloat(document.getElementById(`resAvgSec_${d}`).value) || 0;
-    const pass = parseFloat(document.getElementById(`qPass_${d}`).value) || 0;
-    const fail = parseFloat(document.getElementById(`qFail_${d}`).value) || 0;
+    const passRaw = document.getElementById(`qPass_${d}`).value;
+    const failRaw = document.getElementById(`qFail_${d}`).value;
+    const pass = parseFloat(passRaw) || 0;
+    const fail = parseFloat(failRaw) || 0;
 
     if (avgSec > 0) {
         const avgMin = avgSec / 60;
         document.getElementById(`resAvgMin_${d}`).value = avgMin.toFixed(2);
         if (sam > 0) {
-            document.getElementById(`resEffPerc_${d}`).value = Math.ceil((sam / avgMin) * 100)+ "%";
-            document.getElementById(`resEffPcs_${d}`).value = Math.ceil(60 / avgMin);
+            document.getElementById(`resEffPerc_${d}`).value = ((sam / avgMin) * 100).toFixed(1) + "%";
+            document.getElementById(`resEffPcs_${d}`).value = (60 / avgMin).toFixed(1);
         }
     }
 
-    const totalQ = pass + fail;
-    if (totalQ > 0) {
-        const qRate = Math.ceil((pass / totalQ) * 100);
+    // อัตราผ่านจะคำนวณได้ก็ต่อเมื่อกรอกทั้ง "ผ่าน" และ "ไม่ผ่าน" ครบทั้งสองช่อง
+    const bothEntered = passRaw !== "" && failRaw !== "";
+    if (bothEntered && (pass + fail) > 0) {
+        const qRate = Math.ceil((pass / (pass + fail)) * 100);
         document.getElementById(`resQRates_${d}`).value = qRate + "%";
     } else {
         document.getElementById(`resQRates_${d}`).value = "";
@@ -1169,9 +2046,11 @@ function recordAndCalculate() {
 }
 
 function updateAutoTargetDay() {
+    // เช็คจาก resAvgSec (ค่านี้ถูกเซตทันทีที่กด Save)
+    // ไม่ใช้ resEffPerc เพราะจะเซตก็ต่อเมื่อ SAM ถูกกรอกด้วย
     let lastDayWithData = 0;
     for (let d = 1; d <= 30; d++) {
-        if (document.getElementById(`resEffPerc_${d}`).value !== "") {
+        if (document.getElementById(`resAvgSec_${d}`).value !== "") {
             lastDayWithData = d;
         }
     }
@@ -1447,7 +2326,22 @@ function saveActionPlanInput() {
 window.exportToExcel = exportToExcel;
 window.clearAllData = clearAllData;
 window.showPerformanceChart = showPerformanceChart;
+window.onCurveModelChartChange = onCurveModelChartChange;
+window.onCurveModelMainChange = onCurveModelMainChange;
+window.showCurveHint = showCurveHint;
+window.hideCurveHint = hideCurveHint;
 window.calculateAdaptiveGoals = calculateAdaptiveGoals;
+window.syncSam = syncSam;
+window.onTrainingUnitChange = onTrainingUnitChange;
+window.onChartParamChange = onChartParamChange;
+window.openQuickEntryModal = openQuickEntryModal;
+window.deleteRowData = deleteRowData;
+window.closeQuickEntryModal = closeQuickEntryModal;
+window.saveQuickEntry = saveQuickEntry;
+window.deleteQuickEntry = deleteQuickEntry;
+window.toggleChartLabels = toggleChartLabels;
+window.toggleChartUnit = toggleChartUnit;
+window.toggleFixedPlan = toggleFixedPlan;
 window.adjustPlan = adjustPlan;
 window.toggleTimer = toggleTimer;
 window.resetTimer = resetTimer;
@@ -1463,37 +2357,45 @@ window.saveSignature = saveSignature;
 window.changeLanguage = changeLanguage;
 
 // ==================== Shortcut Keys Listener ====================
-// ระบบดักจับการกดปุ่มบนคีย์บอร์ด (ปุ่ม ESC เพื่อปิด Modal)
+// กด ESC ปิด modal — ปิดเฉพาะตัวที่อยู่บนสุด (child modal ก่อน parent เสมอ)
 document.addEventListener('keydown', function(event) {
-    if (event.key === 'Escape' || event.key === 'Esc') {
-        
-        // 1. ตรวจสอบและปิดหน้าต่างระบุเวลาเฉลี่ย (Manual Input Modal)
-        const manualModal = document.getElementById('manualInputModal');
-        if (manualModal && manualModal.style.display === 'block') {
-            closeManualModal();
-        }
-        
-        // 2. ตรวจสอบและปิดหน้าต่างลงลายเซ็น (Signature Modal)
-        const signModal = document.getElementById('signModal');
-        if (signModal && signModal.style.display === 'block') {
-            closeSignPad();
-        }
-        
-        // 3. ตรวจสอบและปิดหน้าต่างแสดงกราฟ (Chart Modal)
-        const chartModal = document.getElementById('chartModal');
-        if (chartModal && chartModal.style.display === 'block') {
-            chartModal.style.display = 'none';
-        }
+    if (event.key !== 'Escape' && event.key !== 'Esc') return;
 
-        // 4. หน้าต่างปรับแผน (Notification Modal)
-        const notifModal = document.getElementById('notificationModal');
-        if (notifModal && notifModal.style.display === 'block') {
-            closeNotifModal();
-        } 
-        // 5. ส่วนที่เพิ่มใหม่: ตรวจสอบและปิดหน้าต่างระบุแผนการแก้ไข (Action Plan Modal)
-        const actionPlanModal = document.getElementById('actionPlanModal');
-        if (actionPlanModal && actionPlanModal.style.display === 'block') {
-            closeActionPlanModal();
-        }
+    // ลำดับ priority — child modal อยู่บนสุด ปิดก่อน แล้ว return ทันที
+    const notifModal = document.getElementById('notificationModal');
+    if (notifModal && notifModal.style.display === 'block') {
+        closeNotifModal();
+        return;
+    }
+
+    const signModal = document.getElementById('signModal');
+    if (signModal && signModal.style.display === 'block') {
+        closeSignPad();
+        return;
+    }
+
+    const manualModal = document.getElementById('manualInputModal');
+    if (manualModal && manualModal.style.display === 'block') {
+        closeManualModal();
+        return;
+    }
+
+    const actionPlanModal = document.getElementById('actionPlanModal');
+    if (actionPlanModal && actionPlanModal.style.display === 'block') {
+        closeActionPlanModal();
+        return;
+    }
+
+    const quickEntryModal = document.getElementById('quickEntryModal');
+    if (quickEntryModal && quickEntryModal.style.display === 'block') {
+        closeQuickEntryModal();
+        return;
+    }
+
+    // สุดท้าย — parent modal (กราฟ)
+    const chartModal = document.getElementById('chartModal');
+    if (chartModal && chartModal.style.display === 'block') {
+        chartModal.style.display = 'none';
+        return;
     }
 });
