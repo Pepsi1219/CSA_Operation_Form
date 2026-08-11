@@ -1,1663 +1,658 @@
-:root {
-    /* ============== Light Mode Colors ============== */
-    --bg-body: #f8f9fa;
-    --bg-container: #ffffff;
-    --bg-form-header: #f8fafc;
-    --bg-card: #ffffff;
-    --bg-input: #ffffff;
-    --bg-input-readonly: #f1f5f9;
-    --bg-stopwatch: #ffffff;
-    --bg-table-even: #f8fafc;
-    --bg-table-hover: #f1f5f9;
-    --bg-race-track: #e2e8f0;
-    --bg-day-cell: #e2e8f0;
-    --bg-clickable: #f0f9ff;
-    --bg-clickable-hover: #e0f2fe;
-    --bg-qpass: #f0fdf4;
-    --bg-qpass-hover: #dcfce7;
-    --bg-qfail: #fef2f2;
-    --bg-qfail-hover: #fee2e2;
-    --bg-signature-pad: #f8fafc;
-    --bg-modal: #ffffff;
-    --bg-modal-overlay: rgba(15, 23, 42, 0.6);
-    --bg-modal-overlay2: rgba(15, 23, 42, 0.5);
+/* ============================================================================
+   OPERATION TRAINING RECORD — DESIGN SYSTEM (v2)
+   Industrial-minimalist, tablet-first shop-floor UI.
 
-    /* Text & Border */
-    --text-primary: #0f172a;
-    --text-secondary: #1e293b;
-    --text-muted: #475569;
-    --text-light: #64748b;
-    --text-title: #1a3c6d;
-    --text-success: #10b981;
-    --text-danger: #ef4444;
-    --text-qpass: #166534;
-    --text-qfail: #991b1b;
+   PRESERVES:  every existing class/ID selector from index.html and script.js,
+               so this stylesheet is a drop-in replacement — no JS changes.
+   REPLACES:   every visual token. Old semantic vars (--text-primary etc.)
+               are ALIASED to the new design tokens so any lingering inline
+               style="var(--…)" keeps working.
 
-    /* Borders */
-    --border-light: #e2e8f0;
-    --border-input: #cbd5e1;
-    --border-stopwatch: #e0e0e0;
-    --border-table: #e2e8f0;
-    --border-signature: #cbd5e1;
-
-    /* Accent Colors */
-    --accent-blue: #0ea5e9;
-    --accent-green: #10b981;
-    --accent-emerald: #059669;
-    --accent-indigo: #4f46e5;
-
-    /* Button Colors */
-    --btn-success: #3ac798;
-    --btn-danger: #df4949;
-    --btn-info: #4baedc;
-    --btn-start: #059669;
-    --btn-stop: #dc2626;
-    --btn-save: #4f46e5;
-    --btn-reset: #64748b;
-    --btn-cancel: #e2e8f0;
-
-    /* Header & Special */
-    --header-bg: #334155;
-    --header-border: #475569;
-    --timer-bg: #222;
-    --timer-text: #00ff00;
-
-    /* Shadow & Others */
-    --shadow-light: rgba(0, 0, 0, 0.1);
-    --shadow-input-focus: rgba(14, 165, 233, 0.14);
-    --shadow-focus: rgba(14, 165, 233, 0.15);
-    --shadow-strong: rgba(0, 0, 0, 0.05);
-}
-
-/* ==========================================================================
-   ============== Dark Mode Colors ([data-theme="dark"]) ==============
-   ========================================================================== */
-[data-theme="dark"] {
-    /* ============== Dark Mode Backgrounds ============== */
-    --bg-body: #0f172a;           /* สี Slate เข้มลึก สบายตาตอนกลางคืน */
-    --bg-container: #1e293b;      /* ตัวกล่องรายงานหลัก ยกมิติขึ้นมาให้สว่างกว่าพื้นหลัง */
-    --bg-form-header: #1e293b;
-    --bg-card: #1e293b;
-    --bg-input: #0f172a;          /* ช่องอินพุตเจาะลึกลงไปเป็นสีเข้ม */
-    --bg-input-readonly: #334155; /* ช่องที่ล็อกไว้จะดูทึบและจมลง */
-    --bg-stopwatch: #1e293b;
-    --bg-table-even: #1e293b;     /* ตารางสลับแถว */
-    --bg-table-hover: #334155;    /* ไฮไลต์แถวเมื่อเมาส์ชี้ */
-    --bg-race-track: #334155;
-    --bg-day-cell: #334155;       /* เน้นคอลัมน์วันด้วยสี Slate ที่เด่นขึ้น */
-    
-    /* ปุ่มกดพาสเทล 3 สี (ปรับเฉดให้เข้ากับพื้นหลังมืด ไม่สว่างโร่จนเกินไป) */
-    --bg-clickable: rgba(14, 165, 233, 0.15);       /* ฟ้าจาง */
-    --bg-clickable-hover: rgba(14, 165, 233, 0.25);
-    --bg-qpass: rgba(16, 185, 129, 0.15);           /* เขียวจาง */
-    --bg-qpass-hover: rgba(16, 185, 129, 0.25);
-    --bg-qfail: rgba(239, 68, 68, 0.15);            /* แดงจาง */
-    --bg-qfail-hover: rgba(239, 68, 68, 0.25);
-    
-    --bg-signature-pad: #0f172a;
-    --bg-modal: #1e293b;
-    --bg-modal-overlay: rgba(0, 0, 0, 0.7);
-    --bg-modal-overlay2: rgba(0, 0, 0, 0.6);
-
-    /* Text & Border (สลับสีตัวอักษรเป็นสีสว่าง) */
-    --text-primary: #f8fafc;      /* ตัวหนังสือหลักสีขาวนวล */
-    --text-secondary: #e2e8f0;    /* ตัวหนังสือรองสีเทาอ่อน */
-    --text-muted: #94a3b8;
-    --text-light: #64748b;
-    --text-title: #38bdf8;        /* หัวข้อรายงานเด่นด้วยสีฟ้าสว่าง */
-    
-    /* สีฟอนต์แจ้งเตือนและฟอนต์ในปุ่มพาสเทล */
-    --text-success: #34d399;      /* เขียวสว่างคมชัด */
-    --text-danger: #f87171;       /* แดงสว่างคมชัด */
-    --text-qpass: #4ade80;        /* ข้อความงานดี */
-    --text-qfail: #f87171;        /* ข้อความงานเสีย */
-
-    /* Borders (ปรับเส้นขอบให้กลืนกับความมืด) */
-    --border-light: #334155;
-    --border-input: #475569;
-    --border-stopwatch: #475569;
-    --border-table: #334155;
-    --border-signature: #475569;
-
-    /* Accent Colors (คงความสดไว้เล็กน้อยเพื่อเป็นจุดนำสายตา) */
-    --accent-blue: #38bdf8;
-    --accent-green: #34d399;
-    --accent-emerald: #10b981;
-    --accent-indigo: #6366f1;
-
-    /* Button Colors (ปรับให้สว่างสู้แสงมืด แต่ไม่อ่อนล้าสายตา) */
-    --btn-success: #059669;
-    --btn-danger: #dc2626;
-    --btn-info: #0284c7;
-    --btn-start: #10b981;
-    --btn-stop: #ef4444;
-    --btn-save: #6366f1;
-    --btn-reset: #475569;
-    --btn-cancel: #334155;
-
-    /* Header & Special (คงที่หรือปรับตามความเหมาะสม) */
-    --header-bg: #0f172a;
-    --header-border: #1e293b;
-    --timer-bg: #000000;
-    --timer-text: #39ff14;        /* โน้นเขียวไซเบอร์เรืองแสงชัดเจนในความมืด */
-
-    /* Shadow & Others (ในโหมดมืดจะเน้นเงาที่เข้มทึบขึ้นเพื่อตัดมิติ) */
-    --shadow-light: rgba(0, 0, 0, 0.4);
-    --shadow-input-focus: rgba(56, 189, 248, 0.25);
-    --shadow-focus: rgba(56, 189, 248, 0.25);
-    --shadow-strong: rgba(0, 0, 0, 0.5);
-}
-
-
-
-* { 
-    box-sizing: border-box; 
-    margin: 0; 
-    padding: 0; 
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif; 
-}
-
-html, body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    min-height: 100vh;
-    background-color: var(--bg-body); /* 💡 บังคับให้ใช้สีพื้นหลังตามโหมด (สว่าง/มืด) ขอบขาวจะหายไป */
-}
-
-/* ปรับ Padding ของ body บนจอคอมเพื่อให้เนื้อหาไม่ติดขอบจอเกินไป (ถ้าต้องการ) */
-body {
-    padding: 20px;
-    box-sizing: border-box;
-}
-
-.report-container { 
-    background: var(--bg-container); 
-    padding: 20px; 
-    border-radius: 8px; 
-    box-shadow: 0 2px 10px var(--shadow-light); 
-    max-width: 1550px;
-    width: 100%;
-    margin: auto; 
-}
-
-.text {
-    color: var(--text-primary) !important; /* บังคับให้เปลี่ยนสีตามโหมดสว่าง-มืด */
-    transition: color 0.15s ease;          /* ช่วยให้ตอนสลับโหมดสี ตัวหนังสือจะค่อยๆ เปลี่ยนแบบนุ่มนวล */
-}
-
-/* ==========================================================================
-   Report Header & Header Controls Layout
+   DESIGN SYSTEM
+   ─────────────────────────────────────────────────────────────────────────
+   • SPACING — 4px base, 8pt grid (4pt sub-steps for data density)
+   • RADIUS  — nested rule: inner corner = outer − padding
+               card(16) › cell(12) › chip(8) › pill(999)
+   • TYPE    — minor-third scale: 11 · 12 · 14 · 17 · 30
+               Roboto Mono (tabular) for every numeral so digits align
+   • COLOR   — muted neutral surfaces; semantic red/amber/green reserved
+               strictly for DATA alerts. All text/background pairs verified
+               ≥ 4.5:1 (WCAG AA normal text).
    ========================================================================== */
 
-/* จัดตำแหน่งโครงสร้างแถวบนสุด */
-.report-header-wrapper {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap; /* รองรับกรณีหน้าจอแท็บเล็ตแคบ ให้ปุ่มตัดลงมาได้ไม่ล้นจอ */
-    gap: 16px;
-    margin-bottom: 20px;
-    border-bottom: 2px solid var(--text-title);
-    padding-bottom: 12px;
+/* ── Design tokens ───────────────────────────────────────────────────────── */
+:root{
+  /* Spacing */
+  --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-5:20px; --sp-6:24px; --sp-8:32px;
+  /* Radius */
+  --r-card:16px; --r-cell:12px; --r-chip:8px; --r-pill:999px;
+  /* Type scale — dialed down from v2.0 (users found data/h1 too heavy) */
+  --t-micro:10px; --t-label:11px; --t-body:13px; --t-data:14px; --t-kpi:22px; --t-h1:15px;
+
+  /* Surfaces (light) */
+  --bg:            #f4f4f5;
+  --surface:       #ffffff;
+  --surface-2:     #fafafa;
+  --surface-sunk:  #f6f6f7;
+  --border:        #e5e5e8;
+  --border-strong: #d4d4d8;
+  --ink:           #18181b;   /* 16.7:1 on surface */
+  --ink-2:         #46464d;   /*  9.0:1 */
+  --ink-3:         #6b6b73;   /*  4.9:1 — tertiary labels */
+
+  --field:         #ffffff;
+  --field-focus:   #f8f8fb;
+
+  /* Semantic — data alerts only */
+  --green:   #136c44;  --green-bg:#e6f3ed;  --green-ln:#16794c;
+  --amber:   #7a5400;  --amber-bg:#fbf1dc;  --amber-ln:#b07d13;
+  --red:     #b3312a;  --red-bg:  #fbe9e7;  --red-ln:  #c0362c;
+
+  --shadow:        0 1px 2px rgba(24,24,27,.05), 0 1px 1px rgba(24,24,27,.03);
+  --shadow-card:   0 1px 3px rgba(24,24,27,.06), 0 1px 2px rgba(24,24,27,.03);
+  --shadow-modal:  0 20px 50px -12px rgba(24,24,27,.28), 0 4px 12px rgba(24,24,27,.08);
+  --focus:         0 0 0 3px rgba(24,24,27,.28);
+
+  --mono:'Roboto Mono', ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, Consolas, monospace;
+  --sans:'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans Thai', 'Noto Sans Lao', sans-serif;
+
+  /* ── Legacy aliases (keep so old inline styles / any missed rule still works) */
+  --bg-body:            var(--bg);
+  --bg-container:       var(--surface);
+  --bg-card:            var(--surface);
+  --bg-form-header:     var(--surface);
+  --bg-input:           var(--field);
+  --bg-input-readonly:  var(--surface-sunk);
+  --bg-stopwatch:       var(--surface);
+  --bg-table-even:      var(--surface-2);
+  --bg-table-hover:     var(--surface-sunk);
+  --bg-race-track:      var(--surface-sunk);
+  --bg-day-cell:        var(--surface-sunk);
+  --bg-clickable:       var(--surface);
+  --bg-clickable-hover: var(--surface-sunk);
+  --bg-qpass:           var(--surface);
+  --bg-qpass-hover:     var(--green-bg);
+  --bg-qfail:           var(--surface);
+  --bg-qfail-hover:     var(--red-bg);
+  --bg-signature-pad:   var(--surface-sunk);
+  --bg-modal:           var(--surface);
+  --bg-modal-overlay:   rgba(24,24,27,.55);
+  --bg-modal-overlay2:  rgba(24,24,27,.45);
+
+  --text-primary:       var(--ink);
+  --text-secondary:     var(--ink-2);
+  --text-muted:         var(--ink-2);
+  --text-light:         var(--ink-3);
+  --text-title:         var(--ink);
+  --text-success:       var(--green);
+  --text-danger:        var(--red);
+  --text-qpass:         var(--green);
+  --text-qfail:         var(--red);
+
+  --border-light:       var(--border);
+  --border-input:       var(--border-strong);
+  --border-stopwatch:   var(--border);
+  --border-table:       var(--border);
+  --border-signature:   var(--border-strong);
+
+  --accent-blue:        var(--ink);
+  --accent-green:       var(--green);
+  --accent-emerald:     var(--green);
+  --accent-indigo:      var(--ink);
+
+  --btn-success:        var(--ink);
+  --btn-danger:         var(--red);
+  --btn-info:           var(--ink);
+  --btn-start:          var(--ink);
+  --btn-stop:           var(--red);
+  --btn-save:           var(--ink);
+  --btn-reset:          var(--ink-2);
+  --btn-cancel:         var(--surface-sunk);
+
+  --header-bg:          var(--surface);
+  --header-border:      var(--border);
+  --timer-bg:           var(--ink);
+  --timer-text:         #f4f4f5;
+
+  --shadow-light:       rgba(24,24,27,.05);
+  --shadow-input-focus: rgba(24,24,27,.16);
+  --shadow-focus:       rgba(24,24,27,.28);
+  --shadow-strong:      rgba(24,24,27,.08);
 }
 
-/* หัวข้อรายงาน (ลบ margin และ border-bottom เก่าออก) */
-.report-title { 
-    margin: 0; 
-    color: var(--text-title);
-    font-size: 1.5rem;
-    font-weight: 800;
-    letter-spacing: 0.025em;
+/* ── Dark mode ────────────────────────────────────────────────────────────── */
+[data-theme="dark"]{
+  --bg:            #0c0c0e;
+  --surface:       #161619;
+  --surface-2:     #131316;
+  --surface-sunk:  #0f0f11;
+  --border:        #26262b;
+  --border-strong: #3a3a42;
+  --ink:           #f4f4f5;
+  --ink-2:         #c2c2ca;
+  --ink-3:         #9a9aa4;
+  --field:         #1c1c20;
+  --field-focus:   #212127;
+
+  --green:  #4ade80; --green-bg:#12281e; --green-ln:#4ade80;
+  --amber:  #e3b341; --amber-bg:#2e2408; --amber-ln:#e3b341;
+  --red:    #f87171; --red-bg:  #2e1817; --red-ln:  #f87171;
+
+  --shadow:       0 1px 2px rgba(0,0,0,.4);
+  --shadow-card:  0 1px 3px rgba(0,0,0,.45);
+  --shadow-modal: 0 20px 50px -12px rgba(0,0,0,.65), 0 4px 12px rgba(0,0,0,.35);
+  --focus:        0 0 0 3px rgba(228,228,231,.32);
+
+  --bg-modal-overlay:  rgba(0,0,0,.7);
+  --bg-modal-overlay2: rgba(0,0,0,.55);
+  --timer-bg:          #000;
+  --timer-text:        var(--ink);
 }
 
-/* กลุ่มควบคุมทังหมด (วิ่งไปชิดขวาอัตโนมัติ) */
-.system-controls {
-    margin-left: auto;
-    display: flex;
-    align-items: center;
-    gap: 12px;
+/* ── Reset & base ────────────────────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:var(--sans); font-size:var(--t-body); line-height:1.45;
+  font-feature-settings:"cv05","ss01","tnum"; -webkit-font-smoothing:antialiased;
+}
+:focus-visible{outline:none; box-shadow:var(--focus); border-radius:var(--r-chip)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important; animation:none!important}}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.mono, .font-bold{font-family:var(--mono); font-variant-numeric:tabular-nums}
+.font-bold{font-weight:600}
+.text, .text-title-color{color:var(--ink)}
+
+/* ── Layout shell ────────────────────────────────────────────────────────── */
+.report-container{
+  max-width:1440px; margin:0 auto;
+  padding:var(--sp-5) clamp(var(--sp-3),2.4vw,var(--sp-8)) 64px;
+  display:flex; flex-direction:column; gap:var(--sp-4);
+}
+.report-header-wrapper{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:var(--sp-4); padding:var(--sp-1) 2px var(--sp-3); flex-wrap:wrap;
+}
+.report-title{
+  margin:0; font-size:16px; font-weight:600; letter-spacing:-.01em;
+  color:var(--ink);
+}
+.system-controls{display:flex; align-items:center; gap:var(--sp-2)}
+.control-divider{width:1px; height:24px; background:var(--border); margin:0 var(--sp-1)}
+.action-buttons-group{display:flex; align-items:center; gap:var(--sp-2)}
+
+/* ── Language selector & theme toggle ────────────────────────────────────── */
+.lang-selector select, .theme-toggle-btn{
+  height:36px; min-width:36px; border-radius:8px; border:1px solid var(--border);
+  background:var(--surface); color:var(--ink-2); box-shadow:var(--shadow);
+  cursor:pointer; font-family:var(--sans); font-size:var(--t-label); font-weight:500;
+  padding:0 var(--sp-3); display:inline-flex; align-items:center; justify-content:center;
+  transition:background .12s, color .12s, border-color .12s;
+}
+.lang-selector select{padding-right:var(--sp-4)}
+.lang-selector select:hover, .theme-toggle-btn:hover{background:var(--surface-2); color:var(--ink); border-color:var(--border-strong)}
+.theme-toggle-btn{width:40px; padding:0}
+.theme-toggle-btn svg{width:18px; height:18px}
+[data-theme="dark"] .theme-toggle-btn .moon-icon{display:none}
+:root:not([data-theme="dark"]) .theme-toggle-btn .sun-icon{display:none}
+[data-theme="dark"] .theme-toggle-btn .sun-icon{display:inline}
+:root:not([data-theme="dark"]) .theme-toggle-btn .moon-icon{display:inline}
+
+/* ── Buttons ─────────────────────────────────────────────────────────────── */
+.btn{
+  min-height:36px; padding:0 var(--sp-4); border-radius:8px; border:1px solid var(--border);
+  background:var(--surface); color:var(--ink); font-family:var(--sans); font-size:var(--t-label);
+  font-weight:500; cursor:pointer; box-shadow:var(--shadow);
+  display:inline-flex; align-items:center; justify-content:center; gap:6px;
+  transition:background .12s, color .12s, border-color .12s, transform .05s;
+  white-space:nowrap;
+}
+.btn:hover:not(:disabled){background:var(--surface-2); border-color:var(--border-strong)}
+.btn:active:not(:disabled){transform:translateY(1px)}
+.btn:disabled{opacity:.45; cursor:not-allowed}
+
+/* Solid dark = primary action (Save, Start, Success). Muted red = destructive/stop. */
+.btn-success, .btn-save, .btn-start, .btn-save-modal{
+  background:var(--ink); color:var(--surface); border-color:var(--ink);
+}
+.btn-success:hover:not(:disabled), .btn-save:hover:not(:disabled),
+.btn-start:hover:not(:disabled), .btn-save-modal:hover:not(:disabled){
+  background:#000; border-color:#000; color:var(--surface);
+}
+[data-theme="dark"] .btn-success, [data-theme="dark"] .btn-save,
+[data-theme="dark"] .btn-start, [data-theme="dark"] .btn-save-modal{
+  background:var(--surface); color:var(--ink); border-color:var(--surface);
 }
 
-/* เส้นแบ่งโซนปุ่มระหว่างปุ่มตั้งค่าระบบ กับปุ่ม Action ข้อมูล */
-.control-divider {
-    width: 1px;
-    height: 24px;
-    background-color: var(--border-light);
-    margin: 0 4px;
+.btn-danger, .btn-stop, .btn-delete-modal{
+  background:var(--surface); color:var(--red); border-color:var(--border);
+}
+.btn-danger:hover:not(:disabled), .btn-stop:hover:not(:disabled),
+.btn-delete-modal:hover:not(:disabled){
+  background:var(--red-bg); border-color:var(--red); color:var(--red);
 }
 
-/* กลุ่มปุ่ม Action ดั้งเดิมของคุณ */
-.action-buttons-group {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+.btn-info, .btn-reset, .btn-cancel{
+  background:var(--surface); color:var(--ink-2); border-color:var(--border);
+}
+.btn-cancel:hover:not(:disabled){background:var(--surface-2)}
+
+/* Icon-only buttons (Excel / trash / chart in header) */
+.action-buttons-group .btn{width:40px; padding:0}
+
+/* ── Form header ─────────────────────────────────────────────────────────── */
+.form-header{
+  display:grid; gap:1px; background:var(--border);
+  border:1px solid var(--border); border-radius:var(--r-card);
+  overflow:hidden; box-shadow:var(--shadow-card);
+  /* 9 stable fields → 3×3 grid eliminates ghost cells that auto-fit would leave. */
+  grid-template-columns:repeat(3, 1fr);
+}
+.field{
+  background:var(--surface); padding:var(--sp-4);
+  display:flex; flex-direction:column; gap:var(--sp-2); min-width:0;
+  position:relative;   /* anchor for .curve-hint-floating drop-down */
+}
+.field label{
+  font-size:var(--t-micro); font-weight:500; color:var(--ink-3);
+  text-transform:uppercase; letter-spacing:.05em;
+}
+.field input, .field select{
+  border:none; background:transparent; color:var(--ink);
+  font-family:var(--sans); font-size:var(--t-data); font-weight:500;
+  padding:0; width:100%; outline:none; min-height:26px;
+  border-bottom:2px solid transparent;
+}
+.field input[type="number"]{font-family:var(--mono); font-variant-numeric:tabular-nums}
+.field input:focus, .field select:focus{
+  border-bottom-color:var(--ink); background:var(--field-focus);
+}
+.field input::placeholder{color:var(--ink-3); font-weight:400}
+
+.field-inline{display:flex; align-items:baseline; gap:var(--sp-2); min-width:0}
+.field-inline > input{flex:1 1 0; min-width:0}
+.field-inline > select{flex:0 0 auto; width:auto; min-width:56px; padding-right:var(--sp-2)}
+.field-inline-sep, .date-range-sep{
+  color:var(--ink-3); font-weight:500; font-size:var(--t-body); flex:none;
+}
+.inline-select, .inline-select-wide{
+  border:none; background:transparent; color:var(--ink-2);
+  font-size:var(--t-label); font-weight:500; padding:0 var(--sp-2) 0 0;
+  min-height:26px; flex:none;
+}
+.inline-select-wide{min-width:56px}
+.date-range{display:flex; align-items:center; gap:var(--sp-2)}
+.date-range input{flex:1; min-width:0}
+
+.curve-hint{
+  margin-top:var(--sp-2); padding:var(--sp-2) var(--sp-3);
+  background:var(--surface-sunk); border:1px solid var(--border); border-radius:var(--r-chip);
+  color:var(--ink-2); font-size:var(--t-label); line-height:1.5;
+}
+/* Hint boxes are hidden by default; script.js toggles .is-visible to reveal
+   (paired with the click-outside handler that closes on stray clicks). */
+.curve-hint{display:none}
+.curve-hint.is-visible{display:block}
+/* Floating hint uses position:fixed so it escapes .form-header's overflow:hidden
+   (which is needed to clip the grid cells to the rounded outer corners).
+   showCurveHint() computes top/left/min-width from the select's client rect. */
+.curve-hint-floating{
+  position:fixed;
+  max-width:min(420px, calc(100vw - 16px));
+  z-index:150;
+  box-shadow:var(--shadow-modal);
 }
 
-/* ปรับขนาดปุ่มไอคอนกลมของคุณให้เป็นทรงกลมสวยงามเท่ากันทุกปุ่ม */
-.action-buttons-group .btn {
-    width: 38px;
-    height: 38px;
-    min-width: 38px;
-    padding: 0;
-    border-radius: 50%; /* บังคับให้ปุ่มไอคอนเดิมของคุณกลมดิ๊กแมตช์กับปุ่มโหมดสี */
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+/* ── Stopwatch bar ───────────────────────────────────────────────────────── */
+.stopwatch-bar{
+  display:flex; justify-content:space-between; align-items:center;
+  gap:var(--sp-4); flex-wrap:wrap;
+  padding:var(--sp-3) var(--sp-4);
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--r-card); box-shadow:var(--shadow-card);
+}
+.control-group-left, .control-group-right{
+  display:flex; align-items:center; gap:var(--sp-2); flex-wrap:wrap;
+}
+.timer-display{
+  font-family:var(--mono); font-variant-numeric:tabular-nums;
+  font-size:18px; font-weight:500; letter-spacing:-.01em;
+  color:var(--ink); padding:var(--sp-2) var(--sp-3);
+  background:var(--surface-sunk); border:1px solid var(--border);
+  border-radius:var(--r-chip); min-width:112px; text-align:center;
 }
 
-/* Dropdown ภาษา */
-.lang-selector select {
-    padding: 8px 10px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    font-family: inherit;
-    color: var(--text-primary);
-    background-color: var(--bg-container);
-    border: 1px solid var(--border-input);
-    border-radius: 8px;
-    cursor: pointer;
-    outline: none;
-    transition: all 0.2s ease;
+/* ── Race track (progress) ───────────────────────────────────────────────── */
+.race-track{
+  padding:var(--sp-4);
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--r-card); box-shadow:var(--shadow-card);
+  display:flex; flex-direction:column; gap:var(--sp-3);
 }
-.lang-selector select:hover {
-    border-color: var(--accent-blue);
+.race-track-header{display:flex; align-items:center; justify-content:space-between}
+.race-track-status{font-size:var(--t-label); font-weight:500; color:var(--ink-2); font-family:var(--mono); font-variant-numeric:tabular-nums}
+.race-track-bar{
+  position:relative; height:8px; background:var(--surface-sunk);
+  border:1px solid var(--border); border-radius:var(--r-pill); overflow:hidden;
 }
-
-/* ปุ่ม Dark Mode ทรงกลม */
-.theme-toggle-btn {
-    background-color: var(--bg-input-readonly);
-    border: 1px solid var(--border-light);
-    color: var(--text-primary);
-    width: 38px;
-    height: 38px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    outline: none;
-    padding: 0;
+.progress-line{
+  position:absolute; left:0; top:0; bottom:0;
+  background:var(--ink); border-radius:var(--r-pill); transition:width .4s ease;
 }
-.theme-toggle-btn:hover {
-    background-color: var(--bg-table-hover);
-    transform: scale(1.05);
+.progress-badge{
+  position:absolute; top:-26px; transform:translateX(-50%);
+  padding:2px 7px; font-size:var(--t-micro); font-weight:500;
+  background:var(--ink); color:var(--surface); border-radius:var(--r-chip);
+  font-family:var(--mono); transition:left .4s ease;
 }
 
-/* ลอจิกการซ่อน/โชว์ไอคอนดวงอาทิตย์-พระจันทร์ */
-.theme-toggle-btn .sun-icon { display: none; }
-.theme-toggle-btn .moon-icon { display: block; color: var(--text-muted); }
-
-[data-theme="dark"] .theme-toggle-btn .sun-icon { display: block; color: #f59e0b; }
-[data-theme="dark"] .theme-toggle-btn .moon-icon { display: none; }
-
-
-/* Action Buttons */
-.action-buttons {
-    display: flex; 
-    gap: 10px; 
-    justify-content: flex-end; 
-    margin: 20px 0;
+/* ── Table ───────────────────────────────────────────────────────────────── */
+.table-wrapper{
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--r-card); box-shadow:var(--shadow-card); overflow:auto;
+}
+.report-table{
+  width:100%; border-collapse:collapse;
+  font-size:var(--t-body); font-family:var(--sans);min-width: 100%;table-layout: fixed;
+}
+.report-table thead th{
+  font-size:var(--t-micro); font-weight:500; color:var(--ink-2);
+  text-transform:uppercase; letter-spacing:.04em;
+  padding:var(--sp-2) var(--sp-2); background:var(--surface-2);
+  border-bottom:1px solid var(--border); border-right:1px solid var(--border);
+  white-space:nowrap; text-align:center; vertical-align:middle;
+}
+.report-table thead tr:first-child th{border-top:none}
+.report-table thead th:last-child{border-right:none}
+.report-table thead th.header-wrap{white-space:normal; line-height:1.3; padding:var(--sp-2)}
+.report-table .vertical-text{
+  writing-mode:vertical-rl; transform:rotate(180deg);
+  display:inline-block; padding:var(--sp-2) 0;
+  font-size:var(--t-micro); font-weight:500; letter-spacing:.04em;
 }
 
-/* Form Header */
-.form-header {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 12px 16px;
-    margin-bottom: 20px;
-
-    background: var(--bg-form-header);
-    border: 1px solid var(--border-light);
-
-    padding: 20px;
-    border-radius: 12px;
-    width: 100%;
-    box-sizing: border-box;
-
-    /* สร้าง stacking context ให้ hint (absolute) อยู่เหนือ stopwatch-bar (z-index: 100) */
-    position: relative;
-    z-index: 200;
+.report-table tbody td{
+  padding:0; border-bottom:1px solid var(--border);
+  border-right:1px solid var(--border); vertical-align:middle;
+  background:var(--surface); height:38px;
 }
+.report-table tbody td:last-child{border-right:none}
+.report-table tbody tr:hover td{background:var(--surface-2)}
+.report-table tbody tr:nth-child(even) td{background:var(--surface-2)}
+.report-table tbody tr:nth-child(even):hover td{background:var(--surface-sunk)}
 
-/* ==========================================================================
-   Form Fields Components (Modern Form Elements)
-   ========================================================================== */
+/* Day cell (leftmost) */
+.day-cell-readonly{
+  padding:0 var(--sp-2)!important; text-align:center;
+  position:relative; background:var(--surface-sunk)!important;
+}
+.day-num{
+  display:inline-block; font-family:var(--mono); font-variant-numeric:tabular-nums;
+  font-size:var(--t-body); font-weight:500; color:var(--ink);
+}
+.row-del-btn{
+  position:absolute; top:2px; right:2px;
+  width:20px; height:20px; padding:0; border:none; background:transparent;
+  color:var(--ink-3); cursor:pointer; opacity:0; transition:opacity .12s, color .12s;
+  border-radius:4px; display:grid; place-items:center;
+}
+.row-del-btn:hover{color:var(--red); background:var(--red-bg)}
+.report-table tbody tr:hover .row-del-btn{opacity:.7}
+.row-del-btn i{font-size:10px}
 
-/* 1. โครงสร้างการจัดเรียงแนวตั้งของแต่ละช่อง */
-.field {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
+/* Data-entry inputs inside table cells */
+.report-table tbody td input[type="text"],
+.report-table tbody td input[type="number"]{
+  width:100%; height:100%; min-height:38px;
+  border:none; background:transparent;
+  padding:0 var(--sp-2); text-align:center;
+  font-family:var(--mono); font-variant-numeric:tabular-nums;
+  font-size:13px; font-weight:500; color:var(--ink);
+  outline:none;
 }
+.report-table tbody td input:focus{
+  background:var(--field-focus); box-shadow:inset 0 -2px 0 var(--ink);
+}
+.report-table tbody td.calculated-cell{background:var(--surface-sunk)!important}
+.report-table tbody td.calculated-cell input{color:var(--ink-2); font-weight:400}
 
-/* ช่องกรอกช่วงวันที่ (เริ่ม → โอนย้าย) รวมอยู่ในกล่องเดียว */
-.date-range {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+/* Result-vs-target coloring — better than target = green, worse = red, equal = black.
+   !important overrides .calculated-cell input's muted color above. */
+.report-table tbody td input.text-success{color:var(--green)!important; font-weight:600}
+.report-table tbody td input.text-danger{color:var(--red)!important; font-weight:600}
+.report-table tbody tr:nth-child(even) td.calculated-cell{background:var(--surface-sunk)!important}
+.report-table tbody td .clickable-input{
+  cursor:pointer; background:var(--surface);
 }
-.date-range input[type="date"] {
-    flex: 1;
-    min-width: 0;
-}
-.date-range-sep {
-    color: var(--text-muted);
-    font-weight: 700;
-    flex-shrink: 0;
-}
+.report-table tbody td .clickable-input:hover{background:var(--field-focus)}
 
-/* กลุ่ม input 2 ช่องในฟิลด์เดียว (เช่น ขั้นตอนหลัก+ระดับงาน, เป้าหมาย Eff+Qty) */
-.field-inline {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-.field-inline > input,
-.field-inline > select {
-    flex: 1;
-    min-width: 0;
-}
-.field-inline > .inline-select {
-    flex: 0 0 90px;
-}
-.field-inline > .inline-select-wide {
-    flex: 0 0 110px;
-}
-.field-inline-sep {
-    color: var(--text-muted);
-    font-weight: 700;
-    flex-shrink: 0;
-}
-
-/* 2. หัวข้อประจำช่องกรอกข้อมูล (Label) */
-.field label { 
-    font-size: 0.8rem; 
-    font-weight: 700; 
-    color: var(--text-muted); 
-    text-transform: uppercase; 
-    letter-spacing: 0.025em; 
-}
-
-/* 3. ช่องกรอกข้อมูลหลัก (Inputs และ Select Dropdowns) */
-.field input, 
-.field select { 
-    padding: 10px 14px; 
-    border: 1px solid var(--border-input); 
-    border-radius: 8px; 
-    font-size: 0.95rem; 
-    color: var(--text-primary); 
-    background-color: var(--bg-input); 
-    outline: none; 
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); 
-    width: 100%;
-    box-sizing: border-box;
-}
-
-/* 4. Interactive State - เอฟเฟกต์ตอนพนักงานคลิกเพื่อป้อนข้อมูล */
-.field input:focus, 
-.field select:focus { 
-    border-color: var(--accent-blue); 
-    box-shadow: 0 0 0 4px var(--shadow-input-focus); 
-    background-color: var(--bg-input);
-}
-
-/* 5. Read-only State - ช่องที่ระบบคำนวณให้อัตโนมัติ ห้ามพิมพ์แก้ไข */
-.field input[readonly] { 
-    background-color: var(--bg-input-readonly); 
-    border-color: var(--border-light);
-    color: var(--text-light); 
-    cursor: not-allowed; 
-    
-    /* 💡 เพิ่ม 3 บรรทัดนี้ลงในสไตล์เดิมของคุณ */
-    pointer-events: none;       /* บล็อกการจิ้มสัมผัส เมาส์จะทะลุผ่าน ไม่เกิดเอฟเฟกต์ใดๆ */
-    outline: none !important;   /* ลบกรอบดำ/กรอบส้ม ดั้งเดิมของเบราว์เซอร์ */
-    text-align: center;         /* จัดตัวเลขให้อยู่กึ่งกลางช่องตาราง */
-}
-
-/* กรณีช่อง Read-only ถูกคลิก จะไม่มีเอฟเฟกต์เรืองแสงเพื่อไม่ให้พนักงานสับสน */
-.field input[readonly]:focus {
-    border-color: var(--border-light);
-    box-shadow: none;
-    outline: none !important;   /* 💡 เติมล็อกความชัวร์ตรงนี้อีกจุด */
-}
-
-/* Stopwatch Bar */
-.stopwatch-bar { 
-    background: var(--bg-stopwatch); 
-    border: 1px solid var(--border-stopwatch);
-    padding: 15px 15px; 
-    border-radius: 12px; 
-    margin-bottom: 20px; 
-    display: flex; 
-    align-items: center; 
-    justify-content: space-between;
-    gap: 15px; 
-    position: sticky;
-    top: 10px; 
-    z-index: 100; 
-    box-shadow: 0 5px 15px var(--shadow-light); 
-}
-
-.control-group-left, .control-group-right {
-    display: flex; 
-    align-items: center; 
-    gap: 15px;
-}
-
-.control-group {
-    display: flex; 
-    align-items: center; 
-    gap: 5px;
-}
-
-.control-group label {
-    font-weight: bold; 
-    font-size: 0.9rem;
-    color: var(--text-primary); /* ผูกตัวแปรสีข้อความ */
-}
-
-.control-group input[type="number"] {
-    width: 50px; 
-    padding: 5px;
-    text-align: center;
-    border: 1px solid var(--border-input); 
-    border-radius: 4px;
-    font-weight: bold;
-    background-color: var(--bg-input); /* รองรับสีกล่องพิมพ์โหมดมืด */
-    color: var(--text-primary);
-}
-
-.timer-display { 
-    font-size: 1.5rem; 
-    font-weight: bold; 
-    font-family: monospace; 
-    background: var(--timer-bg); 
-    color: var(--timer-text); 
-    padding: 3px 10px; 
-    border-radius: 8px; 
-    min-width: 140px; 
-    text-align: center; 
-}
-
-/* ==========================================================================
-   Buttons Component (Modern & Clean Style)
-   ========================================================================== */
-
-/* 1. Base Structure - โครงสร้างหลักของทุกปุ่ม */
-.btn { 
-    min-width: 60px;
-    display: inline-flex; 
-    align-items: center; 
-    justify-content: center;
-    gap: 8px; 
-    padding: 10px 10px; 
-    border: 1px solid transparent; 
-    border-radius: 999px; 
-    font-size: 0.7rem;
-    font-weight: 600; 
-    color: #ffffff; /* ตัวหนังสือบนปุ่มสียังคงเป็นสีขาวในทุกโหมดเพื่อให้ Contrast ชัดเจน */
-    cursor: pointer; 
-    white-space: nowrap;
-    user-select: none;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); 
-    box-shadow: 0 1px 2px 0 var(--shadow-strong);
-}
-
-/* 2. Interactive States - การตอบสนองเมื่อมีปฏิสัมพันธ์ */
-.btn:hover {
-    transform: translateY(-1px);
-    filter: brightness(108%);
-    box-shadow: 0 4px 6px -1px var(--shadow-light), 0 2px 4px -1px var(--shadow-strong);
-}
-
-.btn:active {
-    transform: translateY(0);
-    filter: brightness(95%);
-    box-shadow: inset 0 2px 4px 0 var(--shadow-strong);
-}
-
-.btn:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-    transform: none !important;
-    box-shadow: none !important;
-    filter: none !important;
-}
-
-/* 3. Button Color Variations - เฉดสีโมเดิร์นสำหรับแต่ละฟังก์ชัน */
-
-/* กลุ่มปุ่ม Action หลักด้านบน */
-.btn-success { 
-    background-color: var(--btn-success);
-    border-radius: 9999px; 
-    padding-left: 18px;    
-    padding-right: 18px;
-}
-
-.btn-danger { 
-    background-color: var(--btn-danger);
-    border-radius: 9999px;
-    padding-left: 18px;
-    padding-right: 18px;
-}
-
-.btn-info { 
-    background-color: var(--btn-info);
-    border-radius: 9999px;
-    padding-left: 18px;
-    padding-right: 18px;
-}
-
-/* กลุ่มปุ่มควบคุมเครื่องมือจับเวลา (Stopwatch) */
-.btn-start { 
-    background-color: var(--btn-start); 
-    padding: 8px 16px; 
-    font-size: 0.85rem;
-}
-
-.btn-stop { 
-    background-color: var(--btn-stop); 
-    padding: 8px 16px;
-    font-size: 0.85rem;
-}
-
-.btn-save { 
-    background-color: var(--btn-save); 
-    padding: 8px 16px;
-    font-size: 0.85rem;
-}
-
-.btn-reset { 
-    background-color: var(--btn-reset); 
-    padding: 8px 16px;
-    font-size: 0.85rem;
-}
-
-/* ==========================================================================
-   Race Track Progression Component (Modern Dashboard Style)
-   ========================================================================== */
-
-.race-track {
-    flex-grow: 1;
-    margin: 8px 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    padding: 4px 2px;
-}
-
-.race-track-header {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    min-height: 16px;
-}
-
-.race-track-status {
-    font-size: 0.72rem;
-    font-weight: 600;
-    color: var(--text-muted);
-    letter-spacing: 0.01em;
-}
-
-.race-track-bar {
-    position: relative;
-    width: 100%;
-    height: 10px;
-    background: var(--bg-race-track);
-    border-radius: 999px;
-    overflow: visible;
-    box-shadow: inset 0 1px 2px var(--shadow-light);
-}
-
-.progress-line {
-    position: absolute;
-    left: 0;
-    top: 0;
-    height: 100%;
-    width: 0%;
-    background: linear-gradient(90deg, var(--accent-blue) 0%, var(--accent-green) 100%);
-    border-radius: 999px;
-    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.08), 0 2px 8px rgba(16, 185, 129, 0.25);
-    z-index: 1;
-    overflow: hidden;
-}
-
-.progress-line::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-        90deg,
-        rgba(255, 255, 255, 0) 0%,
-        rgba(255, 255, 255, 0.35) 50%,
-        rgba(255, 255, 255, 0) 100%
-    );
-    transform: translateX(-100%);
-    animation: progress-shimmer 2.4s ease-in-out infinite;
-}
-
-@keyframes progress-shimmer {
-    0%   { transform: translateX(-100%); }
-    60%  { transform: translateX(100%); }
-    100% { transform: translateX(100%); }
-}
-
-.progress-badge {
-    position: absolute;
-    left: 0%;
-    top: 50%;
-    transform: translate(0, -50%);
-    padding: 3px 9px;
-    min-width: 40px;
-    text-align: center;
-    font-size: 0.7rem;
-    font-weight: 700;
-    color: #fff;
-    background: linear-gradient(135deg, var(--accent-blue) 0%, var(--accent-green) 100%);
-    border-radius: 999px;
-    box-shadow: 0 2px 6px var(--shadow-strong), 0 0 0 2px var(--bg-container);
-    transition: left 0.6s cubic-bezier(0.4, 0, 0.2, 1), transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 3;
-    pointer-events: none;
-    white-space: nowrap;
-    letter-spacing: 0.02em;
-}
-
-.progress-badge.is-complete {
-    background: linear-gradient(135deg, var(--accent-green) 0%, #059669 100%);
-    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.5), 0 0 0 2px var(--bg-container);
-}
-
-/* ==========================================================================
-   Table Components (Modern Data Grid Style)
-   ========================================================================== */
-
-/* 1. Container & Main Table */
-.table-wrapper { 
-    overflow-x: auto; 
-    border-radius: 12px;
-    border: 1px solid var(--border-light);
-    box-shadow: 0 1px 3px 0 var(--shadow-strong);
-    background-color: var(--bg-container);
-    margin-top: 16px;
-}
-
-.report-table {
-    width: 100%;
-    background-color: var(--bg-container);
-    border-collapse: collapse;
-    min-width: 100%;
-    font-size: 0.8rem;
-    table-layout: fixed;
-}
-
-/* 2. Cells & Borders Setup */
-th, td { 
-    border: 1px solid var(--border-table); 
-    text-align: center; 
-    vertical-align: middle; 
-}
-
-/* 3. Table Headers (Thead) */
-.report-table thead th {
-    background-color: var(--header-bg);
-    color: #ffffff; /* ตัวหนังสือบนหัวข้อตารางให้ล็อกสีขาวไว้เพื่อตัดกับพื้นหลังเข้มเสมอ */
-    font-weight: 600;
-    height: 74px; 
-    vertical-align: middle;
-    padding: 6px 4px;
-    border: 1px solid var(--header-border);
-}
-
-/* Header Text Utilities */
-.header-wrap {
-    white-space: normal !important;
-    word-wrap: break-word;
-    line-height: 1.3;
-    padding: 6px 4px !important;
-    vertical-align: middle !important;
-    font-size: 0.75rem;
-}
-
-.vertical-text {
-    writing-mode: vertical-rl;
-    transform: rotate(180deg);
-    white-space: nowrap;
-    display: inline-block;
-    padding: 4px 0;
-    text-align: center;
-}
-
+/* Quality cols narrower + subtle tint (data alerts only in modal, so quality tint minimal here) */
 .quality-col, .cause-col {
     width: 32px; 
 }
-
-/* 4. Table Body Rows Style (Zebra & Hover Effect) */
-#tableBody tr {
-    transition: background-color 0.15s ease;
-}
-
-#tableBody tr:nth-child(even) {
-    background-color: var(--bg-table-even); 
-}
-
-#tableBody tr:hover {
-    background-color: var(--bg-table-hover); 
-}
-
-/* 5. Inputs inside Table Body */
-#tableBody input, 
-#tableBody select, 
-#tableBody td {
-    font-size: 0.8rem;
-    font-family: 'Sarabun', -apple-system, BlinkMacSystemFont, sans-serif;
-    color: var(--text-secondary);
-}
-
-#tableBody input {
-    width: 80%;
-    text-align: center;
-    padding: 6px 4px;
-    border: 1px solid transparent;
-    background: transparent;
-    outline: none;
-    border-radius: 4px;
-    transition: all 0.15s ease;
-}
-
-#tableBody input:focus {
-    border: 1px solid var(--accent-blue); 
-    background: var(--bg-container);
-    box-shadow: 0 0 0 3px var(--shadow-focus);
-}
-
-/* ช่องที่ถูกล็อกห้ามพิมพ์ (Read-only) ให้แสดงรูปแบบให้ชัดเจน */
-#tableBody input[readonly] {
-    cursor: pointer;
-    color: var(--text-light);
-}
-
-/* 6. Special Rows & Helper Classes */
-.day-cell { 
-    background-color: var(--bg-day-cell) !important; 
-    font-weight: 700;
-    color: var(--text-primary);
-}
-
-/* ช่องแสดงเวลาเฉลี่ยที่คลิกเปิดตัวจับเวลาได้ */
-.clickable-input { 
-    cursor: pointer; 
-    background-color: var(--bg-clickable) !important; 
-    border: 1px dashed var(--border-input) !important;
-    font-weight: 700; 
-    color: var(--accent-blue) !important;
-}
-
-.clickable-input:hover {
-    background-color: var(--bg-clickable-hover) !important;
-    border-color: var(--accent-blue) !important;
-}
-
-/* Status Colors (ระบบเปรียบเทียบสีเป้าหมายผ่าน JS ห้ามใส่สีทับซ้อนที่ input calculated ตรงๆ) */
-.text-success { 
-    color: var(--text-success) !important; 
-    font-weight: 700; 
-}
-
-.text-danger { 
-    color: var(--text-danger) !important; 
-    font-weight: 700; 
-}
-
-/* ช่องงานผ่าน (qPass) -> บังคับหน้าตาเป็นปุ่มกดพาสเทลสีเขียว */
-#tableBody input[id^="qPass_"] {
-    cursor: pointer !important;
-    background-color: var(--bg-qpass) !important; 
-    border: 1px dashed var(--border-input) !important;  
-    color: var(--text-qpass) !important;
-    font-weight: 700;
-}
-#tableBody input[id^="qPass_"]:hover {
-    background-color: var(--bg-qpass-hover) !important;
-    border-color: var(--accent-green) !important;
-}
-
-/* ช่องงานไม่ผ่าน (qFail) -> บังคับหน้าตาเป็นปุ่มกดพาสเทลสีแดง */
-#tableBody input[id^="qFail_"] {
-    cursor: pointer !important;
-    background-color: var(--bg-qfail) !important; 
-    border: 1px dashed var(--border-input) !important;  
-    color: var(--text-qfail) !important;
-    font-weight: 700;
-}
-#tableBody input[id^="qFail_"]:hover {
-    background-color: var(--bg-qfail-hover) !important;
-    border-color: var(--text-danger) !important;
-}
-
-/* ==========================================================================
-   Action Plan, Signatures, Modals & Footer Components
-   ========================================================================== */
-
-/* 1. Action Plan Cell - ช่องกรอกแผนแก้ไข */
-.action-plan-cell textarea {
-    width: 100%;
-    min-height: 100%;
-    padding: 8px;
-    border: 1px solid transparent;
-    background: transparent;
-    font-family: 'Sarabun', -apple-system, BlinkMacSystemFont, sans-serif;
-    font-size: 0.8rem; 
-    resize: vertical;
-    line-height: 1;
-    white-space: pre-wrap; 
-    word-wrap: break-word; 
-    box-sizing: border-box;
-    display: block;
-    border-radius: 4px;
-    outline: none;
-    color: var(--text-secondary);
-    transition: all 0.2s ease;
-}
-
-.action-plan-cell textarea:focus {
-    background: var(--bg-container);
-    border-color: var(--accent-blue);
-    box-shadow: inset 0 1px 3px var(--shadow-strong), 0 0 0 3px var(--shadow-focus);
-}
-
-/* 2. Sign Cell - ช่องแสดงลายเซ็นบนตาราง */
-.sign-cell { 
-    cursor: pointer; 
-    min-width: 20px; 
-    height: 45px; 
-    background-color: var(--bg-container); 
-    display: flex; 
-    align-items: center; 
-    justify-content: center;
-    transition: background-color 0.15s ease;
-}
-
-.sign-cell:hover {
-    background-color: var(--bg-table-hover); 
-}
-
-.sign-cell img { 
-    max-height: 85%; 
-    width: auto;
-    object-fit: contain;
-    display: none;
-    /* กลับสีรูปภาพลายเซ็นสีดำให้เป็นสีขาวอัตโนมัติในโหมดมืดเพื่อให้มองเห็นชัดเจน */
-}
-[data-theme="dark"] .sign-cell img {
-    filter: invert(1) hue-rotate(180deg);
-}
-
-/* 3. Modal Architecture - ระบบหน้าต่างป๊อปอัป */
-.modal { 
-    display: none; 
-    position: fixed; 
-    z-index: 1001; 
-    left: 0; 
-    top: 0; 
-    width: 100%; 
-    height: 100%; 
-    background-color: var(--bg-modal-overlay); 
-    backdrop-filter: blur(4px); 
-}
-
-/* โครงสร้างหลักของกล่องเนื้อหาภายใน Modal */
-.modal-content { 
-    background-color: var(--bg-modal); 
-    padding: 28px; 
-    border-radius: 16px; 
-    width: 90%; 
-    max-width: 420px; 
-    text-align: center; 
-    
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) scale(1);
-    
-    box-shadow: 0 20px 25px -5px var(--shadow-light), 0 10px 10px -5px var(--shadow-strong);
-    border: 1px solid var(--border-light);
-    animation: modalScaleUp 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-/* ขยายขนาดเฉพาะสำหรับหน้าต่างแสดงกราฟ */
-.chart-modal-content {
-    max-width: 1200px;
-    width: 100%;
-    position: relative;
-}
-
-/* กลุ่มปุ่ม toggle — วางเป็นแถวใต้หัวเรื่อง จัดกลาง กันชนหัวเรื่องเอง */
-.chart-toggle-group {
-    display: flex;
-    gap: 8px;
-    justify-content: center;
-    flex-wrap: wrap;
-    margin: 12px 0 4px;
-}
-
-/* ปุ่มเปิด-ปิดตัวเลข / เปลี่ยนหน่วย */
-.btn-toggle-labels {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 12px;
-    background: var(--bg-input-readonly);
-    color: var(--text-secondary);
-    border: 1px solid var(--border-input);
-    border-radius: 999px;
-    font-size: 0.78rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.15s, color 0.15s, border-color 0.15s;
-    z-index: 5;
-}
-.btn-toggle-labels:hover {
-    background: var(--bg-container);
-    color: var(--accent-blue);
-    border-color: var(--accent-blue);
-}
-.btn-toggle-labels.is-off {
-    color: var(--text-light);
-    opacity: 0.7;
-}
-.btn-toggle-labels.is-off:hover {
-    opacity: 1;
-}
-/* ปุ่ม fixed plan ตอนเปิด — สีส้มเน้นว่าเป็นโหมดล็อค */
-.btn-toggle-labels.is-on {
-    background: rgba(249, 115, 22, 0.12);
-    color: #f97316;
-    border-color: #f97316;
-    opacity: 1;
-}
-.btn-toggle-labels.is-on:hover {
-    background: rgba(249, 115, 22, 0.18);
-    color: #f97316;
-    border-color: #f97316;
-}
-.btn-toggle-labels i {
-    font-size: 0.85rem;
-}
-
-/* แถบเลือกรูปแบบ curve ในกราฟ */
-.chart-controls {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    margin: 8px 0 16px;
-    flex-wrap: wrap;
-}
-.chart-controls label {
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.025em;
-}
-.chart-controls select {
-    padding: 8px 12px;
-    border: 1px solid var(--border-input);
-    border-radius: 8px;
-    background: var(--bg-input);
-    color: var(--text-primary);
-    font-size: 0.9rem;
-    min-width: 260px;
-    cursor: pointer;
-}
-.chart-controls select:focus {
-    outline: none;
-    border-color: var(--accent-blue);
-}
-
-/* แถบปรับค่าสด (Target / Duration / SAM) เหนือกราฟ — โทน modern, compact */
-.chart-param-bar {
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-    gap: 20px;
-    flex-wrap: wrap;
-    margin: 20px auto;   /* เว้นระยะบน 20px จาก h2 หัวเรื่อง + ล่าง 20px จากกราฟ */
-    padding: 14px 18px;
-    background: var(--bg-form-header);
-    border: 1px solid var(--border-light);
-    border-radius: 12px;
-    max-width: fit-content;
-}
-.chart-param {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    text-align: left;
-}
-.chart-param label {
-    font-size: 0.72rem;
-    font-weight: 600;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    line-height: 1;
-}
-.chart-param input,
-.chart-param select {
-    height: 34px;
-    padding: 0 10px;
-    border: 1px solid var(--border-input);
-    border-radius: 6px;
-    background: var(--bg-input);
-    color: var(--text-primary);
-    font-size: 0.88rem;
-    font-weight: 500;
-    box-sizing: border-box;
-    transition: border-color 0.15s, box-shadow 0.15s;
-}
-.chart-param input {
-    width: 110px;
-    text-align: center;
-    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-}
-.chart-param input:focus,
-.chart-param select:focus {
-    outline: none;
-    border-color: var(--accent-blue);
-    box-shadow: 0 0 0 3px var(--shadow-input-focus, rgba(14, 165, 233, 0.15));
-}
-.chart-param input::placeholder {
-    color: var(--text-light);
-    font-size: 0.8rem;
-    font-weight: 400;
-    font-family: inherit;
-    opacity: 0.7;
-}
-.chart-param-inline {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-.chart-param-inline input {
-    width: 80px;
-}
-.chart-param-inline select {
-    width: auto;
-    min-width: 90px;
-    padding-right: 24px;
-}
-
-/* คอลัมน์ของ dropdown "รูปแบบแผนการฝึก" ต้องกว้างพอเห็นข้อความ + relative สำหรับ hint ลอย */
-.chart-param-model {
-    position: relative;
-}
-.chart-param-model > select {
-    width: 260px;
-    text-align: left;
-    font-family: inherit;
-}
-
-/* กล่องคำอธิบายรูปแบบ curve — ลอยออกมาไม่ดันเลย์เอาต์ */
-.curve-hint {
-    padding: 12px 14px;
-    background: var(--bg-container);
-    border: 1px solid var(--border-light);
-    border-left: 3px solid var(--accent-blue);
-    border-radius: 8px;
-    font-size: 0.8rem;
-    color: var(--text-secondary);
-    line-height: 1.6;
-    text-align: left;
-    text-transform: none;
-    letter-spacing: normal;
-    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.15);
-}
-
-/* โหมดลอย — absolute overlay, ค่าเริ่มต้นซ่อน + fade-in เมื่อ .is-visible */
-.curve-hint-floating {
-    position: absolute;
-    top: calc(100% + 6px);
-    left: 0;
-    right: 0;
-    z-index: 100;
-    opacity: 0;
-    transform: translateY(-4px);
-    pointer-events: none;
-    transition: opacity 0.15s ease, transform 0.15s ease;
-    min-width: 320px;
-    max-width: 420px;
-}
-.curve-hint-floating.is-visible {
-    opacity: 1;
-    transform: translateY(0);
-    pointer-events: auto;
-}
-/* พ่อของกล่องลอยต้อง relative เพื่อจัดตำแหน่ง absolute ได้ถูก */
-.field {
-    position: relative;
-}
-
-.curve-hint-title {
-    font-weight: 700;
-    color: var(--text-primary);
-    margin-bottom: 6px;
-    font-size: 0.9rem;
-}
-.curve-hint-row {
-    margin-top: 4px;
-}
-.curve-hint-label {
-    font-weight: 700;
-    color: var(--text-muted);
-}
-.curve-hint-formula-row {
-    margin-top: 10px;
-    padding-top: 8px;
-    border-top: 1px dashed var(--border-light);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-}
-.curve-hint-formula {
-    display: inline-block;
-    padding: 4px 10px;
-    background: var(--bg-input-readonly);
-    border: 1px solid var(--border-light);
-    border-radius: 6px;
-    color: var(--text-primary);
-}
-/* ทำให้ KaTeX สืบทอดสีตาม theme */
-.curve-hint-formula .katex { color: inherit; font-size: 1em; }
-
-/* เวอร์ชันในกราฟ — วางใต้ dropdown Training Plan Model, ชิดซ้าย + ยืดขวาได้ 520px */
-.curve-hint-chart {
-    top: calc(100% + 8px);
-    left: 0;
-    right: auto;
-    transform: translateY(-4px);
-    width: 480px;
-    max-width: 90vw;
-}
-.curve-hint-chart.is-visible {
-    transform: translateY(0);
-}
-
-@keyframes modalScaleUp {
-    from { transform: translate(-50%, -50%) scale(0.95); opacity: 0; }
-    to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-}
-
-.modal-content h3 {
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin-bottom: 14px;
-}
-
-/* Quick Entry Modal — เปิดจากการคลิกป้าย X-axis ของกราฟ */
-#quickEntryModal .modal-content {
-    max-width: 460px;
-    text-align: left;
-}
-#quickEntryModal h3 {
-    text-align: center;
-    margin-bottom: 18px;
-}
-.quick-entry-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    margin-bottom: 20px;
-}
-.quick-entry-field {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-.quick-entry-field label {
-    font-size: 0.8rem;
-    font-weight: 700;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-}
-.quick-entry-field input {
-    height: 42px;
-    padding: 0 12px;
-    border: 1px solid var(--border-input);
-    border-radius: 8px;
-    background: var(--bg-input);
-    color: var(--text-primary);
-    font-size: 1.1rem;
-    font-weight: 600;
-    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-    text-align: center;
-    box-sizing: border-box;
-    transition: border-color 0.15s, box-shadow 0.15s;
-}
-.quick-entry-field input:focus {
-    outline: none;
-    border-color: var(--accent-blue);
-    box-shadow: 0 0 0 3px var(--shadow-input-focus, rgba(14, 165, 233, 0.15));
-}
-
-/* กล่องกรอกตัวเลขความเร็วเฉลี่ยใน manualInputModal เท่านั้น (ไม่ leak ไป modal อื่น) */
-#manualInputModal .modal-content input {
-    width: 100%;
-    padding: 12px;
-    font-size: 1.6rem;
-    font-weight: 700;
-    font-family: monospace;
-    text-align: center;
-    border: 2px solid var(--accent-blue);
-    border-radius: 10px;
-    margin-bottom: 20px;
-    outline: none;
-    color: var(--text-primary);
-    background-color: var(--bg-input);
-    transition: all 0.2s ease;
-}
-
-#manualInputModal .modal-content input:focus {
-    background-color: var(--bg-container);
-    box-shadow: 0 0 0 4px var(--shadow-input-focus);
-}
-
-/* ปุ่มปิด (X) */
-.close {
-    position: absolute;
-    right: 20px;
-    top: 16px;
-    cursor: pointer;
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--text-light);
-    transition: color 0.15s ease;
-}
-
-.close:hover {
-    color: var(--text-danger);
-}
-
-/* 4. Signature Pad - พื้นที่วาดลายเซ็น */
-#signature-pad { 
-    border: 2px dashed var(--border-signature); 
-    background-color: var(--bg-signature-pad); 
-    border-radius: 8px;
-    margin-bottom: 20px; 
-    touch-action: none;
-    display: block;
-    max-width: 100%;
-}
-
-.sign-btn-group { 
-    display: flex;
-    gap: 12px; 
-    justify-content: flex-end; 
-}
-
-/* 5. Footer Layout */
-footer {
-    text-align: center; 
-    padding: 32px 20px 8px 20px; 
-    color: var(--text-light); 
-    font-size: 0.8rem; 
-}
-
-footer hr {
-    border: 0; 
-    border-top: 1px solid var(--border-light); 
-    margin-bottom: 16px;
-}
-
-/* ==========================================================================
-   Responsive Design & Mobile Optimization
-   ========================================================================== */
-
-/* 1. Tablet & Small Screens (หน้าจอขนาดเล็กกว่า 768px - แท็บเล็ตและหน้างานเคลื่อนที่) */
-@media (max-width: 768px) {
-    body {
-        padding: 12px;
-    }
-
-    .report-container { 
-        padding: 16px; 
-    }
-
-    /* ปรับปรุงแถบจับเวลาให้เรียงซ้อนกันเป็นระเบียบ */
-    .stopwatch-bar {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 16px;
-        padding: 16px;
-        position: static; /* ปลดล็อก Sticky บนหน้าจอมือถือเพื่อไม่ให้บังเนื้อหาตาราง */
-    }
-    
-    .control-group-left, .control-group-right {
-        justify-content: center;
-        flex-wrap: wrap;
-        width: 100%;
-    }
-
-    /* ปรับแต่งส่วน Progress Bar บนอุปกรณ์พกพา */
-    .race-track {
-        margin: 8px 0;
-        width: 100%;
-    }
-    
-    .action-buttons {
-        flex-direction: column;
-        width: 100%;
-        gap: 8px;
-    }
-
-    .action-buttons .btn {
-        width: 100%; /* ปุ่มขยายเต็มความกว้างในมือถือเพื่อให้กดง่ายขึ้น */
-    }
-    
-    .form-header {
-        grid-template-columns: 1fr; /* ปรับฟอร์มข้อมูลด้านบนให้เรียงเดี่ยว */
-        gap: 12px;
-        padding: 14px;
-    }
-    
-    /* แก้ไข Layout ของป๊อปอัปบนหน้าจอสัมผัส */
-    .modal-content {
-        width: 92%;
-        padding: 20px;
-    }
-
-    #signature-pad {
-        width: 100%;
-        height: 160px; /* ปรับลดขนาดบอร์ดเซ็นชื่อลงเล็กน้อยให้พอดีหน้าจอมือถือ */
-    }
-}
-
-/* 2. Mobile Screens (หน้าจอขนาดเล็กกว่า 480px - สมาร์ตโฟนพกพา) */
-@media (max-width: 480px) {
-    body {
-        padding: 6px;
-    }
-    
-    .report-container {
-        padding: 12px;
-        border-radius: 8px;
-    }
-    
-    .timer-display {
-        font-size: 1.3rem;
-        min-width: 130px;
-        padding: 4px 12px;
-    }
-
-    .btn {
-        padding: 10px 14px;
-        font-size: 0.25rem;
-    }
-}
-
-/* ==========================================================================
-   Custom Notification Modal Components
-   ========================================================================== */
-
-/* ฉากหลังโปร่งแสงคลุมทั้งหน้าจอ */
-.modal-overlay {
-    display: none;
-    position: fixed;
-    z-index: 1100; /* สูงกว่า .modal (1001) เพราะเป็น confirm dialog ที่เด้งบนสุดเสมอ */
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: var(--bg-modal-overlay2); /* ผูกกับตัวแปร overlay */
-}
-
-/* กล่องเนื้อหา Modal */
-.custom-modal-content {
-    background-color: var(--bg-modal); /* รองรับโหมดมืดสลับเป็นสี Slate เข้ม */
-    margin: 15% auto; 
-    padding: 24px; 
-    border-radius: 12px; 
-    width: 90%; 
-    max-width: 450px; 
-    box-shadow: 0 10px 25px -5px var(--shadow-light), 0 8px 10px -6px var(--shadow-strong);
-    font-family: inherit; 
-    text-align: center;
-}
-
-/* หัวข้อแจ้งเตือน */
-.custom-modal-content h3 {
-    margin-top: 0; 
-    color: var(--text-primary); 
-    font-size: 1.2rem;
-    font-weight: 700;
-}
-
-/* ข้อความรายละเอียด */
-.custom-modal-content p {
-    color: var(--text-muted); 
-    font-size: 0.95rem; 
-    line-height: 1.5; 
-    margin: 16px 0 24px 0; 
-    white-space: pre-line;
-}
-
-/* กล่องจัดการปุ่ม */
-.notif-actions {
-    display: flex; 
-    justify-content: center; 
-    gap: 12px;
-}
-
-/* ปุ่มยกเลิก/ปฏิเสธสไตล์มินิมอล */
-.btn-cancel {
-    background-color: var(--btn-cancel) !important; 
-    color: var(--text-muted) !important; 
-    border: none !important; 
-    padding: 8px 16px; 
-    border-radius: 6px; 
-    cursor: pointer;
-}
-.btn-cancel:hover {
-    background-color: var(--border-input) !important; /* ใช้สีขอบอินพุตที่เข้มขึ้นเล็กน้อยเมื่อโฮเวอร์ในโหมดมืด */
-}
-
-/* ==========================================================================
-   On-Screen Numeric Keypad Layout (Touch Friendly)
-   ========================================================================== */
-
-/* กล่องควบคุมกริดแป้นพิมพ์ */
-.numpad-container {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    margin: 16px 0;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-/* ปุ่มตัวเลขเดี่ยวแบบกลมมนโมเดิร์น */
-.numpad-btn {
-    background-color: var(--bg-input-readonly);
-    border: 1px solid var(--border-light);
-    color: var(--text-primary);
-    font-size: 1.4rem;
-    font-weight: 700;
-    padding: 14px 0;
-    border-radius: 10px;
-    cursor: pointer;
-    user-select: none;
-    transition: all 0.1s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* เอฟเฟกต์ตอนกดสัมผัส */
-.numpad-btn:hover {
-    background-color: var(--bg-table-hover);
-}
-.numpad-btn:active {
-    background-color: var(--border-input);
-    transform: scale(0.96);
-}
-
-/* ปุ่มล้างค่าสีแดงจาง */
-.numpad-clear {
-    background-color: var(--bg-qfail) !important;
-    color: var(--text-qfail) !important;
-}
-.numpad-clear:hover {
-    background-color: var(--bg-qfail-hover) !important;
-}
-
-/* ปุ่มลบทีละตัวอักษร */
-.numpad-back {
-    background-color: var(--bg-input-readonly);
-    font-size: 1.2rem;
-}
-
-/* ==========================================================================
-   Manual Input Modal Footer Buttons
-   ========================================================================== */
-
-/* กล่องจัดระเบียบปุ่มใต้แป้นตัวเลข */
-.modal-action-footer {
-    display: flex;
-    gap: 12px;
-    margin-top: 16px;
-    width: 100%;
-}
-
-/* ปุ่มยกเลิกปรับให้กว้างพอดีคำ */
-.modal-action-footer .btn-cancel {
-    flex: 1;
-    padding: 12px;
-    font-size: 0.9rem;
-    font-weight: 700;
-}
-
-/* ปุ่มบันทึกข้อมูลหลัก ขยายตัวกว้างพิเศษ (สไตล์โมเดิร์นคราม) */
-.btn-save-modal {
-    flex: 2; /* ขยายกว้างเป็น 2 เท่าของปุ่มยกเลิกเพื่อให้กดง่าย */
-    background-color: var(--btn-save);
-    color: #ffffff;
-    border: none;
-    border-radius: 9999px;
-    padding: 12px;
-    font-size: 0.9rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.15s ease;
-    box-shadow: 0 4px 6px -1px var(--shadow-light);
-}
-
-.btn-save-modal:hover {
-    filter: brightness(110%);
-    transform: translateY(-1px);
-}
-
-.btn-save-modal:active {
-    transform: translateY(0);
-}
-
-/* ปุ่มลบข้อมูลใน quickEntryModal — สีแดง, ชิดซ้ายด้วย margin-right: auto ผลักปุ่มอื่นไปขวา */
-.btn-delete-modal {
-    padding: 12px 18px;
-    background-color: transparent;
-    color: var(--text-danger, #ef4444);
-    border: 1px solid var(--text-danger, #ef4444);
-    border-radius: 9999px;
-    font-size: 0.85rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.15s ease;
-    flex: 0 0 auto;
-    margin-right: auto;
-}
-.btn-delete-modal:hover {
-    background-color: var(--text-danger, #ef4444);
-    color: #ffffff;
-    transform: translateY(-1px);
-}
-.btn-delete-modal:active {
-    transform: translateY(0);
-}
-/* คู่กับ delete → cancel/save ไม่ต้อง flex-grow แล้ว ให้อยู่ขวาแบบ auto width */
-#quickEntryModal .modal-action-footer .btn-cancel,
-#quickEntryModal .modal-action-footer .btn-save-modal {
-    flex: 0 0 auto;
-    padding-left: 24px;
-    padding-right: 24px;
-}
-.modal-action-footer .footer-spacer {
-    display: none; /* ใช้ margin-right: auto บน delete แทน — spacer ไม่จำเป็น */
-}
-
-/* 💡 ปรับแต่งช่องไฟให้กับข้อความแสดงวันที่บันทึกผลภายในกล่องป๊อปอัป */
-.custom-modal-content p.text,
-.modal-content p.text {
-    margin-top: 16px !important;    /* ดันระยะให้ห่างจากกล่อง Input ด้านบน */
-    margin-bottom: 16px !important; /* ดันระยะให้ห่างจากปุ่ม Numpad เลข 7 8 9 ด้านล่าง */
-    font-size: 0.95rem;
-    font-weight: 500;
-}
-
-/* ==========================================================================
-   Readonly & Calculated Cells Style (Inert Elements)
-   ========================================================================== */
-
-/* 💡 บล็อกไม่ให้เมาส์หรือการทัชสกรีนคลิกลงไปบนอินพุตคำนวณได้เลย */
-.calculated-cell input[disabled] {
-    pointer-events: none; 
-    user-select: none;
-    background-color: transparent !important;
-    border: none !important; 
-    outline: none !important;
-    box-shadow: none !important;
-    text-align: center;
-}
-
-/* ลบกรอบและเงาของช่องวันระบุลำดับ */
-.day-cell-readonly {
-    user-select: none;
-    text-align: center;
-    padding: 4px 6px;
-}
-.day-cell-readonly .day-num {
-    display: block;
-    font-weight: 700;
-    color: var(--text-primary);
-    line-height: 1.2;
-}
-.row-del-btn {
-    margin-top: 4px;
-    padding: 2px 6px;
-    border: none;
-    border-radius: 4px;
-    background: transparent;
-    color: var(--text-light);
-    cursor: pointer;
-    font-size: 0.75rem;
-    opacity: 0.4;
-    transition: opacity 0.15s, background 0.15s, color 0.15s;
-}
-.row-del-btn:hover {
-    opacity: 1;
-    background: rgba(239, 68, 68, 0.12);
-    color: var(--text-danger, #ef4444);
-}
-.row-del-btn:focus {
-    outline: none;
-    opacity: 1;
-    background: rgba(239, 68, 68, 0.12);
-    color: var(--text-danger, #ef4444);
+.report-table tbody td input[type="checkbox"]{
+  width:16px; height:16px; margin:0 auto; display:block; cursor:pointer;
+  accent-color:var(--ink);
+}
+
+/* Action plan + signature cells */
+.action-plan-cell{
+  padding:var(--sp-1) var(--sp-2)!important; cursor:pointer; min-width:100px;
+}
+.action-plan-cell textarea{
+  width:100%; min-height:28px; max-height:48px;
+  border:none; background:transparent; resize:none; outline:none;
+  font-family:var(--sans); font-size:var(--t-label); color:var(--ink-2);
+  line-height:1.35;
+}
+.action-plan-cell:hover{background:var(--field-focus)!important}
+
+.sign-cell{
+  padding:var(--sp-1)!important; cursor:pointer; text-align:center;
+  min-width:60px; height:38px; position:relative;
+}
+.sign-cell:hover{background:var(--field-focus)!important}
+.placeholder-text{
+  display:inline-block; font-size:var(--t-micro); color:var(--ink-3);
+  font-weight:500; padding:var(--sp-2);
+}
+.sign-cell img{
+  max-width:100%; max-height:32px; object-fit:contain;
+  display:none;   /* shown by script.js when signed (as display:block) */
+  margin:0 auto;  /* center horizontally once script switches to block */
+}
+
+/* ── Progressive row-lock ────────────────────────────────────────────────────
+   Rows that are not yet unlocked (any earlier row still unfilled) can't be
+   edited. JS also guards the modal openers, but this covers the checkboxes
+   (no onclick handler) and gives clear visual feedback. */
+.report-table tbody tr.row-locked td .clickable-input,
+.report-table tbody tr.row-locked td.action-plan-cell,
+.report-table tbody tr.row-locked td.sign-cell,
+.report-table tbody tr.row-locked td input[type="checkbox"]{
+  pointer-events:none;
+  opacity:.35;
+  cursor:not-allowed;
+}
+.report-table tbody tr.row-locked td.action-plan-cell textarea{
+  color:var(--ink-3);
+}
+
+/* ── Modals ──────────────────────────────────────────────────────────────── */
+.modal, .modal-overlay{
+  display:none; position:fixed; inset:0; z-index:100;
+  background:var(--bg-modal-overlay);
+  align-items:center; justify-content:center; padding:var(--sp-4);
+  backdrop-filter:blur(4px);
+}
+.modal[style*="display: block"], .modal[style*="display:block"],
+.modal-overlay[style*="display: block"], .modal-overlay[style*="display:block"]{
+  display:flex!important;
+}
+.modal-content, .custom-modal-content{
+  background:var(--surface); color:var(--ink);
+  border:1px solid var(--border); border-radius:var(--r-card);
+  box-shadow:var(--shadow-modal); padding:var(--sp-6);
+  max-width:480px; width:100%; max-height:92vh; overflow:auto;
+  position:relative;
+}
+.chart-modal-content{max-width:min(1100px, 95vw)}
+.modal-content h2, .modal-content h3,
+.custom-modal-content h3{
+  margin:0 0 var(--sp-4); font-size:16px; font-weight:600; color:var(--ink);
+}
+.modal-content p, .custom-modal-content p{
+  color:var(--ink-2); font-size:var(--t-body); margin:0 0 var(--sp-3);
+}
+.close{
+  position:absolute; top:var(--sp-3); right:var(--sp-4);
+  width:32px; height:32px; display:grid; place-items:center;
+  font-size:22px; color:var(--ink-3); cursor:pointer;
+  border-radius:var(--r-chip); transition:background .12s, color .12s;
+  line-height:1;
+}
+.close:hover{background:var(--surface-sunk); color:var(--ink)}
+
+.modal-action-footer, .notif-actions, .sign-btn-group{
+  display:flex; align-items:center; gap:var(--sp-2);
+  margin-top:var(--sp-5); flex-wrap:wrap;
+}
+.notif-actions, .sign-btn-group{justify-content:flex-end}
+.footer-spacer{flex:1}
+
+/* Chart modal toolbar */
+.chart-toggle-group{display:flex; gap:var(--sp-2); flex-wrap:wrap; margin-bottom:var(--sp-3)}
+.btn-toggle-labels{
+  min-height:32px; padding:0 var(--sp-3); border-radius:var(--r-chip);
+  border:1px solid var(--border); background:var(--surface); color:var(--ink-2);
+  font-family:var(--sans); font-size:var(--t-label); font-weight:500;
+  cursor:pointer; display:inline-flex; align-items:center; gap:6px;
+  transition:background .12s, border-color .12s, color .12s;
+}
+.btn-toggle-labels:hover{background:var(--surface-2); color:var(--ink); border-color:var(--border-strong)}
+.btn-toggle-labels-text{font-size:var(--t-label)}
+
+/* 4-field toolbar: Model (widest, has long labels) · Eff (short) ·
+   Duration (num + unit select) · SAM (num / num). Widths are proportioned
+   to each field's true content need so nothing truncates at 1100–1440px. */
+.chart-param-bar{
+  display:grid; gap:var(--sp-3);
+  grid-template-columns:
+    minmax(240px, 2.4fr)   /* Model */
+    minmax(96px,  0.8fr)   /* Target Eff */
+    minmax(160px, 1.2fr)   /* Duration */
+    minmax(200px, 1.6fr);  /* SAM */
+  align-items:end;
+  padding:var(--sp-3); margin-bottom:var(--sp-3);
+  background:var(--surface-sunk); border:1px solid var(--border); border-radius:var(--r-cell);
+}
+.chart-param{display:flex; flex-direction:column; gap:6px; min-width:0; position:relative}
+.chart-param label{font-size:var(--t-micro); font-weight:500; color:var(--ink-3); text-transform:uppercase; letter-spacing:.05em; white-space:nowrap}
+.chart-param > input, .chart-param > select,
+.chart-param-inline > input, .chart-param-inline > select{
+  border:1px solid var(--border); background:var(--surface); color:var(--ink);
+  border-radius:var(--r-chip); padding:6px var(--sp-2);
+  font-family:var(--sans); font-size:var(--t-label); font-weight:500;
+  min-height:32px; outline:none;
+}
+.chart-param > input, .chart-param > select{width:100%}
+.chart-param input[type="number"]{font-family:var(--mono); font-variant-numeric:tabular-nums}
+.chart-param input:focus, .chart-param select:focus{border-color:var(--ink)}
+.chart-param-inline{display:flex; gap:6px; align-items:center; min-width:0}
+.chart-param-inline > input{flex:1 1 0; min-width:0}
+.chart-param-inline > select{flex:0 0 auto; min-width:64px; padding-right:var(--sp-3)}
+.chart-param-inline > .field-inline-sep{flex:0 0 auto}
+
+/* Quick-entry modal */
+.quick-entry-grid{
+  display:grid; gap:var(--sp-3);
+  grid-template-columns:repeat(3, 1fr); margin:var(--sp-3) 0;
+}
+.quick-entry-field{display:flex; flex-direction:column; gap:6px}
+.quick-entry-field label{font-size:var(--t-micro); font-weight:500; color:var(--ink-3); text-transform:uppercase; letter-spacing:.05em}
+.quick-entry-field input{
+  border:1px solid var(--border); background:var(--surface); color:var(--ink);
+  border-radius:var(--r-chip); padding:var(--sp-2) var(--sp-3);
+  font-family:var(--mono); font-variant-numeric:tabular-nums;
+  font-size:var(--t-data); font-weight:500; min-height:40px; outline:none;
+}
+.quick-entry-field input:focus{border-color:var(--ink); background:var(--field-focus)}
+
+/* Manual-input modal (with numpad) */
+#manualSecondsInput{
+  width:100%; padding:var(--sp-3) var(--sp-4);
+  border:1px solid var(--border); background:var(--surface-sunk);
+  border-radius:var(--r-cell); font-family:var(--mono); font-variant-numeric:tabular-nums;
+  font-size:22px; font-weight:500; text-align:right; color:var(--ink); outline:none;
+  margin-bottom:var(--sp-3);
+}
+#manualSecondsInput:focus{border-color:var(--ink); background:var(--surface)}
+.numpad-container{
+  display:grid; grid-template-columns:repeat(3, 1fr); gap:var(--sp-2);
+  margin:var(--sp-3) 0;
+}
+.numpad-btn{
+  min-height:48px; border:1px solid var(--border);
+  background:var(--surface); color:var(--ink);
+  font-family:var(--mono); font-variant-numeric:tabular-nums;
+  font-size:17px; font-weight:500;
+  border-radius:var(--r-cell); cursor:pointer;
+  transition:background .1s, border-color .1s, transform .05s;
+}
+.numpad-btn:hover{background:var(--surface-2); border-color:var(--border-strong)}
+.numpad-btn:active{transform:translateY(1px); background:var(--surface-sunk)}
+.numpad-btn.numpad-clear{color:var(--red); background:var(--red-bg); border-color:var(--red-bg)}
+.numpad-btn.numpad-back{color:var(--ink-2)}
+.numpad-btn.numpad-clear:hover{background:var(--red); color:var(--surface); border-color:var(--red)}
+
+/* Signature pad */
+#signature-pad{
+  width:100%; max-width:350px; height:200px;
+  background:var(--surface-sunk); border:1px solid var(--border);
+  border-radius:var(--r-cell); touch-action:none; cursor:crosshair;
+  display:block; margin:0 auto;
+}
+
+/* ── Chart canvas ────────────────────────────────────────────────────────── */
+#performanceChart{max-width:100%; height:auto!important}
+
+/* ── Footer ──────────────────────────────────────────────────────────────── */
+footer{
+  max-width:1440px; margin:var(--sp-8) auto 0;
+  padding:0 clamp(var(--sp-3),2.4vw,var(--sp-8)) var(--sp-6);
+  color:var(--ink-3); font-size:var(--t-label); text-align:center;
+}
+footer hr{
+  border:none; border-top:1px solid var(--border);
+  margin:0 0 var(--sp-3);
+}
+
+/* ── Responsive tuning ───────────────────────────────────────────────────── */
+@media (max-width:1080px){
+  /* 2×2 grid: Model | Eff  /  Duration | SAM */
+  .chart-param-bar{
+    grid-template-columns:minmax(0, 2fr) minmax(0, 1fr);
+  }
+  .chart-param-model{grid-column:span 2}
+}
+@media (max-width:900px){
+  .form-header{grid-template-columns:repeat(2, 1fr)}
+}
+@media (max-width:680px){
+  .report-title{font-size:16px}
+  .system-controls{gap:var(--sp-1)}
+  .form-header{grid-template-columns:1fr}
+  .quick-entry-grid{grid-template-columns:1fr}
+  .timer-display{min-width:100px; font-size:18px}
+  .action-buttons-group .btn{width:36px}
+  .chart-param-bar{grid-template-columns:1fr}
+  .chart-param-model{grid-column:auto}
+}
+
+/* Slightly larger touch targets in coarse-pointer contexts (tablets, kiosks) */
+@media (pointer:coarse){
+  .btn, .numpad-btn{min-height:40px}
+  .report-table tbody td{height:44px}
+  .report-table tbody td input{min-height:44px; font-size:14px}
 }

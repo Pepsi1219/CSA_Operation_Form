@@ -693,6 +693,18 @@ const HINT_AUTO_HIDE_MS = 10000;
 function showCurveHint(boxId) {
     const box = document.getElementById(boxId);
     if (!box || !box.textContent.trim()) return;
+
+    // Hint uses position:fixed to escape .form-header{overflow:hidden}.
+    // Anchor it just under its paired select using the select's viewport rect.
+    const selectId = boxId === 'curveHintChart' ? 'curveModelChart' : 'curveModel';
+    const sel = document.getElementById(selectId);
+    if (sel) {
+        const rect = sel.getBoundingClientRect();
+        box.style.top = `${rect.bottom + 6}px`;
+        box.style.left = `${rect.left}px`;
+        box.style.minWidth = `${rect.width}px`;
+    }
+
     box.classList.add('is-visible');
     clearTimeout(_hintTimers[boxId]);
     _hintTimers[boxId] = setTimeout(() => hideCurveHint(boxId), HINT_AUTO_HIDE_MS);
@@ -716,6 +728,11 @@ document.addEventListener('click', (e) => {
     if (!inMainDrop) hideCurveHint('curveHint');
     if (!inChartDrop) hideCurveHint('curveHintChart');
 });
+
+// Hint uses position:fixed anchored to the select's client rect — if the page
+// scrolls or resizes after showing, the anchor drifts. Cheapest fix: hide it.
+window.addEventListener('scroll', hideAllCurveHints, { passive: true, capture: true });
+window.addEventListener('resize', hideAllCurveHints);
 
 let currentLang = localStorage.getItem('lang') || 'th';
 
@@ -750,7 +767,7 @@ function applyTranslations() {
     });
 
     // Dynamic: table cells (action plan placeholder & sign text)
-    for (let d = 1; d <= 30; d++) {
+    for (let d = 1; d <= getRowCount(); d++) {
         const ap = document.getElementById(`actionPlan_${d}`);
         if (ap) ap.placeholder = t('actionPlanCellPlaceholder');
         const st = document.getElementById(`signText_${d}`);
@@ -805,7 +822,7 @@ function collectPersistedState() {
     });
 
     // Row inputs — เฉพาะช่องที่ user กรอกเอง (ช่อง calculated ระบบคำนวณกลับได้)
-    for (let d = 1; d <= 30; d++) {
+    for (let d = 1; d <= getRowCount(); d++) {
         ['resAvgSec', 'qPass', 'qFail'].forEach(prefix => {
             const el = document.getElementById(`${prefix}_${d}`);
             if (el && el.value !== "") state.inputs[`${prefix}_${d}`] = el.value;
@@ -880,7 +897,7 @@ function loadStateFromStorage() {
     });
 
     // คำนวณช่องที่ derive จาก raw inputs (resAvgMin, resEffPerc, resEffPcs, qRates)
-    for (let d = 1; d <= 30; d++) {
+    for (let d = 1; d <= getRowCount(); d++) {
         const hasAvgSec = document.getElementById(`resAvgSec_${d}`)?.value;
         const hasQty = document.getElementById(`qPass_${d}`)?.value || document.getElementById(`qFail_${d}`)?.value;
         if (hasAvgSec || hasQty) {
@@ -901,9 +918,24 @@ function scheduleSave() {
     _saveDebounceTimer = setTimeout(saveStateToStorage, 400);
 }
 
+// Peek at saved trainingDays BEFORE building the table so it comes out at the
+// right size — otherwise restore would populate row IDs the table doesn't have.
+function peekSavedRowCount() {
+    try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return DEFAULT_ROW_COUNT;
+        const state = JSON.parse(raw);
+        const v = parseInt(state?.inputs?.trainingDays, 10);
+        if (!Number.isFinite(v) || v <= 0) return DEFAULT_ROW_COUNT;
+        return Math.max(MIN_ROW_COUNT, Math.min(MAX_ROW_COUNT, v));
+    } catch (_) {
+        return DEFAULT_ROW_COUNT;
+    }
+}
+
 // ==================== Initialization ====================
 document.addEventListener('DOMContentLoaded', function() {
-    initializeTable();
+    initializeTable(peekSavedRowCount());
     initializeSignaturePad();
     loadStateFromStorage();
     calculateAdaptiveGoals();
@@ -916,50 +948,144 @@ document.addEventListener('DOMContentLoaded', function() {
     document.addEventListener('change', scheduleSave);
 });
 
-function initializeTable() {
+// Row count comes from the trainingDays input. Clamped to [1, 100] for sanity:
+// too small → nothing to plan; too large → freezes the DOM and localStorage payload.
+const DEFAULT_ROW_COUNT = 30;
+const MIN_ROW_COUNT = 1;
+const MAX_ROW_COUNT = 100;
+
+function getRowCount() {
+    const tbody = document.getElementById('tableBody');
+    return tbody ? tbody.children.length : 0;
+}
+
+function getTargetRowCount() {
+    const raw = document.getElementById('trainingDays')?.value;
+    const n = parseInt(raw, 10);
+    if (!Number.isFinite(n) || n <= 0) return DEFAULT_ROW_COUNT;
+    return Math.max(MIN_ROW_COUNT, Math.min(MAX_ROW_COUNT, n));
+}
+
+function buildRow(d) {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+        <td class="day-cell-readonly" tabIndex="-1">
+            <span class="day-num" id="dayCell_${d}"></span>
+            <button type="button" class="row-del-btn" onclick="deleteRowData(${d})" title="${t('btnDeleteRow')}" data-i18n-title="btnDeleteRow" aria-label="Delete row">
+                <i class="fa-solid fa-trash-can"></i>
+            </button>
+        </td>
+
+        <td class="calculated-cell"><input type="text" id="targetEff_${d}" disabled tabIndex="-1"></td>
+        <td class="calculated-cell"><input type="text" id="targetQty_${d}" disabled tabIndex="-1"></td>
+
+        <td><input type="text" id="resAvgSec_${d}" readonly class="clickable-input" onclick="openManualModal(${d})" placeholder=""></td>
+
+        <td class="calculated-cell"><input type="text" id="resAvgMin_${d}" disabled tabIndex="-1"></td>
+        <td class="calculated-cell font-bold"><input type="text" id="resEffPerc_${d}" disabled tabIndex="-1"></td>
+        <td class="calculated-cell"><input type="text" id="resEffPcs_${d}" disabled tabIndex="-1"></td>
+
+        <td><input type="text" id="qPass_${d}" readonly class="clickable-input" onclick="openManualModal(${d}, 'pass')"></td>
+        <td><input type="text" id="qFail_${d}" readonly class="clickable-input" onclick="openManualModal(${d}, 'fail')"></td>
+
+        <td class="calculated-cell"><input type="text" id="resQRates_${d}" disabled tabIndex="-1"></td>
+
+        <td><input type="checkbox"></td>
+        <td><input type="checkbox"></td>
+        <td><input type="checkbox"></td>
+        <td><input type="checkbox"></td>
+
+        <td class="action-plan-cell" onclick="openActionPlanModal(${d})" style="cursor: pointer;">
+            <textarea id="actionPlan_${d}" placeholder="${t('actionPlanCellPlaceholder')}" readonly style="cursor: pointer;"></textarea>
+        </td>
+
+        <td class="sign-cell" onclick="openSignPad(${d})">
+            <span class="placeholder-text" id="signText_${d}">${t('signCellText')}</span>
+            <img id="signImg_${d}" src="">
+        </td>
+    `;
+    return row;
+}
+
+function initializeTable(count) {
     const tbody = document.getElementById("tableBody");
     if (!tbody) return;
-    
-    for(let d=1; d<=30; d++) {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-            <td class="day-cell-readonly" tabIndex="-1">
-                <span class="day-num" id="dayCell_${d}"></span>
-                <button type="button" class="row-del-btn" onclick="deleteRowData(${d})" title="${t('btnDeleteRow')}" data-i18n-title="btnDeleteRow" aria-label="Delete row">
-                    <i class="fa-solid fa-trash-can"></i>
-                </button>
-            </td>
-            
-            <td class="calculated-cell"><input type="text" id="targetEff_${d}" disabled tabIndex="-1"></td>
-            <td class="calculated-cell"><input type="text" id="targetQty_${d}" disabled tabIndex="-1"></td>
-            
-            <td><input type="text" id="resAvgSec_${d}" readonly class="clickable-input" onclick="openManualModal(${d})" placeholder=""></td>
-            
-            <td class="calculated-cell"><input type="text" id="resAvgMin_${d}" disabled tabIndex="-1"></td>
-            <td class="calculated-cell font-bold"><input type="text" id="resEffPerc_${d}" disabled tabIndex="-1"></td>
-            <td class="calculated-cell"><input type="text" id="resEffPcs_${d}" disabled tabIndex="-1"></td>
-            
-            <td><input type="text" id="qPass_${d}" readonly class="clickable-input" onclick="openManualModal(${d}, 'pass')"></td>
-            <td><input type="text" id="qFail_${d}" readonly class="clickable-input" onclick="openManualModal(${d}, 'fail')"></td>
-            
-            <td class="calculated-cell"><input type="text" id="resQRates_${d}" disabled tabIndex="-1"></td>
-            
-            <td><input type="checkbox"></td>
-            <td><input type="checkbox"></td>
-            <td><input type="checkbox"></td>
-            <td><input type="checkbox"></td>
-            
-            <td class="action-plan-cell" onclick="openActionPlanModal(${d})" style="cursor: pointer;">
-                <textarea id="actionPlan_${d}" placeholder="${t('actionPlanCellPlaceholder')}" readonly style="cursor: pointer;"></textarea>
-            </td>
+    const n = Math.max(MIN_ROW_COUNT, Math.min(MAX_ROW_COUNT, count || DEFAULT_ROW_COUNT));
+    tbody.innerHTML = '';
+    for (let d = 1; d <= n; d++) tbody.appendChild(buildRow(d));
+}
 
-            <td class="sign-cell" onclick="openSignPad(${d})">
-                <span class="placeholder-text" id="signText_${d}">${t('signCellText')}</span>
-                <img id="signImg_${d}" src="">
-            </td>
-        `;
-        tbody.appendChild(row);
+// Grow/shrink the table without destroying data in kept rows.
+// Called when trainingDays changes.
+function resizeTable(newCount) {
+    const tbody = document.getElementById('tableBody');
+    if (!tbody) return;
+    const target = Math.max(MIN_ROW_COUNT, Math.min(MAX_ROW_COUNT, newCount));
+    const current = tbody.children.length;
+    if (target === current) return;
+
+    if (target > current) {
+        for (let d = current + 1; d <= target; d++) tbody.appendChild(buildRow(d));
+    } else {
+        while (tbody.children.length > target) tbody.removeChild(tbody.lastElementChild);
     }
+    // Persist the new shape (removed rows drop out of the serialized state) and
+    // refresh the plan since row count feeds into the curve window.
+    if (!_isRestoring) {
+        scheduleSave();
+        calculateAdaptiveGoals();
+        updateRaceTrack();
+        updateAutoTargetDay();
+    }
+}
+
+// oninput fires per keystroke. Typing "12" transiently passes trainingDays=1,
+// which would resize down to 1 row and destroy row 2+ data before "2" arrives.
+// Debounce the destructive resize; keep plan recomputation immediate so target
+// columns stay responsive as the user types.
+let _rowResizeTimer = null;
+const ROW_RESIZE_DEBOUNCE_MS = 600;
+
+function onTrainingDaysChange() {
+    calculateAdaptiveGoals();
+    clearTimeout(_rowResizeTimer);
+    _rowResizeTimer = setTimeout(() => {
+        resizeTable(getTargetRowCount());
+    }, ROW_RESIZE_DEBOUNCE_MS);
+}
+
+// ==================== Progressive row-unlock ====================
+// A row's data-entry cells (avgSec, pass, fail, checkboxes, action plan, signature)
+// are only editable once all previous rows are "filled" — user must record in order
+// and can't skip ahead. Row 1 is always unlocked.
+// Filled = avgSec + pass + fail are all non-empty.
+function isRowFilled(d) {
+    const avg = document.getElementById(`resAvgSec_${d}`)?.value.trim() || '';
+    const pass = document.getElementById(`qPass_${d}`)?.value.trim() || '';
+    const fail = document.getElementById(`qFail_${d}`)?.value.trim() || '';
+    return avg !== '' && pass !== '' && fail !== '';
+}
+
+// A row is locked (uneditable) when ANY prior row is not yet filled.
+// Row 1 is never locked. Guards on modal openers use this to short-circuit clicks.
+function isRowLocked(d) {
+    if (d <= 1) return false;
+    for (let i = 1; i < d; i++) {
+        if (!isRowFilled(i)) return true;
+    }
+    return false;
+}
+
+function refreshRowLocks() {
+    const tbody = document.getElementById('tableBody');
+    if (!tbody) return;
+    let unlocked = true;   // row 1 always unlocked
+    Array.from(tbody.children).forEach((tr, i) => {
+        const d = i + 1;
+        tr.classList.toggle('row-locked', !unlocked);
+        // The NEXT row's unlock depends on THIS row being filled.
+        unlocked = isRowFilled(d);
+    });
 }
 
 // ==================== Race Track Functions ====================
@@ -967,7 +1093,7 @@ function updateRaceTrack() {
     const globalEffTarget = parseFloat(document.getElementById('globalEffTarget').value) || 100;
 
     let lastActualEff = 0;
-    for (let d = 1; d <= 30; d++) {
+    for (let d = 1; d <= getRowCount(); d++) {
         let val = document.getElementById(`resEffPerc_${d}`).value;
         if (val !== "") {
             lastActualEff = parseFloat(val);
@@ -1063,7 +1189,7 @@ function adjustPlan(type) {
     let lastEff = 0;
     let lastTarget = 0;
 
-    for (let d = 1; d <= 30; d++) {
+    for (let d = 1; d <= getRowCount(); d++) {
         const effClean = document.getElementById(`resEffPerc_${d}`).value.replace('%', '');
         const targetClean = document.getElementById(`targetEff_${d}`).value.replace('%', '');
         
@@ -1142,7 +1268,7 @@ function updatePlanButtons() {
     let lastTarget = 0;
 
     // หาข้อมูลวันล่าสุดที่มีทั้ง ผลจริง และ เป้าหมาย
-    for (let d = 1; d <= 30; d++) {
+    for (let d = 1; d <= getRowCount(); d++) {
         const effVal = document.getElementById(`resEffPerc_${d}`).value;
         const targetVal = document.getElementById(`targetEff_${d}`).value;
         
@@ -1220,7 +1346,7 @@ function showPerformanceChart(skipParamSync) {
     const targetIdPrefix = usePcs ? 'targetQty' : 'targetEff';
     const actualIdPrefix = usePcs ? 'resEffPcs' : 'resEffPerc';
 
-    for (let d = 1; d <= 30; d++) {
+    for (let d = 1; d <= getRowCount(); d++) {
         labels.push(t(xLabelKey, d));
 
         const tRaw = document.getElementById(`${targetIdPrefix}_${d}`)?.value.replace('%', '') || "";
@@ -1228,6 +1354,15 @@ function showPerformanceChart(skipParamSync) {
 
         const aRaw = document.getElementById(`${actualIdPrefix}_${d}`)?.value.replace('%', '') || "";
         actualData.push(aRaw ? parseFloat(aRaw) : null);
+    }
+
+    // Trailing breathing-room slots — no label, no data. Makes the last real
+    // data point sit inside the plot instead of hugging the right edge.
+    const TRAILING_BLANK_SLOTS = 2;
+    for (let i = 0; i < TRAILING_BLANK_SLOTS; i++) {
+        labels.push('');
+        targetData.push(null);
+        actualData.push(null);
     }
 
     // 💡 ดึงค่าสี Dynamic จาก CSS Variables ณ ขณะนั้น
@@ -1263,7 +1398,7 @@ function showPerformanceChart(skipParamSync) {
             if (y < myChart.chartArea.bottom - 8) return;
             const idx = Math.round(myChart.scales.x.getValueForPixel(x));
             console.log('[Canvas click] idx=', idx, '→ day', idx + 1);
-            if (idx >= 0 && idx < 30) openQuickEntryModal(idx + 1);
+            if (idx >= 0 && idx < getRowCount()) openQuickEntryModal(idx + 1);
         });
     }
 
@@ -1308,7 +1443,7 @@ function showPerformanceChart(skipParamSync) {
                 if (y < chart.chartArea.bottom - 8) return;
                 const idx = Math.round(chart.scales.x.getValueForPixel(x));
                 console.log('[Chart click] idx=', idx, '→ day', idx + 1);
-                if (idx >= 0 && idx < 30) openQuickEntryModal(idx + 1);
+                if (idx >= 0 && idx < getRowCount()) openQuickEntryModal(idx + 1);
             },
             onHover: (evt, _elems, chart) => {
                 if (!chart || !chart.chartArea || !chart.canvas) return;
@@ -1327,9 +1462,11 @@ function showPerformanceChart(skipParamSync) {
                 },
                 y: {
                     beginAtZero: true,
-                    // ทั้ง 2 mode ใช้ auto-scale + grace 8% เท่ากัน
-                    // → Target 100% ก็สวย, Target 500% หรือ pcs ก็ยืดหยุ่นตามค่าจริง
-                    grace: '8%',
+                    // % mode: anchor the top at 100 so users always see the ceiling
+                    // even when target is 60/75. suggestedMax is a floor for the
+                    // computed max — if actual data goes above 100 the axis still expands.
+                    // pcs mode: no fixed ceiling; rely on grace to auto-scale nicely.
+                    ...(usePcs ? { grace: '8%' } : { suggestedMax: 100, grace: '4%' }),
                     grid: {
                         color: colorGrid
                     },
@@ -1430,7 +1567,7 @@ function exportToExcel() {
 
             // ดึงข้อมูล Tbody 30 แถว
             const rows = [];
-            for (let d = 1; d <= 30; d++) {
+            for (let d = 1; d <= getRowCount(); d++) {
                 const rowData = [];
                 rowData.push(d); 
                 const inputs = [`targetEff_${d}`, `targetQty_${d}`, `resAvgSec_${d}`, `resAvgMin_${d}`, `resEffPerc_${d}`, `resEffPcs_${d}`, `qPass_${d}`, `qFail_${d}`, `resQRates_${d}`];
@@ -1522,7 +1659,7 @@ function clearAllData() {
             });
 
             // 2. เคลียร์ข้อมูลในตารางทั้ง 30 แถว
-            for (let d = 1; d <= 30; d++) {
+            for (let d = 1; d <= getRowCount(); d++) {
                 const rowInputs = document.querySelectorAll(`#tableBody tr:nth-child(${d}) input`);
                 rowInputs.forEach(input => {
                     if (input.type === 'checkbox') {
@@ -1785,6 +1922,15 @@ function onChartParamChange(field) {
         document.getElementById('globalEffTarget').value = document.getElementById('chartEffTarget').value;
     } else if (field === 'days') {
         document.getElementById('trainingDays').value = document.getElementById('chartTrainingDays').value;
+        // Table row count is bound to trainingDays. Debounce so intermediate keystrokes
+        // (typing "12" briefly reads as 1) don't shrink and wipe row 2+ data.
+        clearTimeout(_rowResizeTimer);
+        _rowResizeTimer = setTimeout(() => {
+            resizeTable(getTargetRowCount());
+            // Only redraw chart if it's still open — user may have closed it during the debounce.
+            const modal = document.getElementById('chartModal');
+            if (modal && modal.style.display === 'block') showPerformanceChart(true);
+        }, ROW_RESIZE_DEBOUNCE_MS);
     } else if (field === 'unit') {
         document.getElementById('trainingUnit').value = document.getElementById('chartTrainingUnit').value;
     } else if (field === 'samMin') {
@@ -1844,7 +1990,7 @@ function calculateAdaptiveGoals() {
     document.getElementById('globalQtyTarget').value = qtyT;
 
     let firstDayQ100 = 0;
-    for (let d = 1; d <= 30; d++) {
+    for (let d = 1; d <= getRowCount(); d++) {
         if (document.getElementById(`resQRates_${d}`).value === "100%") {
             firstDayQ100 = d;
             break;
@@ -1852,14 +1998,14 @@ function calculateAdaptiveGoals() {
     }
 
     // อัปเดตคอลัมน์ วัน/ชั่วโมง — เริ่มนับ 1 ที่แถวถัดจาก 100% แถวแรก
-    for (let d = 1; d <= 30; d++) {
+    for (let d = 1; d <= getRowCount(); d++) {
         const dayCell = document.getElementById(`dayCell_${d}`);
         if (!dayCell) continue;
         dayCell.textContent = (firstDayQ100 > 0 && d > firstDayQ100) ? (d - firstDayQ100) : "";
     }
 
     let lastActualEff = 0, lastActualDay = 0;
-    for (let d = 1; d <= 30; d++) {
+    for (let d = 1; d <= getRowCount(); d++) {
         let effStr = document.getElementById(`resEffPerc_${d}`).value;
         if (effStr && effStr !== "") {
             lastActualEff = parseFloat(effStr);
@@ -1880,7 +2026,7 @@ function calculateAdaptiveGoals() {
         anchorEff = lastActualEff;
     }
 
-    for (let d = 1; d <= 30; d++) {
+    for (let d = 1; d <= getRowCount(); d++) {
         const targetInput = document.getElementById(`targetEff_${d}`);
         const targetQtyInput = document.getElementById(`targetQty_${d}`);
         const effInput = document.getElementById(`resEffPerc_${d}`);
@@ -1935,25 +2081,52 @@ function calculateAdaptiveGoals() {
             }
         }
 
-        // ส่วนเปรียบเทียบสี
-        const effClean = typeof effInput.value === "string" ? effInput.value.replace("%", "") : effInput.value;
-        const targetClean = typeof targetInput.value === "string" ? targetInput.value.replace("%", "") : targetInput.value;
-
-        const currentEff = parseFloat(effClean) || 0;
-        const currentTarget = parseFloat(targetClean) || 0;
-        
-        if (effInput.value !== "" && targetInput.value !== "") {
-            if (currentEff >= currentTarget) {
-                effInput.className = "text-success";
-            } else {
-                effInput.className = "text-danger";
-            }
-        } else {
-            effInput.className = ""; 
-            updatePlanButtons(); 
-            updateRaceTrack();
-        }
+        // ── Result vs target coloring ────────────────────────────────────
+        // For all 4 result columns: better-than-target = green, worse = red,
+        // exactly equal = black. "Better" is greater for efficiency (%, pcs)
+        // and less for time (sec, min) — same target, inverse polarity.
+        colorRowResults(d);
     }
+
+    refreshRowLocks();
+    updatePlanButtons();
+    updateRaceTrack();
+}
+
+// Green when the actual beats the target, red when it misses, no class (default
+// ink) when exactly equal or when either side is empty. Only the two efficiency
+// columns and the two time columns are colored — target columns stay neutral.
+function colorRowResults(d) {
+    const targetEff = parseFloat(document.getElementById(`targetEff_${d}`)?.value.replace('%', ''));
+    const targetQty = parseFloat(document.getElementById(`targetQty_${d}`)?.value);
+
+    // avgSec/cycleMin have no explicit target column — derive from targetQty
+    // (60 min/hr × 60 sec/min ÷ pcs-per-hr). If target eff is 100% at SAM 0.5min,
+    // targetQty = 120 pcs/hr → targetAvgSec = 30s, targetAvgMin = 0.5min.
+    const targetAvgSec = isFinite(targetQty) && targetQty > 0 ? 3600 / targetQty : NaN;
+    const targetAvgMin = isFinite(targetQty) && targetQty > 0 ? 60 / targetQty : NaN;
+
+    const specs = [
+        { id: `resEffPerc_${d}`, target: targetEff,    betterIfLess: false },
+        { id: `resEffPcs_${d}`,  target: targetQty,    betterIfLess: false },
+        { id: `resAvgSec_${d}`,  target: targetAvgSec, betterIfLess: true  },
+        { id: `resAvgMin_${d}`,  target: targetAvgMin, betterIfLess: true  },
+    ];
+
+    specs.forEach(({ id, target, betterIfLess }) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const raw = (el.value || '').replace('%', '').trim();
+        const v = parseFloat(raw);
+        if (raw === '' || !isFinite(v) || !isFinite(target)) {
+            el.classList.remove('text-success', 'text-danger');
+            return;
+        }
+        const isBetter = betterIfLess ? v < target : v > target;
+        const isWorse  = betterIfLess ? v > target : v < target;
+        el.classList.toggle('text-success', isBetter);
+        el.classList.toggle('text-danger', isWorse);
+    });
 }
 
 // ==================== Manual Calculation ====================
@@ -2049,13 +2222,14 @@ function updateAutoTargetDay() {
     // เช็คจาก resAvgSec (ค่านี้ถูกเซตทันทีที่กด Save)
     // ไม่ใช้ resEffPerc เพราะจะเซตก็ต่อเมื่อ SAM ถูกกรอกด้วย
     let lastDayWithData = 0;
-    for (let d = 1; d <= 30; d++) {
+    for (let d = 1; d <= getRowCount(); d++) {
         if (document.getElementById(`resAvgSec_${d}`).value !== "") {
             lastDayWithData = d;
         }
     }
+    const max = getRowCount() || 1;
     let nextDay = lastDayWithData + 1;
-    if (nextDay > 30) nextDay = 30;
+    if (nextDay > max) nextDay = max;
     document.getElementById('targetDay').value = nextDay;
 }
 
@@ -2064,9 +2238,10 @@ let currentInputType = null; // ค่าจะเป็น 'sec', 'pass', ห�
 
 // 2. ปรับฟังก์ชันเปิดให้รับ "ประเภทช่อง" เพิ่มเข้ามา
 function openManualModal(day, type = 'sec') {
+    if (isRowLocked(day)) return;   // sequential unlock — earlier rows must be filled first
     currentActiveDay = day;
     currentInputType = type; // จำไว้ว่ากดมาจากช่องไหน
-    
+
     document.getElementById('modalDayLabel').innerText = day;
     
     let targetId = `resAvgSec_${day}`;
@@ -2215,10 +2390,11 @@ function stopDrawing() {
     writing = false;
 }
 
-function openSignPad(day) { 
-    currentActiveDay = day; 
-    document.getElementById('signModal').style.display = 'block'; 
-    clearPad(); 
+function openSignPad(day) {
+    if (isRowLocked(day)) return;
+    currentActiveDay = day;
+    document.getElementById('signModal').style.display = 'block';
+    clearPad();
 }
 
 function closeSignPad() { 
@@ -2285,8 +2461,9 @@ let currentActionPlanDay = null; // ตัวแปร Global จำว่าต
 
 // 1. ฟังก์ชันเปิดหน้าต่างระบุแผนแก้ไข
 function openActionPlanModal(day) {
+    if (isRowLocked(day)) return;
     currentActionPlanDay = day;
-    
+
     // แสดงเลขวันบนหัวข้อ
     document.getElementById('actionPlanDayLabel').innerText = day;
     
@@ -2333,6 +2510,7 @@ window.hideCurveHint = hideCurveHint;
 window.calculateAdaptiveGoals = calculateAdaptiveGoals;
 window.syncSam = syncSam;
 window.onTrainingUnitChange = onTrainingUnitChange;
+window.onTrainingDaysChange = onTrainingDaysChange;
 window.onChartParamChange = onChartParamChange;
 window.openQuickEntryModal = openQuickEntryModal;
 window.deleteRowData = deleteRowData;

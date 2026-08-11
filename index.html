@@ -3,15 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--
+      Content-Security-Policy (defense-in-depth, supply-chain + exfiltration control).
+      Scripts/styles are restricted to 'self' and the specific pinned CDN hosts, so an
+      injected/attacker-hosted script cannot load. 'unsafe-inline' remains required by the
+      existing inline event handlers (onclick/oninput) and inline styles; removing it would
+      need those handlers migrated to addEventListener first. connect-src 'self' blocks
+      data exfiltration to third-party origins; object-src/base-uri are locked down.
+    -->
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self';
+        script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com;
+        style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com;
+        font-src 'self' data: https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.gstatic.com;
+        img-src 'self' data: blob:;
+        connect-src 'self';
+        object-src 'none';
+        base-uri 'self';
+        form-action 'self';">
+    <meta name="referrer" content="no-referrer">
     <title>CSA Operation Sign-Off Report (v1.0.12)</title>
-    <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
+    <!-- TODO(SRI): add integrity="sha384-…" from jsDelivr's "Copy SRI" for this exact
+         version. Left off here only because this build environment blocks CDN egress, so a
+         verified hash could not be fetched; every other CDN tag below already pins one. -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"
             integrity="sha384-Sse/HDqcypGpyTDpvZOJNnG0TT3feGQUkF9H+mnRvic+LjR+K1NhTt8f51KIQ3v3"
             crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"
             integrity="sha384-y49Zu59jZHJL/PLKgZPv3k2WI9c0Yp3pWB76V8OBVCb0QBKS8l4Ff3YslzHVX76Y"
             crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- TODO(SRI): add integrity from cdnjs for font-awesome 6.4.0 all.min.css (see note above). -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+          crossorigin="anonymous" referrerpolicy="no-referrer">
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"
           integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+"
@@ -20,6 +45,11 @@
             src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"
             integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg"
             crossorigin="anonymous"></script>
+    <!-- Design system fonts: Inter for UI, Roboto Mono for numerals,
+         Noto Sans Thai/Lao to keep TH/LO scripts crisp under the same feel. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@400;500;600&family=Noto+Sans+Thai:wght@400;500;600;700&family=Noto+Sans+Lao:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -64,9 +94,10 @@
             <div class="field">
                 <label data-i18n="lblProcessLevel">ขั้นตอนหลัก / ระดับงาน</label>
                 <div class="field-inline">
-                    <input type="text" id="header_process" aria-label="ขั้นตอนหลัก">
-                    <select id="workLevel" class="inline-select" aria-label="ระดับงาน">
-                        <option value="" disabled selected></option>
+                    <input type="text" id="header_process" aria-label="ขั้นตอนหลัก" placeholder="ขั้นตอนหลัก">
+                    <span class="field-inline-sep">/</span>
+                    <select id="workLevel" aria-label="ระดับงาน">
+                        <option value="" disabled selected>ระดับ</option>
                         <option value="A">A</option>
                         <option value="B">B</option>
                         <option value="C">C</option>
@@ -113,7 +144,7 @@
             <div class="field">
                 <label data-i18n="lblTrainingDuration">จำนวนที่จะต้องฝึก</label>
                 <div class="field-inline">
-                    <input type="number" id="trainingDays" inputmode="numeric" oninput="calculateAdaptiveGoals()" placeholder="จำนวน">
+                    <input type="number" id="trainingDays" inputmode="numeric" min="1" max="100" oninput="onTrainingDaysChange()" placeholder="จำนวน">
                     <select id="trainingUnit" class="inline-select-wide" onchange="onTrainingUnitChange()" aria-label="หน่วย">
                         <option value="day" data-i18n="unitDay">วัน</option>
                         <option value="hour" data-i18n="unitHour">ชั่วโมง</option>
