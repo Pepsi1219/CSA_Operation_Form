@@ -2577,3 +2577,906 @@ document.addEventListener('keydown', function(event) {
         return;
     }
 });
+
+// ==================== Formula Help Modal ====================
+// Click a labeled field / column header (.formula-help[data-formula="…"]) to
+// open a modal that explains the calculation. Uses KaTeX (already loaded from
+// the CDN in <head>) for the math, and falls back to plain text if KaTeX
+// somehow didn't finish loading. Content is Thai-primary — matches app default.
+(function initFormulaHelp() {
+    // ── Shared bits reused across all curve-detail entries ───────────────────
+    // Target formula is the same shape regardless of curve — only progress(d)
+    // changes — so we prepend it to each curve modal's formulas array.
+    const TARGET_FORMULA = {
+        tex: 'Target_d \\;=\\; anchor \\;+\\; (Eff_{\\text{target}} - anchor) \\times progress(d)',
+        note: 'สูตรหลักเหมือนกันทุกรูปแบบ curve — ต่างกันแค่ progress(d) ด้านล่าง'
+    };
+    const ANCHOR_SECTION = {
+        title: 'anchor คืออะไร?',
+        html:
+            '<b>anchor = จุดตั้งต้นของแผน</b> — ค่า Eff% "จริง" ในวันแรกที่พนักงานทำงานได้ Pass Rate = <code>100%</code> (ไม่มีของเสีย).<br><br>' +
+            '<b>ตรรกะ:</b> ก่อนฝึก<b>ความเร็ว</b> พนักงานต้องทำ<b>คุณภาพ</b>ให้ได้ก่อน — ผลิตช้าๆ แต่ห้ามมีของเสีย. วันแรกที่ทำสำเร็จ = "พร้อมฝึกความเร็วแล้ว" ระบบใช้ Eff% วันนั้นเป็นจุดเริ่ม แล้วไล่ขึ้นไปหา Eff เป้าหมายรวม ตาม curve ที่เลือก.<br><br>' +
+            '<b>ตัวอย่าง:</b> วันที่ 1 Eff 15% Pass 80% ❌ · วันที่ 2 Eff 22% Pass 95% ❌ · <b>วันที่ 3 Eff 30% Pass 100% ✓</b> → <b>anchor = 30%, anchorDay = 3</b>'
+    };
+
+    // ── Formula library ──────────────────────────────────────────────────────
+    // Each entry:  { title, desc, formulas:[{tex, note?}], sections?, example?, picker? }
+    const LIB = {
+        sam: {
+            title: 'SAM (Standard Allowed Minutes)',
+            desc:  'SAM คือเวลามาตรฐานที่ควรใช้ในการผลิตงาน 1 ชิ้น (หน่วยนาที). ช่อง "นาที" กับ "วินาที" ซิงก์กันอัตโนมัติ — กรอกช่องไหนอีกช่องจะแปลงให้ทันที.',
+            formulas: [
+                { tex: 'SAM_{\\text{sec}} = SAM_{\\text{min}} \\times 60' },
+                { tex: 'SAM_{\\text{min}} = SAM_{\\text{sec}} \\div 60' }
+            ],
+            example: 'ถ้า SAM = <code>0.5</code> นาที → <code>0.5 × 60 = 30</code> วินาที'
+        },
+        globalTarget: {
+            title: 'เป้าหมาย Q\'ty (ชิ้น/ชม.)',
+            desc:  'Q\'ty เป้าหมายคำนวณอัตโนมัติจาก SAM และ Eff เป้าหมาย ผลลัพธ์คือ "จำนวนชิ้นที่ต้องผลิตให้ได้ต่อชั่วโมง" (ปัดขึ้น).',
+            formulas: [
+                { tex: "Q'ty_{\\text{target}} \\;=\\; \\left\\lceil \\dfrac{60}{SAM_{\\text{min}}} \\times \\dfrac{Eff\\%}{100} \\right\\rceil",
+                  note: '60 = จำนวนนาทีต่อชั่วโมง · ⌈ ⌉ = ปัดขึ้น' }
+            ],
+            example: 'SAM = <code>0.5</code> นาที, Eff = <code>80%</code> → ⌈ (60 ÷ 0.5) × 0.80 ⌉ = ⌈<code>96</code>⌉ = <code>96 pcs/hr</code>'
+        },
+        // Target(%) routes to a curve-specific modal via the click handler;
+        // no standalone `targetPct` entry needed.
+        // ── Learning Curve models — one modal per curve ──────────────────────
+        curveScurve: {
+            curveKey: 'scurve',
+            title: 'S-Curve (Smoothstep)',
+            desc:  'การเรียนรู้เพิ่มช้าในช่วงต้น เร่งขึ้นตรงกลาง แล้วชะลอลงเมื่อเข้าใกล้เป้า — ให้กราฟรูปตัว "S". เหมาะกับพนักงานที่ต้องใช้เวลาปรับตัวก่อน แล้วเรียนรู้เร็วในช่วงกลาง.',
+            formulas: [
+                { tex: 'progress(x) \\;=\\; 3t^{2} - 2t^{3}, \\quad t = \\dfrac{x}{N}',
+                  note: 'Hermite smoothstep — เส้นโค้งเรียบ ไม่มีจุดหักงอ' }
+            ],
+            sections: [
+                { title: 'ลักษณะการเติบโต', html:
+                    '<ul style="margin:0;padding-left:18px;line-height:1.7">' +
+                    '<li><b>ช่วงต้น (t=0–0.3)</b> เพิ่มช้า — พนักงานกำลังปรับตัว จับหลัก</li>' +
+                    '<li><b>ช่วงกลาง (t=0.3–0.7)</b> เพิ่มเร็ว — เข้าจังหวะแล้ว พัฒนาก้าวกระโดด</li>' +
+                    '<li><b>ช่วงปลาย (t=0.7–1.0)</b> ชะลอลง — ใกล้เพดานความสามารถ</li>' +
+                    '</ul>' },
+                { title: 'เหมาะกับงาน', html: 'งานประกอบซับซ้อน · งานฝีมือหลายจังหวะ · พนักงานใหม่ที่ยังไม่มีพื้นฐาน' },
+                { title: 'ตัวอย่างตัวเลข', html:
+                    'anchor = <code>40%</code>, target = <code>80%</code>, N = <code>10</code> วัน<br>' +
+                    '• วันที่ 2 (t=0.2): progress = <code>0.104</code> → Target = <code>44.2%</code><br>' +
+                    '• วันที่ 5 (t=0.5): progress = <code>0.500</code> → Target = <code>60.0%</code><br>' +
+                    '• วันที่ 8 (t=0.8): progress = <code>0.896</code> → Target = <code>75.8%</code>' }
+            ]
+        },
+        curveLog: {
+            curveKey: 'log',
+            title: 'Logarithmic (เรียนรู้เร็วช่วงต้น)',
+            desc:  'เพิ่มขึ้นเร็วมากในช่วงต้น (ก้าวหน้าแบบก้าวกระโดดตั้งแต่วันแรกๆ) แล้วชะลอตัวลงเรื่อยๆ เข้าใกล้เป้าอย่างช้าๆ ในช่วงปลาย. โดยประมาณ 50% ของความก้าวหน้าทั้งหมดเกิดขึ้นใน ~30% แรกของเวลาฝึก.',
+            formulas: [
+                { tex: 'progress(x) \\;=\\; \\dfrac{\\ln(x+1)}{\\ln(N+1)}',
+                  note: 'ln = natural logarithm · +1 กันไม่ให้ ln(0)' }
+            ],
+            sections: [
+                { title: 'ลักษณะการเติบโต', html:
+                    '<ul style="margin:0;padding-left:18px;line-height:1.7">' +
+                    '<li>วันแรกๆ เพิ่มก้าวกระโดด — เห็นผลชัดเจน สร้างขวัญกำลังใจ</li>' +
+                    '<li>ช่วงปลายเพิ่มช้าๆ — ต้องอดทนกับการปรับจูนเล็กๆ</li>' +
+                    '</ul>' },
+                { title: 'เหมาะกับงาน', html: 'งานที่พึ่งพาการจดจำหลัก/ทำซ้ำ · พนักงานเก่าที่มีพื้นฐานดีเปลี่ยนงาน · งานที่ "จับหลักได้แล้วทำได้เร็ว"' },
+                { title: 'ตัวอย่างตัวเลข', html:
+                    'anchor = <code>40%</code>, target = <code>80%</code>, N = <code>10</code> วัน<br>' +
+                    '• วันที่ 1: progress = ln(2)/ln(11) ≈ <code>0.289</code> → Target = <code>51.6%</code><br>' +
+                    '• วันที่ 3: progress = ln(4)/ln(11) ≈ <code>0.578</code> → Target = <code>63.1%</code><br>' +
+                    '• วันที่ 7: progress = ln(8)/ln(11) ≈ <code>0.867</code> → Target = <code>74.7%</code>' }
+            ]
+        },
+        curvePower: {
+            curveKey: 'power',
+            title: 'Power (Wright\'s Law)',
+            desc:  'อ้างอิงจาก Wright\'s Law (T.P. Wright, 1936) — กฎที่ระบุว่าเวลาผลิตต่อชิ้นลดลงตามอัตราคงที่ทุกครั้งที่ผลผลิตสะสมเพิ่มเป็นสองเท่า. รูปทรงคล้าย Log แต่ชะลอตัวไม่รุนแรงเท่า — ยังคงมีการปรับปรุงต่อเนื่องแม้ในช่วงหลัง.',
+            formulas: [
+                { tex: 'progress(x) \\;=\\; \\sqrt{\\dfrac{x}{N}}',
+                  note: 'รากที่ 2 เทียบเท่า Wright\'s Law ที่ค่า learning rate b = 0.5 (คลาสสิก 85% learning curve)' }
+            ],
+            sections: [
+                { title: 'ลักษณะการเติบโต', html:
+                    '<ul style="margin:0;padding-left:18px;line-height:1.7">' +
+                    '<li>เพิ่มเร็วช่วงต้น (แต่ไม่รุนแรงเท่า Log)</li>' +
+                    '<li>ช่วงปลายยังปรับปรุงต่อเนื่อง ไม่ราบจนแบน</li>' +
+                    '</ul>' },
+                { title: 'เหมาะกับงาน', html: 'งานเย็บหลายสเต็ป · งานที่ต้องใช้กล้ามเนื้อจำ (motor memory) · การพัฒนาความเร็วต่อเนื่องระยะยาว' },
+                { title: 'ตัวอย่างตัวเลข', html:
+                    'anchor = <code>40%</code>, target = <code>80%</code>, N = <code>10</code> วัน<br>' +
+                    '• วันที่ 1: progress = √0.1 ≈ <code>0.316</code> → Target = <code>52.6%</code><br>' +
+                    '• วันที่ 4: progress = √0.4 ≈ <code>0.632</code> → Target = <code>65.3%</code><br>' +
+                    '• วันที่ 9: progress = √0.9 ≈ <code>0.949</code> → Target = <code>77.9%</code>' }
+            ]
+        },
+        curveLinear: {
+            curveKey: 'linear',
+            title: 'Linear (เพิ่มขึ้นสม่ำเสมอ)',
+            desc:  'เพิ่มขึ้นในอัตราคงที่ทุกวัน — ทุกวันก้าวหน้าเท่ากัน เข้าใจง่ายที่สุด แต่มักไม่ตรงกับพฤติกรรมการเรียนรู้จริง.',
+            formulas: [
+                { tex: 'progress(x) \\;=\\; \\dfrac{x}{N}' }
+            ],
+            sections: [
+                { title: 'ลักษณะการเติบโต', html:
+                    '<ul style="margin:0;padding-left:18px;line-height:1.7">' +
+                    '<li>Slope คงที่ — คำนวณด้วยหัวได้ทันที</li>' +
+                    '<li>ไม่สะท้อนความจริงของการเรียนรู้ (ปกติเริ่มเร็วแล้วชะลอ หรือกลับกัน)</li>' +
+                    '</ul>' },
+                { title: 'เหมาะกับงาน', html: 'ใช้เป็น <b>baseline</b> อย่างง่าย · เมื่อไม่มีข้อมูลรูปแบบการเรียนรู้เฉพาะ · งานที่คาดว่าพัฒนาสม่ำเสมอ' },
+                { title: 'ตัวอย่างตัวเลข', html:
+                    'anchor = <code>40%</code>, target = <code>80%</code>, N = <code>10</code> วัน<br>' +
+                    '• วันที่ 3: progress = <code>0.30</code> → Target = <code>52.0%</code><br>' +
+                    '• วันที่ 7: progress = <code>0.70</code> → Target = <code>68.0%</code>' }
+            ]
+        },
+        curvePicker: {
+            title: 'รูปแบบแผนการฝึก (Learning Curve)',
+            desc:  'คลิกเลือกรูปแบบเพื่ออ่านรายละเอียด — แต่ละแบบเหมาะกับงานคนละประเภท',
+            picker: [
+                { key: 'curveScurve', label: 'S-Curve',        tag: 'ช้า → เร็ว → ช้า',        use: 'งานฝีมือซับซ้อน · พนักงานใหม่' },
+                { key: 'curveLog',    label: 'Logarithmic',    tag: 'เร็วช่วงต้น',              use: 'จับหลักได้เร็ว · พนักงานเก่า' },
+                { key: 'curvePower',  label: 'Power (Wright)', tag: 'ปรับปรุงต่อเนื่อง',        use: 'งานเย็บหลายสเต็ป · motor memory' },
+                { key: 'curveLinear', label: 'Linear',         tag: 'สม่ำเสมอ',                use: 'baseline · พัฒนาคงที่' }
+            ]
+        },
+        targetQty: {
+            title: 'เป้าหมาย Q\'ty (ชิ้น) รายวัน',
+            desc:  'แปลงเป้าหมาย Eff (%) ของแถวเป็น "ชิ้น/ชั่วโมง" โดยใช้ SAM.',
+            formulas: [
+                { tex: "Target_{\\text{pcs}} \\;=\\; \\dfrac{60}{SAM_{\\text{min}}} \\times \\dfrac{Target_\\%}{100}" }
+            ],
+            example: 'SAM = <code>0.5</code>, Target% = <code>80</code> → (60 ÷ 0.5) × 0.80 = <code>96 pcs/hr</code>'
+        },
+        avgSec: {
+            title: 'เวลาเฉลี่ย (วินาที)',
+            desc:  'เวลาเฉลี่ยที่พนักงานใช้ผลิตงาน 1 ชิ้น (จับด้วย Timer หรือกรอกเอง) หน่วยวินาที เป็น input หลักที่ใช้คำนวณ Cycle Time, Eff (%) และ Eff (ชิ้น) ทั้งหมด.',
+            formulas: [
+                { tex: 'AvgTime_{\\text{min}} = \\dfrac{AvgTime_{\\text{sec}}}{60}' }
+            ],
+            example: 'ถ้าจับเวลาได้ <code>30</code> วินาที → <code>30 ÷ 60 = 0.5</code> นาที'
+        },
+        cycleMin: {
+            title: 'เวลาต่อรอบ (นาที) — Cycle Time',
+            desc:  'เวลาต่อรอบ = เวลาเฉลี่ยที่ใช้ทำงาน 1 ชิ้น หน่วยนาที (แปลงตรงจาก Avg Time วินาที).',
+            formulas: [
+                { tex: 'CycleTime_{\\text{min}} = \\dfrac{AvgTime_{\\text{sec}}}{60}' }
+            ],
+            example: '<code>30</code> วินาที → <code>0.50</code> นาที · <code>45</code> วินาที → <code>0.75</code> นาที'
+        },
+        effPct: {
+            title: 'ประสิทธิภาพ Eff (%)',
+            desc:  'อัตราส่วนของ "เวลามาตรฐาน (SAM)" ต่อ "เวลาที่ทำจริง" — ยิ่งใช้เวลาน้อยกว่ามาตรฐาน Eff% ยิ่งสูง (เกิน 100% ได้ = เร็วกว่ามาตรฐาน).',
+            formulas: [
+                { tex: 'Eff\\% \\;=\\; \\dfrac{SAM_{\\text{min}}}{AvgTime_{\\text{min}}} \\times 100' },
+                { tex: '\\;=\\; \\dfrac{SAM_{\\text{sec}}}{AvgTime_{\\text{sec}}} \\times 100' }
+            ],
+            example: 'SAM = <code>0.5</code> นาที, AvgTime = <code>0.4</code> นาที → (0.5 ÷ 0.4) × 100 = <code>125%</code>'
+        },
+        effPcs: {
+            title: 'ประสิทธิภาพ Eff (ชิ้น/ชั่วโมง)',
+            desc:  'จำนวนชิ้นที่ผลิตได้จริงต่อชั่วโมง คำนวณจากเวลาเฉลี่ยที่ใช้จริง (ไม่เกี่ยวกับ SAM).',
+            formulas: [
+                { tex: 'Eff_{\\text{pcs}} \\;=\\; \\dfrac{60}{AvgTime_{\\text{min}}} \\;=\\; \\dfrac{3600}{AvgTime_{\\text{sec}}}' }
+            ],
+            example: 'AvgTime = <code>30</code> วินาที → 3600 ÷ 30 = <code>120 pcs/hr</code>'
+        },
+        passRate: {
+            title: 'อัตราผ่าน (Pass Rate %)',
+            desc:  'สัดส่วนของงานที่ผ่านการตรวจคุณภาพ เทียบกับงานทั้งหมดที่ตรวจ (ผ่าน + ไม่ผ่าน). ระบบจะคำนวณเมื่อกรอก "ผ่าน" และ "ไม่ผ่าน" ครบทั้งสองช่อง.',
+            formulas: [
+                { tex: "PassRate\\% \\;=\\; \\left\\lceil \\dfrac{Pass}{Pass + Fail} \\times 100 \\right\\rceil",
+                  note: '⌈ ⌉ = ปัดขึ้น' }
+            ],
+            example: 'ผ่าน = <code>47</code>, ไม่ผ่าน = <code>3</code> → ⌈ 47 ÷ 50 × 100 ⌉ = ⌈94⌉ = <code>94%</code>'
+        }
+    };
+
+    // Curve-detail modals share the Target formula (as leading formula) and
+    // the anchor explanation (as trailing section) — inject once here so each
+    // curve entry stays focused on its own progress() math.
+    ['curveScurve', 'curveLog', 'curvePower', 'curveLinear'].forEach(k => {
+        LIB[k].formulas = [TARGET_FORMULA, ...LIB[k].formulas];
+        LIB[k].sections = [...(LIB[k].sections || []), ANCHOR_SECTION];
+    });
+
+    let modal, titleEl, descEl, bodyEl;
+
+    // ── Build modal DOM ──────────────────────────────────────────────────────
+    function buildModal() {
+        modal = document.createElement('div');
+        modal.id = 'formulaModal';
+        modal.className = 'modal';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <span class="close" aria-label="ปิด">&times;</span>
+                <h3 class="formula-modal-title"></h3>
+                <p class="formula-modal-sub"></p>
+                <div class="formula-modal-body"></div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        titleEl = modal.querySelector('.formula-modal-title');
+        descEl  = modal.querySelector('.formula-modal-sub');
+        bodyEl  = modal.querySelector('.formula-modal-body');
+
+        modal.querySelector('.close').addEventListener('click', close);
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) close();
+        });
+    }
+
+    // ── Inline SVG curve preview ─────────────────────────────────────────────
+    // Renders the shape of a learning curve on a small chart so the user can
+    // SEE how each curve behaves. Uses anchor=40, target=80, N=10 to match the
+    // numeric example already shown in the modal, and overlays a light dashed
+    // linear reference so growth character is obvious.
+    const CURVE_FNS = {
+        scurve: t => 3 * t * t - 2 * t * t * t,
+        log:    t => Math.log(t * 10 + 1) / Math.log(11),
+        power:  t => Math.sqrt(t),
+        linear: t => t
+    };
+    const CURVE_COLORS = {
+        scurve: '#7c3aed',
+        log:    '#0891b2',
+        power:  '#ea580c',
+        linear: '#059669'
+    };
+
+    function buildCurveChartSVG(curveKey) {
+        const fn = CURVE_FNS[curveKey];
+        const color = CURVE_COLORS[curveKey] || '#18181b';
+        if (!fn) return '';
+
+        const N = 10, anchor = 40, target = 80;
+        const W = 520, H = 220;
+        const pL = 44, pR = 14, pT = 14, pB = 32;
+        const w = W - pL - pR;
+        const h = H - pT - pB;
+        const sx = day => pL + (day / N) * w;
+        const sy = eff => pT + h - (eff / 100) * h;
+
+        // Curve path — sampled at 60 points for smoothness
+        let curvePath = '';
+        for (let i = 0; i <= 60; i++) {
+            const t = i / 60;
+            const y = anchor + (target - anchor) * fn(t);
+            curvePath += (i === 0 ? 'M ' : 'L ') + sx(t * N).toFixed(1) + ' ' + sy(y).toFixed(1) + ' ';
+        }
+        const linearPath = `M ${sx(0)} ${sy(anchor)} L ${sx(N)} ${sy(target)}`;
+
+        const gridYs = [0, 25, 50, 75, 100];
+        const xTicks = [0, 2, 5, 8, 10];
+
+        return `
+        <svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img"
+             aria-label="ตัวอย่างรูปทรง curve" preserveAspectRatio="xMidYMid meet">
+          <!-- grid -->
+          <g stroke="currentColor" stroke-opacity="0.08">
+            ${gridYs.map(v => `<line x1="${pL}" x2="${W-pR}" y1="${sy(v)}" y2="${sy(v)}"/>`).join('')}
+          </g>
+          <!-- Y tick labels -->
+          <g font-size="10" fill="currentColor" fill-opacity="0.55" text-anchor="end" font-family="var(--mono, monospace)">
+            ${gridYs.map(v => `<text x="${pL-6}" y="${sy(v)+3}">${v}</text>`).join('')}
+          </g>
+          <!-- anchor + target reference lines -->
+          <line x1="${pL}" x2="${W-pR}" y1="${sy(anchor)}" y2="${sy(anchor)}"
+                stroke="currentColor" stroke-opacity="0.35" stroke-dasharray="3 3"/>
+          <line x1="${pL}" x2="${W-pR}" y1="${sy(target)}" y2="${sy(target)}"
+                stroke="currentColor" stroke-opacity="0.35" stroke-dasharray="3 3"/>
+          <text x="${W-pR-4}" y="${sy(anchor)-4}" font-size="10" text-anchor="end"
+                fill="currentColor" fill-opacity="0.65">anchor 40%</text>
+          <text x="${W-pR-4}" y="${sy(target)-4}" font-size="10" text-anchor="end"
+                fill="currentColor" fill-opacity="0.65">target 80%</text>
+          <!-- Linear reference (skip when the curve IS linear) -->
+          ${curveKey !== 'linear'
+              ? `<path d="${linearPath}" stroke="currentColor" stroke-opacity="0.22"
+                       stroke-width="1.5" stroke-dasharray="5 4" fill="none"/>`
+              : ''}
+          <!-- Main curve -->
+          <path d="${curvePath}" stroke="${color}" stroke-width="2.5" fill="none"
+                stroke-linecap="round" stroke-linejoin="round"/>
+          <!-- endpoint dots -->
+          <circle cx="${sx(0)}" cy="${sy(anchor)}" r="3.5" fill="${color}"/>
+          <circle cx="${sx(N)}" cy="${sy(target)}" r="3.5" fill="${color}"/>
+          <!-- X ticks -->
+          <g font-size="10" fill="currentColor" fill-opacity="0.55" text-anchor="middle" font-family="var(--mono, monospace)">
+            ${xTicks.map(v => `<text x="${sx(v)}" y="${H-pB+14}">${v}</text>`).join('')}
+          </g>
+          <!-- axis titles -->
+          <text x="${pL + w/2}" y="${H-4}" font-size="10.5" text-anchor="middle"
+                fill="currentColor" fill-opacity="0.6">วัน (0 → N=10)</text>
+          <text x="12" y="${pT + h/2}" font-size="10.5" text-anchor="middle"
+                transform="rotate(-90 12 ${pT + h/2})"
+                fill="currentColor" fill-opacity="0.6">Eff (%)</text>
+          <!-- legend -->
+          ${curveKey !== 'linear' ? `
+          <g transform="translate(${pL+8}, ${pT+8})" font-size="10" fill="currentColor" fill-opacity="0.7">
+            <line x1="0" y1="6" x2="20" y2="6" stroke="${color}" stroke-width="2.5"/>
+            <text x="24" y="9">${curveKey}</text>
+            <line x1="70" y1="6" x2="90" y2="6" stroke="currentColor" stroke-opacity="0.35" stroke-dasharray="5 4" stroke-width="1.5"/>
+            <text x="94" y="9">linear (อ้างอิง)</text>
+          </g>` : ''}
+        </svg>`;
+    }
+
+    function renderTex(container, tex) {
+        if (window.katex && typeof window.katex.render === 'function') {
+            try {
+                window.katex.render(tex, container, { displayMode: true, throwOnError: false });
+                return;
+            } catch (_) { /* fall through */ }
+        }
+        // Fallback: show raw TeX in monospace
+        container.textContent = tex;
+        container.style.fontFamily = 'var(--mono)';
+    }
+
+    function open(key) {
+        const entry = LIB[key];
+        if (!entry) return;
+        titleEl.textContent = entry.title;
+        descEl.textContent  = entry.desc;
+        bodyEl.innerHTML    = '';
+
+        // Picker mode — grid of clickable cards that open sub-modals
+        if (entry.picker) {
+            const grid = document.createElement('div');
+            grid.className = 'curve-picker-grid';
+            entry.picker.forEach(card => {
+                const b = document.createElement('button');
+                b.type = 'button';
+                b.className = 'curve-picker-card';
+                b.innerHTML = `
+                    <div class="curve-picker-label">${card.label}</div>
+                    <div class="curve-picker-tag">${card.tag}</div>
+                    <div class="curve-picker-use">${card.use}</div>
+                    <div class="curve-picker-arrow">อ่านรายละเอียด →</div>
+                `;
+                b.addEventListener('click', () => open(card.key));
+                grid.appendChild(b);
+            });
+            bodyEl.appendChild(grid);
+            modal.style.display = 'block';
+            return;
+        }
+
+        // Curve preview chart — shown first so shape is immediate
+        if (entry.curveKey) {
+            const chartWrap = document.createElement('div');
+            chartWrap.className = 'formula-chart';
+            chartWrap.innerHTML = buildCurveChartSVG(entry.curveKey);
+            bodyEl.appendChild(chartWrap);
+        }
+
+        // Formulas section
+        if (entry.formulas && entry.formulas.length) {
+            const formulasWrap = document.createElement('div');
+            entry.formulas.forEach(f => {
+                const block = document.createElement('div');
+                block.className = 'formula-block';
+                const math = document.createElement('div');
+                renderTex(math, f.tex);
+                block.appendChild(math);
+                if (f.note) {
+                    const n = document.createElement('div');
+                    n.className = 'formula-note';
+                    n.textContent = f.note;
+                    block.appendChild(n);
+                }
+                formulasWrap.appendChild(block);
+            });
+            bodyEl.appendChild(formulasWrap);
+        }
+
+        // Custom named sections (used by curve-detail entries)
+        if (Array.isArray(entry.sections)) {
+            entry.sections.forEach(s => {
+                const sec = document.createElement('div');
+                sec.className = 'formula-section';
+                sec.innerHTML = `
+                    <p class="formula-section-title">${s.title}</p>
+                    <div class="formula-example">${s.html}</div>
+                `;
+                bodyEl.appendChild(sec);
+            });
+        }
+
+        // Legacy single-example section
+        if (entry.example) {
+            const sec = document.createElement('div');
+            sec.className = 'formula-section';
+            sec.innerHTML = `
+                <p class="formula-section-title">ตัวอย่าง</p>
+                <p class="formula-example">${entry.example}</p>
+            `;
+            bodyEl.appendChild(sec);
+        }
+
+        modal.style.display = 'block';
+    }
+
+    function close() { if (modal) modal.style.display = 'none'; }
+
+    // ── Wire triggers ────────────────────────────────────────────────────────
+    function bind() {
+        // Delegate on document so later-added .formula-help (e.g. re-rendered
+        // headers on language change) also work.
+        document.addEventListener('click', (e) => {
+            const trigger = e.target.closest('.formula-help[data-formula]');
+            if (!trigger) return;
+            e.preventDefault();
+            let key = trigger.dataset.formula;
+            // "curveModel" and "targetPct" are virtual keys — both route to the
+            // currently-selected curve's dedicated modal (which now includes the
+            // Target formula, progress() for that curve, and the anchor
+            // explanation). Falls back to the picker if nothing is selected.
+            if (key === 'curveModel' || key === 'targetPct') {
+                const sel = document.getElementById('curveModel') || document.getElementById('curveModelChart');
+                const val = sel && sel.value;
+                const map = { scurve:'curveScurve', log:'curveLog', power:'curvePower', linear:'curveLinear' };
+                key = map[val] || 'curvePicker';
+            }
+            open(key);
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && modal && modal.style.display === 'block') {
+                close();
+            }
+        });
+    }
+
+    function init() { buildModal(); bind(); }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+})();
+
+// ==================== Sticky Stopwatch Bar ====================
+// Detect when the sticky bar has actually "stuck" so we can beef up its shadow.
+// A 1px sentinel above the bar is watched with IntersectionObserver — cheaper
+// and jank-free vs. a scroll listener. Runs after DOMContentLoaded so the bar
+// exists in the DOM.
+(function initStickyStopwatch() {
+    function attach() {
+        const bar = document.querySelector('.stopwatch-bar');
+        if (!bar || !('IntersectionObserver' in window)) return;
+        const sentinel = document.createElement('div');
+        sentinel.setAttribute('aria-hidden', 'true');
+        sentinel.style.cssText = 'height:1px;margin-bottom:-1px;pointer-events:none;';
+        bar.parentNode.insertBefore(sentinel, bar);
+        new IntersectionObserver(
+            ([entry]) => bar.classList.toggle('is-stuck', !entry.isIntersecting),
+            { threshold: [0] }
+        ).observe(sentinel);
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', attach);
+    } else {
+        attach();
+    }
+})();
+
+// ==================== Pen Annotation Module ====================
+// Live-teaching overlay. Toggle with the pen button (bottom-right) or `P`.
+// Strokes are stored in document coordinates (pageX/pageY) so they stay pinned
+// to content as the page scrolls or the row table grows/shrinks.
+(function initPenModule() {
+    const SVG_NS = 'http://www.w3.org/2000/svg';
+    const TOOL_CFG = {
+        pen:         { defaultSize: 3,  opacity: 1    },
+        highlighter: { defaultSize: 16, opacity: 0.35 }
+    };
+
+    const state = {
+        on: false,
+        tool: 'pen',                 // 'pen' | 'highlighter' | 'eraser'
+        color: '#dc2626',
+        size: 3,
+        strokes: [],                 // {tool, color, size, opacity, points:[[x,y]…]}
+        current: null,
+        currentEl: null,
+        activePointerId: null,
+        lastSizeByTool: { pen: 3, highlighter: 16 },
+        collapsed: false             // iPad-style — palette hidden, puck shown
+    };
+    const TOOL_ICONS = { pen: 'pen-nib', highlighter: 'highlighter', eraser: 'eraser' };
+
+    let overlay, svg, toolbar, banner, sizeInput, puck;
+
+    // ── Puck (iPad-style collapsed indicator) ────────────────────────────────
+    function isLightColor(hex) {
+        // sRGB luminance heuristic — decides whether the pen-nib icon should
+        // be dark or white when painted on a colored puck background.
+        const h = hex.replace('#','');
+        const r = parseInt(h.slice(0,2), 16);
+        const g = parseInt(h.slice(2,4), 16);
+        const b = parseInt(h.slice(4,6), 16);
+        return (r * 299 + g * 587 + b * 114) / 1000 > 150;
+    }
+
+    function syncPuck() {
+        if (!puck) return;
+        const isEraser = state.tool === 'eraser';
+        // Eraser puck: white bg + dark icon (color doesn't apply to eraser).
+        // Pen/Highlighter puck: bg = current color, icon flips based on contrast.
+        puck.style.background = isEraser ? 'var(--surface)' : state.color;
+        puck.style.borderColor = isEraser ? 'var(--border-strong)' : state.color;
+        puck.style.color = isEraser
+            ? 'var(--ink)'
+            : (isLightColor(state.color) ? '#18181b' : '#ffffff');
+        const icon = puck.querySelector('i');
+        if (icon) icon.className = 'fa-solid fa-' + (TOOL_ICONS[state.tool] || 'pen-nib');
+    }
+
+    function setCollapsed(v) {
+        state.collapsed = !!v;
+        toolbar.classList.toggle('is-collapsed', state.collapsed);
+        if (state.collapsed) syncPuck();
+    }
+
+    // ── Build DOM ─────────────────────────────────────────────────────────────
+    function build() {
+        overlay = document.createElement('div');
+        overlay.id = 'penOverlay';
+        overlay.setAttribute('aria-hidden', 'true');
+        svg = document.createElementNS(SVG_NS, 'svg');
+        svg.id = 'penSvg';
+        svg.setAttribute('xmlns', SVG_NS);
+        overlay.appendChild(svg);
+        document.body.appendChild(overlay);
+
+        banner = document.createElement('div');
+        banner.id = 'penBanner';
+        banner.textContent = 'โหมดปากกา — กด Esc หรือปุ่มปากกาเพื่อออก';
+        document.body.appendChild(banner);
+
+        toolbar = document.createElement('div');
+        toolbar.id = 'penToolbar';
+        toolbar.innerHTML = `
+            <div id="penTools" role="toolbar" aria-label="Pen tools">
+                <div class="pen-drag-handle" id="penDragHandle" title="ลากเพื่อย้ายตำแหน่ง" aria-label="Drag toolbar">
+                    <i class="fa-solid fa-grip-vertical"></i>
+                </div>
+                <div class="pen-group">
+                    <button class="pen-btn pen-tool-btn is-active" data-tool="pen"         title="ปากกา"><i class="fa-solid fa-pen-nib"></i></button>
+                    <button class="pen-btn pen-tool-btn"           data-tool="highlighter" title="Highlighter"><i class="fa-solid fa-highlighter"></i></button>
+                    <button class="pen-btn pen-tool-btn"           data-tool="eraser"      title="ยางลบ (คลิกที่เส้น)"><i class="fa-solid fa-eraser"></i></button>
+                </div>
+                <div class="pen-group pen-colors">
+                    <button class="pen-btn pen-color-btn is-active" data-color="#dc2626" style="--c:#dc2626" title="แดง"></button>
+                    <button class="pen-btn pen-color-btn"           data-color="#2563eb" style="--c:#2563eb" title="น้ำเงิน"></button>
+                    <button class="pen-btn pen-color-btn"           data-color="#16a34a" style="--c:#16a34a" title="เขียว"></button>
+                    <button class="pen-btn pen-color-btn"           data-color="#18181b" style="--c:#18181b" title="ดำ"></button>
+                    <button class="pen-btn pen-color-btn"           data-color="#facc15" style="--c:#facc15" title="เหลือง"></button>
+                </div>
+                <div class="pen-group">
+                    <label class="pen-size" title="ขนาดหัวปากกา">
+                        <input type="range" id="penSize" min="1" max="32" value="3" aria-label="ขนาด">
+                    </label>
+                </div>
+                <div class="pen-group">
+                    <button class="pen-btn" id="penUndo"  title="ย้อนกลับ (Ctrl+Z)"><i class="fa-solid fa-rotate-left"></i></button>
+                    <button class="pen-btn" id="penClear" title="ล้างทั้งหมด"><i class="fa-solid fa-trash-can"></i></button>
+                </div>
+                <button class="pen-btn pen-collapse-btn" id="penCollapse" title="ยุบ (คลิก puck เพื่อขยาย)" aria-label="ยุบ toolbar">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            </div>
+            <button id="penPuck" class="pen-puck" title="คลิกเพื่อขยาย · ลากเพื่อย้าย" aria-label="Expand pen palette">
+                <i class="fa-solid fa-pen-nib"></i>
+            </button>
+            <button id="penToggle" class="pen-btn pen-toggle" title="เปิด/ปิด โหมดปากกา (P) · ลากเพื่อย้าย" aria-label="Toggle pen">
+                <i class="fa-solid fa-pen"></i>
+            </button>
+        `;
+        document.body.appendChild(toolbar);
+        sizeInput = toolbar.querySelector('#penSize');
+        puck = toolbar.querySelector('#penPuck');
+        syncPuck();
+    }
+
+    // ── Overlay sizing ────────────────────────────────────────────────────────
+    function updateOverlaySize() {
+        const w = Math.max(document.documentElement.scrollWidth,  window.innerWidth);
+        const h = Math.max(document.documentElement.scrollHeight, window.innerHeight);
+        overlay.style.width  = w + 'px';
+        overlay.style.height = h + 'px';
+        svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+        svg.setAttribute('width',  w);
+        svg.setAttribute('height', h);
+    }
+
+    // ── Mode toggle ──────────────────────────────────────────────────────────
+    function setPenMode(on) {
+        state.on = on;
+        document.body.classList.toggle('pen-mode-on', on);
+        overlay.classList.toggle('is-active', on);
+        banner.classList.toggle('is-visible', on);
+        if (on) {
+            updateOverlaySize();
+            // Always enter pen mode with the palette expanded, so users see all
+            // tools without hunting for the puck.
+            setCollapsed(false);
+        }
+    }
+
+    // ── Path building (quadratic-smoothed) ───────────────────────────────────
+    function pointsToPath(pts) {
+        if (!pts.length) return '';
+        if (pts.length === 1) {
+            const [x, y] = pts[0];
+            // draw a tiny dot so a single tap is visible
+            return `M ${x} ${y} l 0.01 0.01`;
+        }
+        let d = `M ${pts[0][0]} ${pts[0][1]}`;
+        for (let i = 1; i < pts.length - 1; i++) {
+            const [x0, y0] = pts[i];
+            const [x1, y1] = pts[i + 1];
+            const mx = (x0 + x1) / 2;
+            const my = (y0 + y1) / 2;
+            d += ` Q ${x0} ${y0} ${mx} ${my}`;
+        }
+        const last = pts[pts.length - 1];
+        d += ` L ${last[0]} ${last[1]}`;
+        return d;
+    }
+
+    function makePathEl(stroke, index) {
+        const p = document.createElementNS(SVG_NS, 'path');
+        p.setAttribute('d', pointsToPath(stroke.points));
+        p.setAttribute('stroke', stroke.color);
+        p.setAttribute('stroke-width', stroke.size);
+        p.setAttribute('fill', 'none');
+        p.setAttribute('stroke-linecap',  stroke.tool === 'highlighter' ? 'butt' : 'round');
+        p.setAttribute('stroke-linejoin', 'round');
+        p.setAttribute('opacity', stroke.opacity);
+        p.dataset.strokeIndex = index;
+        return p;
+    }
+
+    function redrawAll() {
+        while (svg.firstChild) svg.removeChild(svg.firstChild);
+        state.strokes.forEach((s, i) => svg.appendChild(makePathEl(s, i)));
+    }
+
+    // ── Drawing handlers ─────────────────────────────────────────────────────
+    function pos(e) { return [e.pageX, e.pageY]; }
+
+    function onPointerDown(e) {
+        if (!state.on) return;
+        if (state.tool === 'eraser') return;      // eraser uses click, not drag
+        if (e.button && e.button !== 0) return;   // ignore right/middle click
+        e.preventDefault();
+        const cfg = TOOL_CFG[state.tool] || TOOL_CFG.pen;
+        const stroke = {
+            tool: state.tool,
+            color: state.color,
+            size: state.size,
+            opacity: cfg.opacity,
+            points: [pos(e)]
+        };
+        state.current   = stroke;
+        state.currentEl = makePathEl(stroke, state.strokes.length);
+        state.strokes.push(stroke);
+        svg.appendChild(state.currentEl);
+        state.activePointerId = e.pointerId;
+        if (overlay.setPointerCapture) {
+            try { overlay.setPointerCapture(e.pointerId); } catch(_) {}
+        }
+    }
+
+    function onPointerMove(e) {
+        if (!state.on || !state.current) return;
+        if (state.activePointerId !== null && e.pointerId !== state.activePointerId) return;
+        e.preventDefault();
+        const events = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
+        for (const ev of events) state.current.points.push(pos(ev));
+        state.currentEl.setAttribute('d', pointsToPath(state.current.points));
+    }
+
+    function onPointerUp() {
+        state.current = null;
+        state.currentEl = null;
+        state.activePointerId = null;
+    }
+
+    // Eraser: click a stroke to delete it. `pointer-events:stroke` on paths
+    // (set via body.pen-tool-eraser CSS) makes only the stroke line clickable.
+    function onOverlayClick(e) {
+        if (!state.on || state.tool !== 'eraser') return;
+        const t = e.target;
+        if (t && t.tagName === 'path' && t.dataset.strokeIndex !== undefined) {
+            const idx = parseInt(t.dataset.strokeIndex, 10);
+            state.strokes.splice(idx, 1);
+            redrawAll();
+        }
+    }
+
+    // ── Toolbar actions ──────────────────────────────────────────────────────
+    function undo() {
+        if (!state.strokes.length) return;
+        state.strokes.pop();
+        redrawAll();
+    }
+    function clearAll() {
+        if (!state.strokes.length) return;
+        state.strokes = [];
+        redrawAll();
+    }
+    function selectTool(tool) {
+        // remember previous size per tool so switching feels natural
+        state.lastSizeByTool[state.tool] = state.size;
+        state.tool = tool;
+        toolbar.querySelectorAll('.pen-tool-btn').forEach(b => {
+            b.classList.toggle('is-active', b.dataset.tool === tool);
+        });
+        document.body.classList.toggle('pen-tool-eraser', tool === 'eraser');
+        if (tool === 'highlighter' || tool === 'pen') {
+            const remembered = state.lastSizeByTool[tool] || TOOL_CFG[tool].defaultSize;
+            state.size = remembered;
+            sizeInput.value = remembered;
+        }
+        syncPuck();
+    }
+    function selectColor(color) {
+        state.color = color;
+        toolbar.querySelectorAll('.pen-color-btn').forEach(b => {
+            b.classList.toggle('is-active', b.dataset.color === color);
+        });
+        // choosing a color while in eraser mode implies switching back to pen
+        if (state.tool === 'eraser') selectTool('pen');
+        syncPuck();
+    }
+
+    // ── Wiring ───────────────────────────────────────────────────────────────
+    function bind() {
+        // pen-toggle click is wired via attachDrag (in wireDrag) so the same
+        // button can also be dragged to reposition the whole toolbar.
+        toolbar.querySelectorAll('.pen-tool-btn').forEach(b => {
+            b.addEventListener('click', () => selectTool(b.dataset.tool));
+        });
+        toolbar.querySelectorAll('.pen-color-btn').forEach(b => {
+            b.addEventListener('click', () => selectColor(b.dataset.color));
+        });
+        sizeInput.addEventListener('input', e => {
+            state.size = parseInt(e.target.value, 10) || 1;
+        });
+        toolbar.querySelector('#penUndo').addEventListener('click', undo);
+        toolbar.querySelector('#penClear').addEventListener('click', clearAll);
+        toolbar.querySelector('#penCollapse').addEventListener('click', () => setCollapsed(true));
+
+        // Draggable toolbar via the grip handle. Stores position in
+        // localStorage so it survives reloads. Clamps to viewport on drop
+        // and on window resize so it never lands off-screen.
+        wireDrag();
+
+        overlay.addEventListener('pointerdown',   onPointerDown);
+        overlay.addEventListener('pointermove',   onPointerMove);
+        overlay.addEventListener('pointerup',     onPointerUp);
+        overlay.addEventListener('pointercancel', onPointerUp);
+        overlay.addEventListener('click',         onOverlayClick);
+
+        window.addEventListener('resize', updateOverlaySize);
+        if (window.ResizeObserver) {
+            new ResizeObserver(updateOverlaySize).observe(document.body);
+        }
+
+        document.addEventListener('keydown', e => {
+            const t = e.target;
+            const inField = t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable);
+            if (!inField && !e.ctrlKey && !e.metaKey && !e.altKey && (e.key === 'p' || e.key === 'P')) {
+                setPenMode(!state.on);
+                e.preventDefault();
+                return;
+            }
+            if (state.on) {
+                if (e.key === 'Escape') { setPenMode(false); }
+                else if ((e.ctrlKey || e.metaKey) && (e.key === 'z' || e.key === 'Z')) {
+                    undo(); e.preventDefault();
+                }
+            }
+        });
+    }
+
+    // ── Drag-to-move the toolbar ─────────────────────────────────────────────
+    // Position is intentionally NOT persisted — the toolbar always resets to
+    // its CSS default (bottom-left) on refresh. In-session drags still work.
+    let dragState = null;
+
+    function applyToolbarPos(x, y) {
+        // Positioning with top/left overrides the default bottom/left anchor.
+        toolbar.style.left   = x + 'px';
+        toolbar.style.top    = y + 'px';
+        toolbar.style.right  = 'auto';
+        toolbar.style.bottom = 'auto';
+    }
+
+    function clampToViewport(x, y) {
+        const rect = toolbar.getBoundingClientRect();
+        const maxX = window.innerWidth  - rect.width  - 4;
+        const maxY = window.innerHeight - rect.height - 4;
+        return [
+            Math.max(4, Math.min(x, maxX)),
+            Math.max(4, Math.min(y, maxY))
+        ];
+    }
+
+    // Attach drag behavior to a handle element. If `onClick` is given, fires
+    // it when the pointer barely moved (< 4px) — the puck uses this to expand
+    // on tap, so tap-vs-drag are cleanly separated on the same element.
+    function attachDrag(handle, onClick) {
+        if (!handle) return;
+        const DRAG_THRESHOLD = 4;
+        let localDidMove = false;
+
+        handle.addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            const rect = toolbar.getBoundingClientRect();
+            dragState = {
+                pointerId: e.pointerId,
+                dx: e.clientX - rect.left,
+                dy: e.clientY - rect.top,
+                startX: e.clientX,
+                startY: e.clientY
+            };
+            localDidMove = false;
+            handle.setPointerCapture(e.pointerId);
+        });
+
+        handle.addEventListener('pointermove', (e) => {
+            if (!dragState || e.pointerId !== dragState.pointerId) return;
+            if (!localDidMove) {
+                const adx = Math.abs(e.clientX - dragState.startX);
+                const ady = Math.abs(e.clientY - dragState.startY);
+                if (adx + ady < DRAG_THRESHOLD) return;
+                localDidMove = true;
+                toolbar.classList.add('is-dragging');
+            }
+            const [x, y] = clampToViewport(e.clientX - dragState.dx, e.clientY - dragState.dy);
+            applyToolbarPos(x, y);
+        });
+
+        const end = (e) => {
+            if (!dragState || e.pointerId !== dragState.pointerId) return;
+            const wasDrag = localDidMove;
+            dragState = null;
+            toolbar.classList.remove('is-dragging');
+            if (!wasDrag && onClick) onClick();
+            // No persistence — refresh resets to CSS default (bottom-left).
+        };
+        handle.addEventListener('pointerup',     end);
+        handle.addEventListener('pointercancel', end);
+    }
+
+    function wireDrag() {
+        // Grip handle inside the expanded palette — drag only, no click action.
+        attachDrag(toolbar.querySelector('#penDragHandle'));
+        // Puck (collapsed state) — drag OR click-to-expand.
+        attachDrag(toolbar.querySelector('#penPuck'), () => setCollapsed(false));
+        // Pen-toggle (always visible) — drag OR click-to-toggle-pen-mode.
+        // This lets users reposition the entry button even when pen mode is off.
+        attachDrag(toolbar.querySelector('#penToggle'), () => setPenMode(!state.on));
+
+        // On viewport resize, re-clamp so the toolbar doesn't get stranded off-screen
+        window.addEventListener('resize', () => {
+            if (toolbar.style.left) {
+                const rect = toolbar.getBoundingClientRect();
+                const [x, y] = clampToViewport(rect.left, rect.top);
+                applyToolbarPos(x, y);
+            }
+        });
+    }
+
+    function init() { build(); bind(); updateOverlaySize(); }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+})();

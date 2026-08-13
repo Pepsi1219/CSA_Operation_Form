@@ -118,7 +118,7 @@
                 <input type="text" id="header_trainer">
             </div>
             <div class="field">
-                <label data-i18n="lblSam">SAM (นาที / วินาที)</label>
+                <label class="formula-help" data-formula="sam" data-i18n="lblSam" title="คลิกเพื่อดูสูตร">SAM (นาที / วินาที)</label>
                 <div class="field-inline">
                     <input type="number" id="globalSam" step="0.001" inputmode="decimal" oninput="syncSam('min')" aria-label="SAM (นาที)" placeholder="นาที">
                     <span class="field-inline-sep">/</span>
@@ -134,7 +134,7 @@
                 </div>
             </div>
             <div class="field">
-                <label data-i18n="lblTargets">เป้าหมาย (Eff % / Q'ty ชิ้น/ชม.)</label>
+                <label class="formula-help" data-formula="globalTarget" data-i18n="lblTargets" title="คลิกเพื่อดูสูตร">เป้าหมาย (Eff % / Q'ty ชิ้น/ชม.)</label>
                 <div class="field-inline">
                     <input type="number" id="globalEffTarget" inputmode="numeric" oninput="calculateAdaptiveGoals()" aria-label="เป้าหมาย Eff (%)" placeholder="%">
                     <span class="field-inline-sep">/</span>
@@ -152,7 +152,7 @@
                 </div>
             </div>
             <div class="field">
-                <label data-i18n="lblCurveModel">รูปแบบแผนการฝึก</label>
+                <label class="formula-help" data-formula="curveModel" data-i18n="lblCurveModel" title="คลิกเพื่อดูรายละเอียดรูปแบบ curve">รูปแบบแผนการฝึก</label>
                 <select id="curveModel" onchange="onCurveModelMainChange()" onfocus="showCurveHint('curveHint')">
                     <option value="" disabled selected></option>
                     <option value="scurve" data-i18n="curveScurve">S-Curve (ค่อย ๆ เร่ง แล้วชะลอ)</option>
@@ -216,15 +216,15 @@
                         <th rowspan="2" data-i18n="thSignature">ลายเซ็น</th>
                     </tr>
                     <tr>
-                        <th class="header-wrap" data-i18n-html="thTargetPct">เป้า<br>หมาย<br>(%)</th>
-                        <th class="header-wrap" data-i18n-html="thTargetPcs">เป้า<br>หมาย<br>(ชิ้น)</th>
-                        <th class="header-wrap" data-i18n-html="thAvgSec">เวลา<br>เฉลี่ย<br>(วินาที)</th>
-                        <th class="header-wrap" data-i18n-html="thCycleMin">เวลา<br>ต่อรอบ<br>(นาที)</th>
-                        <th class="header-wrap" data-i18n-html="thEffPct">ประสิทธิ<br>ภาพ<br>(%)</th>
-                        <th class="header-wrap" data-i18n-html="thEffPcs">ประสิทธิ<br>ภาพ<br>(ชิ้น)</th>
+                        <th class="header-wrap formula-help" data-formula="targetPct" data-i18n-html="thTargetPct" title="คลิกเพื่อดูสูตร">เป้า<br>หมาย<br>(%)</th>
+                        <th class="header-wrap formula-help" data-formula="targetQty" data-i18n-html="thTargetPcs" title="คลิกเพื่อดูสูตร">เป้า<br>หมาย<br>(ชิ้น)</th>
+                        <th class="header-wrap formula-help" data-formula="avgSec" data-i18n-html="thAvgSec" title="คลิกเพื่อดูสูตร">เวลา<br>เฉลี่ย<br>(วินาที)</th>
+                        <th class="header-wrap formula-help" data-formula="cycleMin" data-i18n-html="thCycleMin" title="คลิกเพื่อดูสูตร">เวลา<br>ต่อรอบ<br>(นาที)</th>
+                        <th class="header-wrap formula-help" data-formula="effPct" data-i18n-html="thEffPct" title="คลิกเพื่อดูสูตร">ประสิทธิ<br>ภาพ<br>(%)</th>
+                        <th class="header-wrap formula-help" data-formula="effPcs" data-i18n-html="thEffPcs" title="คลิกเพื่อดูสูตร">ประสิทธิ<br>ภาพ<br>(ชิ้น)</th>
                         <th class="quality-col"><span class="vertical-text" data-i18n="thPass">ผ่าน</span></th>
                         <th class="quality-col"><span class="vertical-text" data-i18n="thFail">ไม่ผ่าน</span></th>
-                        <th class="quality-col"><span class="vertical-text" data-i18n="thPassRate">อัตราผ่าน %</span></th>
+                        <th class="quality-col formula-help" data-formula="passRate" title="คลิกเพื่อดูสูตร"><span class="vertical-text" data-i18n="thPassRate">อัตราผ่าน %</span></th>
                         <th class="cause-col"><span class="vertical-text" data-i18n="thMan">คน</span></th>
                         <th class="cause-col"><span class="vertical-text" data-i18n="thMachine">เครื่อง</span></th>
                         <th class="cause-col"><span class="vertical-text" data-i18n="thMethod">วิธีการ</span></th>
@@ -258,7 +258,7 @@
             <!-- แถบควบคุมกราฟ (ทุกอย่างบรรทัดเดียว): Model + Target + Duration + SAM -->
             <div class="chart-param-bar">
                 <div class="chart-param chart-param-model">
-                    <label for="curveModelChart" data-i18n="lblCurveModel">รูปแบบแผนการฝึก</label>
+                    <label for="curveModelChart" class="formula-help" data-formula="curveModel" data-i18n="lblCurveModel" title="คลิกเพื่อดูรายละเอียดรูปแบบ curve">รูปแบบแผนการฝึก</label>
                     <select id="curveModelChart" onchange="onCurveModelChartChange()" onfocus="showCurveHint('curveHintChart')">
                         <option value="" disabled selected></option>
                         <option value="scurve" data-i18n="curveScurve">S-Curve (ค่อย ๆ เร่ง แล้วชะลอ)</option>

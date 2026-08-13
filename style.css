@@ -160,6 +160,14 @@ body{
 :focus-visible{outline:none; box-shadow:var(--focus); border-radius:var(--r-chip)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important; animation:none!important}}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+
+/* Hide scrollbars globally — content still scrolls, just no visible bar.
+   Applies to page, table wrappers, modals, chart canvas parents, textareas, etc. */
+*{ scrollbar-width:none; -ms-overflow-style:none; }
+*::-webkit-scrollbar{ width:0 !important; height:0 !important; display:none !important; background:transparent !important; }
+*::-webkit-scrollbar-track,
+*::-webkit-scrollbar-thumb,
+*::-webkit-scrollbar-corner{ background:transparent !important; }
 .mono, .font-bold{font-family:var(--mono); font-variant-numeric:tabular-nums}
 .font-bold{font-weight:600}
 .text, .text-title-color{color:var(--ink)}
@@ -300,7 +308,9 @@ body{
 .curve-hint-floating{
   position:fixed;
   max-width:min(420px, calc(100vw - 16px));
-  z-index:150;
+  /* Above sticky .stopwatch-bar (50) so the hint drops down over it,
+     still below modals (100) and pen overlay (1150). */
+  z-index:90;
   box-shadow:var(--shadow-modal);
 }
 
@@ -311,6 +321,17 @@ body{
   padding:var(--sp-3) var(--sp-4);
   background:var(--surface); border:1px solid var(--border);
   border-radius:var(--r-card); box-shadow:var(--shadow-card);
+  /* Pinned to top while scrolling so Start/Stop/Save + timer stay reachable
+     during long training-day tables. Sticky (not fixed) keeps it in flow so
+     it doesn't overlap sibling cards when the header is visible. Low z-index
+     (above table content 0, below .modal 100) so open modals still cover it. */
+  position:sticky; top:0; z-index:50;
+}
+/* Give the stuck state a stronger shadow so it visually separates from the
+   table rows scrolling underneath. */
+.stopwatch-bar.is-stuck{
+  box-shadow:0 4px 12px rgba(24,24,27,.10), 0 1px 3px rgba(24,24,27,.06);
+  border-top-left-radius:0; border-top-right-radius:0;
 }
 .control-group-left, .control-group-right{
   display:flex; align-items:center; gap:var(--sp-2); flex-wrap:wrap;
@@ -658,4 +679,282 @@ footer hr{
   .btn, .numpad-btn{min-height:40px}
   .report-table tbody td{height:44px}
   .report-table tbody td input{min-height:44px; font-size:14px}
+}
+
+/* ============================================================================
+   FORMULA HELP — clickable labels/headers open a modal explaining the math
+   ========================================================================== */
+/* Base — only affects cursor + text color, never touches display so it can be
+   applied to any element (label, th, span) without breaking its layout. */
+.formula-help{ cursor:help; transition:color .12s ease }
+.formula-help:hover{ color:var(--ink) }
+
+/* Pill "?" badge for <label>s — inline-flex is safe here. */
+label.formula-help{ display:inline-flex; align-items:center; gap:4px }
+label.formula-help::after{
+  content:"?";
+  display:inline-flex; align-items:center; justify-content:center;
+  width:14px; height:14px;
+  border-radius:50%;
+  background:var(--surface-sunk); color:var(--ink-3);
+  border:1px solid var(--border-strong);
+  font-size:9px; font-weight:700; font-family:var(--sans); line-height:1;
+  transition:background .12s ease, color .12s ease, border-color .12s ease;
+}
+label.formula-help:hover::after{
+  background:var(--ink); color:#fff; border-color:var(--ink);
+}
+
+/* For table headers, keep display:table-cell (NEVER change) — hint via a tiny
+   dot in the top-right corner using an absolutely-positioned pseudo. Purely
+   visual, zero layout impact, survives data-i18n-html re-renders. */
+th.formula-help{ position:relative }
+th.formula-help:hover{ background:var(--surface-sunk) }
+th.formula-help::after{
+  content:"";
+  position:absolute; top:4px; right:4px;
+  width:6px; height:6px; border-radius:50%;
+  background:var(--ink-3); opacity:.4;
+  transition:opacity .12s ease, background .12s ease, transform .12s ease;
+}
+th.formula-help:hover::after{ opacity:1; background:var(--ink); transform:scale(1.4) }
+
+/* Formula modal */
+#formulaModal .modal-content{
+  max-width:min(920px, 95vw); padding:28px 32px;
+}
+.formula-modal-title{
+  margin:0 0 4px 0;
+  font-size:var(--t-h1); font-weight:600; color:var(--ink);
+}
+.formula-modal-sub{
+  margin:0 0 16px 0;
+  font-size:var(--t-body); color:var(--ink-3); line-height:1.55;
+}
+.formula-block{
+  background:var(--surface-sunk); border:1px solid var(--border);
+  border-radius:var(--r-cell); padding:14px 16px; margin:10px 0;
+  overflow-x:auto;
+}
+/* SVG curve preview — shown at the top of curve-detail modals */
+.formula-chart{
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--r-cell); padding:10px 14px; margin:4px 0 12px;
+  color:var(--ink);   /* SVG uses currentColor for grid/labels */
+}
+.formula-chart svg{
+  display:block; width:100%; height:auto; max-height:240px;
+}
+.formula-block .katex-display{ margin:.2em 0 }
+.formula-note{
+  font-size:var(--t-label); color:var(--ink-3); margin:6px 2px 0;
+}
+.formula-section{
+  margin-top:18px; padding-top:14px; border-top:1px dashed var(--border);
+}
+.formula-section-title{
+  font-size:var(--t-label); font-weight:600; color:var(--ink-2);
+  text-transform:uppercase; letter-spacing:.06em;
+  margin:0 0 6px 0;
+}
+.formula-example{
+  font-size:var(--t-body); color:var(--ink-2); line-height:1.65;
+}
+.formula-example code{
+  background:var(--surface-sunk); padding:1px 6px; border-radius:4px;
+  font-family:var(--mono); font-size:12px; color:var(--ink);
+}
+
+/* Curve picker — 2×2 grid of clickable cards inside the formula modal */
+.curve-picker-grid{
+  display:grid; grid-template-columns:1fr 1fr; gap:10px;
+  margin-top:4px;
+}
+.curve-picker-card{
+  display:flex; flex-direction:column; align-items:flex-start; gap:4px;
+  text-align:left; padding:14px 16px;
+  background:var(--surface); color:var(--ink);
+  border:1px solid var(--border-strong); border-radius:var(--r-cell);
+  cursor:pointer; font-family:inherit;
+  transition:transform .12s ease, border-color .12s ease, background .12s ease, box-shadow .12s ease;
+}
+.curve-picker-card:hover{
+  border-color:var(--ink); background:var(--surface-sunk);
+  transform:translateY(-1px); box-shadow:var(--shadow-card);
+}
+.curve-picker-label{ font-size:var(--t-data); font-weight:600 }
+.curve-picker-tag{
+  font-size:var(--t-label); font-weight:500; color:var(--ink-2);
+  background:var(--surface-sunk); padding:2px 8px; border-radius:var(--r-pill);
+  border:1px solid var(--border);
+}
+.curve-picker-use{ font-size:var(--t-label); color:var(--ink-3); line-height:1.5 }
+.curve-picker-arrow{
+  margin-top:auto; padding-top:4px;
+  font-size:var(--t-label); font-weight:600; color:var(--ink-2);
+}
+.curve-picker-card:hover .curve-picker-arrow{ color:var(--ink) }
+
+@media (max-width:520px){
+  .curve-picker-grid{ grid-template-columns:1fr }
+}
+
+/* ============================================================================
+   PEN ANNOTATION MODULE — presentation/teaching overlay
+   • #penOverlay covers the entire document (absolute in <body>, grows with content).
+     pointer-events flip only when pen mode is ON, so the form is untouched otherwise.
+   • #penToolbar is fixed bottom-right; collapsed = just the toggle. Expanded shows
+     tools/colors/size/undo/clear. z-index above modals so annotations & controls
+     stay reachable even when a modal is open.
+   ========================================================================== */
+#penOverlay{
+  position:absolute; top:0; left:0;
+  pointer-events:none;       /* transparent to clicks unless active */
+  z-index:1150;              /* above modals (100), below toolbar (1200) */
+  touch-action:auto;
+}
+#penOverlay.is-active{
+  pointer-events:auto;
+  cursor:crosshair;
+  touch-action:none;         /* stop touch-scroll while drawing */
+}
+body.pen-tool-eraser #penOverlay.is-active{ cursor:cell }
+#penSvg{ display:block; width:100%; height:100%; overflow:visible }
+#penSvg path{ pointer-events:none }               /* default: click-through */
+body.pen-tool-eraser #penSvg path{ pointer-events:stroke; cursor:pointer }
+
+#penBanner{
+  position:fixed; top:12px; left:50%; transform:translate(-50%,-140%);
+  background:rgba(24,24,27,.92); color:#fff;
+  padding:6px 14px; border-radius:var(--r-pill);
+  font-size:var(--t-label); font-weight:600; letter-spacing:.4px;
+  box-shadow:var(--shadow-modal);
+  z-index:1201; pointer-events:none;
+  transition:transform .18s ease;
+}
+#penBanner.is-visible{ transform:translate(-50%,0) }
+
+#penToolbar{
+  position:fixed; bottom:16px; left:16px;   /* default = bottom-LEFT; refresh resets here */
+  display:flex; align-items:center; gap:6px;
+  z-index:1200; user-select:none;
+  /* smooth position updates during programmatic clamps; disabled while dragging */
+  transition:box-shadow .15s ease;
+}
+#penToolbar.is-dragging{ transition:none }
+#penToolbar.is-dragging #penTools{
+  box-shadow:0 8px 24px rgba(24,24,27,.20), 0 2px 6px rgba(24,24,27,.10);
+}
+
+/* Drag grip — sits at the left of #penTools when pen mode is on */
+.pen-drag-handle{
+  display:inline-flex; align-items:center; justify-content:center;
+  width:20px; height:32px;
+  color:var(--ink-3); cursor:grab;
+  touch-action:none;   /* prevent touch-scroll while dragging */
+  transition:color .12s ease;
+}
+.pen-drag-handle:hover{ color:var(--ink) }
+.pen-drag-handle:active,
+#penToolbar.is-dragging .pen-drag-handle{ cursor:grabbing; color:var(--ink) }
+
+/* Collapse chevron — sits at the right of #penTools */
+.pen-collapse-btn{
+  width:26px; height:32px; padding:0;
+  border:none; background:transparent;
+  color:var(--ink-3); box-shadow:none;
+}
+.pen-collapse-btn:hover{ background:var(--surface-sunk); color:var(--ink) }
+
+/* Puck — iPad-style collapsed indicator. Same footprint as pen-toggle. */
+.pen-puck{
+  display:none;                       /* revealed by #penToolbar.is-collapsed */
+  width:44px; height:44px; padding:0;
+  align-items:center; justify-content:center;
+  border-radius:var(--r-pill);
+  border:2px solid var(--ink);
+  background:var(--ink); color:#fff;
+  font-size:16px; cursor:grab;
+  box-shadow:var(--shadow-modal);
+  touch-action:none;                  /* pointer drag doesn't scroll */
+  transition:box-shadow .15s ease;
+}
+.pen-puck:hover{ box-shadow:0 4px 14px rgba(24,24,27,.22) }
+.pen-puck:active,
+#penToolbar.is-dragging .pen-puck{ cursor:grabbing }
+
+/* Collapsed state: hide the full palette, show the puck. */
+body.pen-mode-on #penToolbar.is-collapsed #penTools{ display:none }
+body.pen-mode-on #penToolbar.is-collapsed .pen-puck{ display:inline-flex }
+.pen-btn{
+  width:36px; height:36px; padding:0;
+  display:inline-flex; align-items:center; justify-content:center;
+  background:var(--surface); color:var(--ink);
+  border:1px solid var(--border-strong); border-radius:var(--r-chip);
+  box-shadow:var(--shadow-card);
+  cursor:pointer; font-size:14px;
+  transition:transform .1s ease, background .12s ease, border-color .12s ease;
+}
+.pen-btn:hover{ background:var(--surface-sunk) }
+.pen-btn:active{ transform:translateY(1px) }
+.pen-btn.is-active{
+  background:var(--ink); color:#fff; border-color:var(--ink);
+}
+.pen-toggle{
+  width:44px; height:44px; border-radius:var(--r-pill);
+  font-size:16px;
+  cursor:grab;                       /* draggable — click still works via attachDrag */
+  touch-action:none;                 /* pointer drag doesn't scroll on touch */
+}
+.pen-toggle:active,
+#penToolbar.is-dragging .pen-toggle{ cursor:grabbing }
+body.pen-mode-on .pen-toggle{
+  background:var(--red); color:#fff; border-color:var(--red);
+}
+
+#penTools{
+  display:none;
+  align-items:center; gap:6px;
+  padding:6px; background:var(--surface);
+  border:1px solid var(--border-strong); border-radius:var(--r-pill);
+  box-shadow:var(--shadow-modal);
+}
+body.pen-mode-on #penTools{ display:inline-flex }
+
+.pen-group{
+  display:inline-flex; align-items:center; gap:4px;
+  padding:0 4px;
+  border-right:1px solid var(--border);
+}
+.pen-group:last-child{ border-right:none }
+
+.pen-colors .pen-btn{
+  width:26px; height:26px; border-radius:50%;
+  background:var(--c, #000);
+  border:2px solid var(--surface);
+  box-shadow:0 0 0 1px var(--border-strong);
+  padding:0;
+}
+.pen-colors .pen-btn.is-active{
+  box-shadow:0 0 0 2px var(--ink);
+  transform:scale(1.08);
+}
+
+.pen-size{ display:inline-flex; align-items:center; padding:0 6px }
+.pen-size input[type=range]{
+  width:90px; accent-color:var(--ink); cursor:pointer;
+}
+
+@media (max-width:640px){
+  .pen-size input[type=range]{ width:60px }
+  #penTools{ flex-wrap:wrap; max-width:calc(100vw - 96px) }
+}
+
+/* Dark theme adjustments — pen-colors need a light ring so black doesn't vanish */
+[data-theme="dark"] .pen-colors .pen-btn{
+  border-color:var(--surface);
+  box-shadow:0 0 0 1px var(--border-strong);
+}
+[data-theme="dark"] .pen-colors .pen-btn.is-active{
+  box-shadow:0 0 0 2px #fff;
 }
