@@ -156,6 +156,14 @@ body{
   margin:0; background:var(--bg); color:var(--ink);
   font-family:var(--sans); font-size:var(--t-body); line-height:1.45;
   font-feature-settings:"cv05","ss01","tnum"; -webkit-font-smoothing:antialiased;
+  /* Zoom prevention — pairs with the viewport meta and JS gesture blockers.
+     `manipulation` disables double-tap zoom while still allowing scroll. */
+  touch-action:manipulation;
+  -webkit-text-size-adjust:100%;     /* stop iOS Safari auto-inflating body text */
+  overscroll-behavior:none;          /* no bounce → keeps sticky bar behaving  */
+}
+button, a, [role="button"], input[type="button"], input[type="submit"]{
+  touch-action:manipulation;
 }
 :focus-visible{outline:none; box-shadow:var(--focus); border-radius:var(--r-chip)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important; animation:none!important}}
@@ -660,25 +668,63 @@ footer hr{
   }
   .chart-param-model{grid-column:span 2}
 }
+
+/* Tablet (portrait, ~iPad) ── */
 @media (max-width:900px){
   .form-header{grid-template-columns:repeat(2, 1fr)}
+  .report-container{padding:var(--sp-4) var(--sp-3) 48px; gap:var(--sp-3)}
+  .stopwatch-bar{padding:var(--sp-3)}
+  .modal-content{max-width:min(720px, 95vw); padding:var(--sp-5)}
+  .chart-modal-content{max-width:96vw; padding:var(--sp-4)}
 }
+
+/* Small tablet / large phone ── */
 @media (max-width:680px){
   .report-title{font-size:16px}
-  .system-controls{gap:var(--sp-1)}
+  .system-controls{gap:var(--sp-1); flex-wrap:wrap; justify-content:flex-end}
+  .report-header-wrapper{gap:var(--sp-2)}
   .form-header{grid-template-columns:1fr}
   .quick-entry-grid{grid-template-columns:1fr}
-  .timer-display{min-width:100px; font-size:18px}
+  .timer-display{min-width:96px; font-size:18px}
   .action-buttons-group .btn{width:36px}
   .chart-param-bar{grid-template-columns:1fr}
   .chart-param-model{grid-column:auto}
+  /* Stopwatch: let flex-wrap do its thing (already on the base rule) but
+     center rows when they wrap so it looks intentional instead of ragged */
+  .stopwatch-bar{gap:var(--sp-2); justify-content:center}
+  .control-group-left, .control-group-right{justify-content:center}
+  .modal-content{padding:var(--sp-4); border-radius:var(--r-cell)}
+  #formulaModal .modal-content{padding:var(--sp-4)}
+  .formula-modal-title{font-size:15px}
+  .curve-picker-grid{grid-template-columns:1fr}
 }
 
-/* Slightly larger touch targets in coarse-pointer contexts (tablets, kiosks) */
+/* Phone ── */
+@media (max-width:480px){
+  :root{ --t-body:14px; --t-data:15px }   /* bump body text for readability */
+  .report-container{padding:var(--sp-3) var(--sp-2) 40px}
+  .report-title{font-size:15px}
+  .action-buttons-group{gap:var(--sp-1)}
+  .action-buttons-group .btn{width:34px; height:34px}
+  .timer-display{font-size:16px; min-width:88px}
+  /* Pen toolbar shouldn't span the full width — keep it compact */
+  #penTools{max-width:calc(100vw - 24px)}
+  .pen-btn{width:34px; height:34px}
+  .pen-toggle, .pen-puck{width:42px; height:42px}
+  /* Modal takes most of the screen */
+  .modal-content{max-width:98vw; max-height:94vh; padding:var(--sp-3) var(--sp-4)}
+  .formula-block{padding:10px 12px}
+  .formula-example{font-size:13px}
+}
+
+/* iOS auto-zoom on focus fires whenever a form field's rendered font-size
+   is < 16px. Force ≥16px on ALL inputs in coarse-pointer contexts (touch
+   devices) so the browser leaves the zoom level alone. */
 @media (pointer:coarse){
   .btn, .numpad-btn{min-height:40px}
   .report-table tbody td{height:44px}
-  .report-table tbody td input{min-height:44px; font-size:14px}
+  input, select, textarea,
+  .report-table tbody td input{font-size:16px !important; min-height:44px}
 }
 
 /* ============================================================================

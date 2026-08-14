@@ -2578,6 +2578,38 @@ document.addEventListener('keydown', function(event) {
     }
 });
 
+// ==================== Zoom Prevention ====================
+// iOS Safari ignores viewport `user-scalable=no`, so we also block the
+// gesture events at the JS layer. Covers pinch-to-zoom, double-tap zoom,
+// and Ctrl/⌘ + wheel/plus/minus keyboard zoom on desktop browsers.
+(function preventZoom() {
+    // iOS gesture events (pinch)
+    ['gesturestart', 'gesturechange', 'gestureend'].forEach(ev => {
+        document.addEventListener(ev, e => e.preventDefault(), { passive: false });
+    });
+
+    // Multi-touch pinch on touch devices that don't fire gesture events
+    document.addEventListener('touchmove', (e) => {
+        if (e.touches && e.touches.length > 1) e.preventDefault();
+    }, { passive: false });
+
+    // Double-tap zoom is handled by CSS `touch-action:manipulation` on body +
+    // interactive elements. No JS touchend swallow needed here — that approach
+    // was flaky (ate rapid legit taps like number-stepper +/- clicks).
+
+    // Ctrl/⌘ + wheel zoom (desktop)
+    window.addEventListener('wheel', (e) => {
+        if (e.ctrlKey || e.metaKey) e.preventDefault();
+    }, { passive: false });
+
+    // Ctrl/⌘ + (+ / − / 0) keyboard zoom (desktop)
+    window.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && ['+', '-', '=', '0'].includes(e.key)) {
+            e.preventDefault();
+        }
+    });
+})();
+
 // ==================== Formula Help Modal ====================
 // Click a labeled field / column header (.formula-help[data-formula="…"]) to
 // open a modal that explains the calculation. Uses KaTeX (already loaded from
