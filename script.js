@@ -983,8 +983,23 @@ function getRowCount() {
 function getTargetRowCount() {
     const raw = document.getElementById('trainingDays')?.value;
     const n = parseInt(raw, 10);
-    if (!Number.isFinite(n) || n <= 0) return DEFAULT_ROW_COUNT;
-    return Math.max(MIN_ROW_COUNT, Math.min(MAX_ROW_COUNT, n));
+    const base = (!Number.isFinite(n) || n <= 0) ? DEFAULT_ROW_COUNT : n;
+    // QCO: trainingDays = "N วันหลังจากผลจริงล่าสุด" → ตารางต้องขยายเป็น anchor + N
+    // CSA: trainingDays = ระยะเวลารวมทั้งหมด → ตารางเท่ากับ N (เดิม)
+    let target = base;
+    if (document.getElementById('trainerType')?.value === 'QCO') {
+        target = findLastActualDay() + base;
+    }
+    return Math.max(MIN_ROW_COUNT, Math.min(MAX_ROW_COUNT, target));
+}
+
+// ลาสต์ที่แถวมีข้อมูลจริงครบ (avgSec + pass + fail); 0 = ยังไม่มีผลใดๆ
+function findLastActualDay() {
+    let last = 0;
+    for (let d = 1; d <= getRowCount(); d++) {
+        if (isRowFilled(d)) last = d;
+    }
+    return last;
 }
 
 function buildRow(d) {
@@ -1777,6 +1792,9 @@ function deleteRowData(d) {
             calculateAdaptiveGoals();
             updateAutoTargetDay();
             saveStateToStorage();
+            // QCO: anchor อาจถอย (แถวผลจริงล่าสุดถูกลบ) — ปรับตารางตาม
+            const desired = getTargetRowCount();
+            if (desired !== getRowCount()) resizeTable(desired);
 
             // ถ้ากราฟเปิดอยู่ ให้รี draw ทันที (กรณีกดลบจากในกราฟ)
             const chartModal = document.getElementById('chartModal');
@@ -1832,7 +1850,14 @@ function computeForcePlanMode() {
 
 function onTrainerTypeChange() {
     _forcePlanMode = computeForcePlanMode();
-    calculateAdaptiveGoals();
+    // QCO เปลี่ยนความหมายของ trainingDays → ตารางอาจต้องขยาย/หด
+    // resizeTable จะเรียก calculateAdaptiveGoals ให้เอง; ถ้าไม่ต้อง resize ค่อย recalc ตรง
+    const desired = getTargetRowCount();
+    if (desired !== getRowCount()) {
+        resizeTable(desired);
+    } else {
+        calculateAdaptiveGoals();
+    }
     saveStateToStorage();
     if (document.getElementById('chartModal')?.style.display === 'block') {
         showPerformanceChart(true);
@@ -2045,26 +2070,27 @@ function calculateAdaptiveGoals() {
         }
     }
 
-    // อัปเดตคอลัมน์ วัน/ชั่วโมง — ปกติเริ่มนับ 1 ที่แถวถัดจาก 100% แถวแรก
-    // เมื่อเปิด Force Plan และยังไม่มี Q100 → นับตั้งแต่แถว 1 เลย
-    for (let d = 1; d <= getRowCount(); d++) {
-        const dayCell = document.getElementById(`dayCell_${d}`);
-        if (!dayCell) continue;
-        if (firstDayQ100 > 0 && d > firstDayQ100) {
-            dayCell.textContent = (d - firstDayQ100);
-        } else if (firstDayQ100 === 0 && _forcePlanMode) {
-            dayCell.textContent = d;
-        } else {
-            dayCell.textContent = "";
-        }
-    }
-
     let lastActualEff = 0, lastActualDay = 0;
     for (let d = 1; d <= getRowCount(); d++) {
         let effStr = document.getElementById(`resEffPerc_${d}`).value;
         if (effStr && effStr !== "") {
             lastActualEff = parseFloat(effStr);
             lastActualDay = d;
+        }
+    }
+
+    // อัปเดตคอลัมน์ วัน/ชั่วโมง
+    // CSA (ปกติ): เริ่มนับ 1 ที่แถวถัดจาก Q100 แถวแรก
+    // QCO (force): เริ่มนับ 1 ที่แถวถัดจาก anchor (แถวผลจริงล่าสุด)
+    for (let d = 1; d <= getRowCount(); d++) {
+        const dayCell = document.getElementById(`dayCell_${d}`);
+        if (!dayCell) continue;
+        if (firstDayQ100 > 0 && d > firstDayQ100) {
+            dayCell.textContent = (d - firstDayQ100);
+        } else if (_forcePlanMode && firstDayQ100 === 0 && d > lastActualDay) {
+            dayCell.textContent = (d - lastActualDay);
+        } else {
+            dayCell.textContent = "";
         }
     }
 
@@ -2103,14 +2129,18 @@ function calculateAdaptiveGoals() {
             let showTarget = false;
 
             const curveModel = document.getElementById('curveModel')?.value || '';
-            // ปกติต้องมี Q100 ก่อนแผนถึงจะขึ้น; ถ้าเปิด Force Plan → ข้าม gate นั้น
-            // effectiveQ100 = 0 เมื่อบังคับ (ทุกแถว 1..trainDays ได้ target)
+            // ปกติต้องมี Q100 ก่อนแผนถึงจะขึ้น; ถ้าเปิด Force Plan (QCO) → ข้าม gate นั้น
             const effectiveQ100 = firstDayQ100 > 0 ? firstDayQ100 : 0;
             const planGateOpen = firstDayQ100 > 0 || _forcePlanMode;
-            if (curveModel && planGateOpen && d > effectiveQ100 && d <= trainDays) {
+            // QCO (force): trainingDays = จำนวนวัน "หลัง" anchor → เพดานแผน = anchor + trainDays
+            // CSA: trainingDays = ระยะรวมทั้งหมด → เพดานแผน = trainDays (เดิม)
+            const planUpperBound = _forcePlanMode ? (anchorDay + trainDays) : trainDays;
+            if (curveModel && planGateOpen && d > effectiveQ100 && d <= planUpperBound) {
                 showTarget = true;
 
-                const remainingDays = trainDays - anchorDay;
+                // QCO: remainingDays = trainDays เต็ม (นับใหม่จากศูนย์)
+                // CSA: remainingDays = trainDays − anchorDay (แชร์เพดานเดิม)
+                const remainingDays = _forcePlanMode ? trainDays : (trainDays - anchorDay);
                 if (remainingDays > 0) {
 
                     const deltaDay = d - anchorDay;
@@ -2158,6 +2188,7 @@ function calculateAdaptiveGoals() {
     refreshRowLocks();
     updatePlanButtons();
     updateRaceTrack();
+
 }
 
 // Green when the actual beats the target, red when it misses, no class (default
@@ -2222,8 +2253,13 @@ function manualCalculate(d) {
     } else {
         document.getElementById(`resQRates_${d}`).value = "";
     }
-    
+
     calculateAdaptiveGoals();
+
+    // QCO: จำนวนแถวขึ้นกับ anchor (แถวผลจริงล่าสุด) — anchor เพิ่งขยับ จึงต้อง sync ตาราง
+    // เรียก resize เฉพาะจุดที่ข้อมูลลงจริงแล้ว (ไม่ใช่ระหว่าง user พิมพ์ trainingDays)
+    const desired = getTargetRowCount();
+    if (desired !== getRowCount()) resizeTable(desired);
 }
 
 // ==================== Timer Functions ====================
