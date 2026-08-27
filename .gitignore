@@ -1,1 +1,24 @@
+# Local docs / notes
 CLAUDE.md
+
+# Editor / IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS junk
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs / temp / backups
+*.log
+*.tmp
+*.bak
+*.swp
+*~
+
+# Node (defensive — this project has no build step)
+node_modules/
+package-lock.json
