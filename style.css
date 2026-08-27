@@ -561,6 +561,10 @@ button, a, [role="button"], input[type="button"], input[type="submit"]{
 }
 .btn-toggle-labels:hover{background:var(--surface-2); color:var(--ink); border-color:var(--border-strong)}
 .btn-toggle-labels-text{font-size:var(--t-label)}
+.btn-toggle-labels.is-on{
+  background:var(--accent, #f59e0b); color:#fff; border-color:transparent;
+}
+.btn-toggle-labels.is-on:hover{filter:brightness(.95); color:#fff; border-color:transparent}
 
 /* 4-field toolbar: Model (widest, has long labels) · Eff (short) ·
    Duration (num + unit select) · SAM (num / num). Widths are proportioned
@@ -669,10 +673,14 @@ footer hr{
   .chart-param-model{grid-column:span 2}
 }
 
-/* Tablet (portrait, ~iPad) ── */
+/* Tablet (portrait, ~iPad ≈ 810px) ── */
 @media (max-width:900px){
+  /* 9 fields in a 2-col grid would leave an empty gray cell (visible because
+     .form-header uses 1px gap on --border bg). Span the last field (curve
+     model) full-width so every grid slot is occupied. */
   .form-header{grid-template-columns:repeat(2, 1fr)}
-  .report-container{padding:var(--sp-4) var(--sp-3) 48px; gap:var(--sp-3)}
+  .form-header > .field:last-child{grid-column:1 / -1}
+  .report-container{padding:var(--sp-4) var(--sp-4) 48px; gap:var(--sp-3)}
   .stopwatch-bar{padding:var(--sp-3)}
   .modal-content{max-width:min(720px, 95vw); padding:var(--sp-5)}
   .chart-modal-content{max-width:96vw; padding:var(--sp-4)}
@@ -683,7 +691,6 @@ footer hr{
   .report-title{font-size:16px}
   .system-controls{gap:var(--sp-1); flex-wrap:wrap; justify-content:flex-end}
   .report-header-wrapper{gap:var(--sp-2)}
-  .form-header{grid-template-columns:1fr}
   .quick-entry-grid{grid-template-columns:1fr}
   .timer-display{min-width:96px; font-size:18px}
   .action-buttons-group .btn{width:36px}
@@ -697,6 +704,14 @@ footer hr{
   #formulaModal .modal-content{padding:var(--sp-4)}
   .formula-modal-title{font-size:15px}
   .curve-picker-grid{grid-template-columns:1fr}
+}
+
+/* Phone-sized 1-col form ── kept separate so the 2-col tablet layout above
+   survives at iPad-portrait widths (~810px) — going to 1 col there wasted
+   space and stacked everything into a very long form. */
+@media (max-width:540px){
+  .form-header{grid-template-columns:1fr}
+  .form-header > .field:last-child{grid-column:auto}
 }
 
 /* Phone ── */

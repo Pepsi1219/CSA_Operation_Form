@@ -17,7 +17,8 @@ const translations = {
         lblEmpCode: "รหัสพนักงาน",
         lblTargets: "เป้าหมาย (Eff % / Q'ty ชิ้น/ชม.)",
         lblEmployee: "ชื่อพนักงาน",
-        lblTrainer: "ครูฝึก",
+        lblTrainer: "ครูฝึก / ประเภท",
+        phTrainerName: "ชื่อครูฝึก",
         lblSam: "SAM (นาที / วินาที)",
         lblEffTarget: "เป้าหมาย Eff (%)",
         lblQtyTarget: "เป้าหมาย Q'ty (ชิ้น/ชม.)",
@@ -120,6 +121,9 @@ const translations = {
         btnUnitToPct: "แสดงเป็น %",
         btnPlanAdaptive: "แผนปรับตามผลจริง",
         btnPlanFixed: "แผนคงที่ (Q100 → เป้า)",
+        btnForcePlanOff: "สร้างแผนทันที (ข้าม Q100)",
+        btnForcePlanOn: "โหมดสร้างแผนทันทีเปิดอยู่",
+        btnForcePlanTitle: "สร้างแผนทันทีโดยไม่ต้องรอ Pass Rate = 100%",
         chartYAxisPcs: "จำนวน (ชิ้น/ชม.)",
         titleConfirmDeleteRow: "⚠️ ยืนยันการลบข้อมูล",
         msgConfirmDeleteRow: (d) => `คุณต้องการลบข้อมูลของแถวที่ ${d} ทั้งหมดใช่หรือไม่?\nข้อมูลที่ลบแล้วไม่สามารถเรียกคืนได้`,
@@ -142,7 +146,8 @@ const translations = {
         lblEmpCode: "Employee Code",
         lblTargets: "Target (Eff % / Q'ty pcs/hr)",
         lblEmployee: "Employee Name",
-        lblTrainer: "Trainer",
+        lblTrainer: "Trainer / Type",
+        phTrainerName: "Trainer name",
         lblSam: "SAM (min / sec)",
         lblEffTarget: "Eff Target (%)",
         lblQtyTarget: "Q'ty Target (pcs/hr)",
@@ -245,6 +250,9 @@ const translations = {
         btnUnitToPct: "Show as %",
         btnPlanAdaptive: "Adaptive plan (follows actual)",
         btnPlanFixed: "Fixed plan (Q100 → target)",
+        btnForcePlanOff: "Force plan (skip Q100)",
+        btnForcePlanOn: "Force plan is ON",
+        btnForcePlanTitle: "Generate plan immediately without waiting for Pass Rate = 100%",
         chartYAxisPcs: "Quantity (pcs/hr)",
         titleConfirmDeleteRow: "⚠️ Confirm Delete Row",
         msgConfirmDeleteRow: (d) => `Delete all data in row ${d}?\nThis action cannot be undone.`,
@@ -267,7 +275,8 @@ const translations = {
         lblEmpCode: "Mã nhân viên",
         lblTargets: "Mục tiêu (Eff % / Q'ty cái/giờ)",
         lblEmployee: "Tên công nhân",
-        lblTrainer: "Huấn luyện viên",
+        lblTrainer: "Huấn luyện viên / Loại",
+        phTrainerName: "Tên huấn luyện viên",
         lblSam: "SAM (phút / giây)",
         lblEffTarget: "Mục tiêu Eff (%)",
         lblQtyTarget: "Mục tiêu SL (cái/giờ)",
@@ -370,6 +379,9 @@ const translations = {
         btnUnitToPct: "Hiện theo %",
         btnPlanAdaptive: "Kế hoạch thích ứng (theo thực tế)",
         btnPlanFixed: "Kế hoạch cố định (Q100 → mục tiêu)",
+        btnForcePlanOff: "Tạo kế hoạch ngay (bỏ qua Q100)",
+        btnForcePlanOn: "Chế độ tạo kế hoạch ngay đang bật",
+        btnForcePlanTitle: "Tạo kế hoạch ngay không cần chờ Pass Rate = 100%",
         chartYAxisPcs: "Số lượng (cái/giờ)",
         titleConfirmDeleteRow: "⚠️ Xác nhận xóa hàng",
         msgConfirmDeleteRow: (d) => `Xóa toàn bộ dữ liệu ở hàng ${d}?\nDữ liệu đã xóa không thể khôi phục.`,
@@ -392,7 +404,8 @@ const translations = {
         lblEmpCode: "ລະຫັດພະນັກງານ",
         lblTargets: "ເປົ້າໝາຍ (Eff % / Q'ty ຊິ້ນ/ຊົ່ວໂມງ)",
         lblEmployee: "ຊື່ພະນັກງານ",
-        lblTrainer: "ຄູຝຶກ",
+        lblTrainer: "ຄູຝຶກ / ປະເພດ",
+        phTrainerName: "ຊື່ຄູຝຶກ",
         lblSam: "SAM (ນາທີ / ວິນາທີ)",
         lblEffTarget: "ເປົ້າໝາຍ Eff (%)",
         lblQtyTarget: "ເປົ້າໝາຍ Q'ty (ຊິ້ນ/ຊົ່ວໂມງ)",
@@ -495,6 +508,9 @@ const translations = {
         btnUnitToPct: "ສະແດງເປັນ %",
         btnPlanAdaptive: "ແຜນປັບຕາມຜົນຈິງ",
         btnPlanFixed: "ແຜນຄົງທີ່ (Q100 → ເປົ້າ)",
+        btnForcePlanOff: "ສ້າງແຜນທັນທີ (ຂ້າມ Q100)",
+        btnForcePlanOn: "ໂໝດສ້າງແຜນທັນທີເປີດຢູ່",
+        btnForcePlanTitle: "ສ້າງແຜນທັນທີໂດຍບໍ່ຕ້ອງລໍ Pass Rate = 100%",
         chartYAxisPcs: "ຈຳນວນ (ຊິ້ນ/ຊົ່ວໂມງ)",
         titleConfirmDeleteRow: "⚠️ ຢືນຢັນການລຶບຂໍ້ມູນ",
         msgConfirmDeleteRow: (d) => `ທ່ານຕ້ອງການລຶບຂໍ້ມູນຂອງແຖວທີ ${d} ທັງໝົດບໍ?\nຂໍ້ມູນທີ່ລຶບແລ້ວບໍ່ສາມາດເອົາຄືນໄດ້`,
@@ -795,6 +811,10 @@ function changeLanguage(lang) {
     localStorage.setItem('lang', lang);
     applyTranslations();
     updateAllCurveHints();
+    // Refresh dynamic toggle labels that depend on current on/off state
+    if (typeof updateToggleFixedPlanBtn === 'function') updateToggleFixedPlanBtn();
+    if (typeof updateToggleUnitBtn === 'function') updateToggleUnitBtn();
+    if (typeof updateToggleLabelsBtn === 'function') updateToggleLabelsBtn();
 }
 
 // Signature Pad Variables
@@ -942,6 +962,7 @@ document.addEventListener('DOMContentLoaded', function() {
     updateAutoTargetDay();
     applyTranslations();
     updateAllCurveHints();
+    updateToggleFixedPlanBtn();
 
     // Auto-save เมื่อมีการเปลี่ยนแปลง input ใด ๆ (debounce 400ms)
     document.addEventListener('input', scheduleSave);
@@ -1795,6 +1816,29 @@ function updateToggleFixedPlanBtn() {
     }
 }
 
+// ==================== Force Plan Mode (ผูกกับประเภทครูฝึก) ====================
+// ปกติแผนจะสร้างหลังจากมีแถวที่ Pass Rate = 100% (Q100) แล้วเท่านั้น
+// กรณีพิเศษ: ครูฝึกประเภท "QCO" — พอมีข้อมูลแถวแรก (avgSec+pass+fail) ระบบจะข้าม gate นั้น
+// อัตโนมัติ ใช้แถวแรกเป็น anchor แล้ววาดแผนจาก actual → globalEff จนจบ trainingDays
+// (ครูฝึกประเภท "CSA" ทำงานเหมือนเดิม — รอ Q100)
+let _forcePlanMode = false;
+
+function computeForcePlanMode() {
+    const type = document.getElementById('trainerType')?.value || '';
+    if (type !== 'QCO') return false;
+    // เปิด force เฉพาะเมื่อแถวแรกมีข้อมูลครบ (avgSec + pass + fail)
+    return isRowFilled(1);
+}
+
+function onTrainerTypeChange() {
+    _forcePlanMode = computeForcePlanMode();
+    calculateAdaptiveGoals();
+    saveStateToStorage();
+    if (document.getElementById('chartModal')?.style.display === 'block') {
+        showPerformanceChart(true);
+    }
+}
+
 // ==================== Toggle Chart Unit (% ↔ ชิ้น/ชม.) ====================
 let _chartUnit = 'pct'; // 'pct' | 'pcs'
 
@@ -1982,6 +2026,10 @@ function syncSam(source) {
 
 // ==================== Goal Calculation ====================
 function calculateAdaptiveGoals() {
+    // Derive force plan mode from trainer type + row-1 completeness
+    // (QCO trainer + first row filled → skip Q100 gate automatically)
+    _forcePlanMode = computeForcePlanMode();
+
     const globalEff = parseFloat(document.getElementById('globalEffTarget').value) || 0;
     const trainDays = parseInt(document.getElementById('trainingDays').value) || 0;
     const sam = parseFloat(document.getElementById('globalSam').value) || 0;
@@ -1997,11 +2045,18 @@ function calculateAdaptiveGoals() {
         }
     }
 
-    // อัปเดตคอลัมน์ วัน/ชั่วโมง — เริ่มนับ 1 ที่แถวถัดจาก 100% แถวแรก
+    // อัปเดตคอลัมน์ วัน/ชั่วโมง — ปกติเริ่มนับ 1 ที่แถวถัดจาก 100% แถวแรก
+    // เมื่อเปิด Force Plan และยังไม่มี Q100 → นับตั้งแต่แถว 1 เลย
     for (let d = 1; d <= getRowCount(); d++) {
         const dayCell = document.getElementById(`dayCell_${d}`);
         if (!dayCell) continue;
-        dayCell.textContent = (firstDayQ100 > 0 && d > firstDayQ100) ? (d - firstDayQ100) : "";
+        if (firstDayQ100 > 0 && d > firstDayQ100) {
+            dayCell.textContent = (d - firstDayQ100);
+        } else if (firstDayQ100 === 0 && _forcePlanMode) {
+            dayCell.textContent = d;
+        } else {
+            dayCell.textContent = "";
+        }
     }
 
     let lastActualEff = 0, lastActualDay = 0;
@@ -2014,8 +2069,10 @@ function calculateAdaptiveGoals() {
     }
 
     // เลือก anchor ตามโหมด:
-    // - Fixed Plan (ON) → anchor คือวัน Q100 แรก + eff วันนั้น (แผนล็อคไม่ปรับตามผลใหม่)
-    // - Adaptive (OFF, default) → anchor คือวันล่าสุดที่บันทึกผล (แผนปรับตามผลจริง)
+    // - Fixed Plan (ON) + มี Q100 → anchor คือวัน Q100 แรก + eff วันนั้น (แผนล็อค)
+    // - นอกนั้น (Adaptive default หรือ Force Plan) → anchor คือแถวล่าสุดที่บันทึกผล
+    //   ถ้ายังไม่มีผลจริงเลย → (0, 0) ทำให้แผนวาดจากศูนย์ → globalEff
+    //   ถ้ามีผลจริงแล้ว → แผนจะเริ่มจากแถว "ถัดไป" (row ที่ยังว่าง)
     let anchorDay, anchorEff;
     if (_fixedPlanMode && firstDayQ100 > 0) {
         anchorDay = firstDayQ100;
@@ -2035,12 +2092,22 @@ function calculateAdaptiveGoals() {
 
         if (d <= anchorDay) {
             // preserve: วันที่ผ่านมา + anchor day ไม่แตะ target
+            // ยกเว้น Force Plan: เคลียร์ target บนแถวที่มีผลจริงแล้ว
+            // (target 1% ที่ค้างจากตอน anchor ยังเป็น 0 ต้องล้างทิ้ง)
+            if (_forcePlanMode && firstDayQ100 === 0) {
+                targetInput.value = "";
+                targetQtyInput.value = "";
+            }
         } else {
             let targetValue = 0;
             let showTarget = false;
 
             const curveModel = document.getElementById('curveModel')?.value || '';
-            if (curveModel && firstDayQ100 > 0 && d > firstDayQ100 && d <= trainDays) {
+            // ปกติต้องมี Q100 ก่อนแผนถึงจะขึ้น; ถ้าเปิด Force Plan → ข้าม gate นั้น
+            // effectiveQ100 = 0 เมื่อบังคับ (ทุกแถว 1..trainDays ได้ target)
+            const effectiveQ100 = firstDayQ100 > 0 ? firstDayQ100 : 0;
+            const planGateOpen = firstDayQ100 > 0 || _forcePlanMode;
+            if (curveModel && planGateOpen && d > effectiveQ100 && d <= trainDays) {
                 showTarget = true;
 
                 const remainingDays = trainDays - anchorDay;
@@ -2520,6 +2587,7 @@ window.deleteQuickEntry = deleteQuickEntry;
 window.toggleChartLabels = toggleChartLabels;
 window.toggleChartUnit = toggleChartUnit;
 window.toggleFixedPlan = toggleFixedPlan;
+window.onTrainerTypeChange = onTrainerTypeChange;
 window.adjustPlan = adjustPlan;
 window.toggleTimer = toggleTimer;
 window.resetTimer = resetTimer;

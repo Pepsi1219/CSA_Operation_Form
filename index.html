@@ -114,8 +114,16 @@
                 <input type="text" id="header_employee">
             </div>
             <div class="field">
-                <label data-i18n="lblTrainer">ครูฝึก</label>
-                <input type="text" id="header_trainer">
+                <label data-i18n="lblTrainer">ครูฝึก / ประเภท</label>
+                <div class="field-inline">
+                    <input type="text" id="header_trainer" aria-label="ชื่อครูฝึก" data-i18n-placeholder="phTrainerName" placeholder="ชื่อครูฝึก">
+                    <span class="field-inline-sep">/</span>
+                    <select id="trainerType" aria-label="ประเภทครูฝึก" onchange="onTrainerTypeChange()">
+                        <option value="" disabled selected>ประเภท</option>
+                        <option value="CSA">CSA</option>
+                        <option value="QCO">QCO</option>
+                    </select>
+                </div>
             </div>
             <div class="field">
                 <label class="formula-help" data-formula="sam" data-i18n="lblSam" title="คลิกเพื่อดูสูตร">SAM (นาที / วินาที)</label>
